@@ -25,14 +25,14 @@ bool=false
 ## FUNCTIONS ##
 new_logfile () {
     lspci -nnk > /var/log/lscpi.log
-    return /var/log/lspci.log
+    file="/var/log/lspci.log"
 }
 
 find_line () {
     while IFS= read -r line
     do
         echo $line              # DEBUG
-        if [ ${line:8:3} -eq "VGA" ]
+        if [[ ${line:8:3} -eq "VGA" ]]
         then
             PCI_ID=${line:1:5}                  # EXAMPLE: '01:00.0 VGA'    => '01:00.0'
             echo "$PCI_ID"      # DEBUG
@@ -43,24 +43,24 @@ find_line () {
             newPCI_ID=${sub2:1:6}               # EXAMPLE: '01:0:0'         => '1:0:0'
             echo "$newPCI_ID"   # DEBUG
         fi
-        if [ ${line:0:22}="Kernel driver in use: " ]
+        if [[ ${line:0:22}="Kernel driver in use: " ]]
         then
             n=${#line}-21
             kernel_driver=${line:21:n}
             echo $kernel_driver # DEBUG
-            if [ $kernel_driver -ne "vfio-pci" ]
+            if [[ $kernel_driver -ne "vfio-pci" ]]
             then
                 ((bool=true))
                 break
             fi
         fi
-    done
+    done < $file
 }
 
 setup_xorg() {
     echo "'/etc/X11/xorg.conf.d/': set all VGA kernel driver files to NOT readable (0200)."
     chmod 200 /etc/X11/xorg.conf.d/10-*.conf    # set all XORG conf's of VGA kernel drivers to NOT readable.
-    if [ -f "/etc/X11/xorg.conf.d/10-$kernel_driver" ] # check if current VGA kernel driver's XORG conf exists.
+    if [[ -f "/etc/X11/xorg.conf.d/10-$kernel_driver" ]] # check if current VGA kernel driver's XORG conf exists.
     then
         echo "'/etc/X11/xorg.conf.d/10-$kernel_driver': file exists."
         else    # if NOT, create one.
@@ -89,7 +89,7 @@ restart_dm () {
 ## MAIN ##
 new_logfile ()
 find_line ()
-if [ bool ]
+if $bool
 then
     setup_xorg ()
 fi
