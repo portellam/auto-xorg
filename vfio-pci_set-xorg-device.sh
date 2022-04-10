@@ -83,7 +83,7 @@ restart_dm () {
 
 ## MAIN ##
 new_logfile ()
-#find_line ()
+find_line ()
 #restart_dm ()
 rm $file
 exit 0
