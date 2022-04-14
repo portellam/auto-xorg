@@ -1,8 +1,8 @@
 #!/bin/bash
 
+# NOTE: run as 'sudo bash script.sh'
+
 ## FUNCTION ##
-# NOTES:
-# -script is NOT working at the moment!
 #
 # DESCRIPTION:
 # -function sets current xorg display device by finding the first VGA device WITHOUT the kernel driver 'vfio-pci'.
@@ -12,88 +12,103 @@
 # -save logfile of lspci
 # -read from lspci logfile
 # -save output from two lines, first line and third line.
-# -if current line begins with an IOMMU ID... (example: '01:00.0 VGA compatible controller'...), then set counter integer to 0 and begin increments.
-# -check first line PCI is VGA (example: '01:00.0 VGA compatible controller'...), then save IOMMU ID (example: '01:00.0'), and continue to third line.
-# -check third line for kernel driver (example: 'Kernel driver in use: vfio-pci'), if NOT 'vfio-pci', then save kernel driver, and exit.
-# OPTIONAL: -restart display manager
+# -check first line PCI is VGA (EXAMPLE: '01:00.0 VGA compatible controller'...), then save IOMMU ID (example: '01:00.0'), and continue to third line.
+# -check third line for kernel driver (EXAMPLE: 'Kernel driver in use: vfio-pci'). If 'vfio-pci' save as commented file. If a valid driver, save as file.
 # -delete logfile
+#
 ##
 
 ## PARAMETERS ##
-bool=false
+boolDrv=false
+boolVfio=false
 
 ## FUNCTIONS ##
-new_logfile () {
+#function new_logfile {
+    #lspci -nnk > /var/log/lscpi.log
+    #strFile="/var/log/lspci.log"
+#}
+
+function find_line {
     lspci -nnk > /var/log/lscpi.log
-    file="/var/log/lspci.log"
-}
-
-find_line () {
-    while IFS= read -r line
+    strFile="/var/log/lspci.log"
+    while IFS= read -r strLine
     do
-        echo $line              # DEBUG
-        if [[ ${line:8:3} -eq "VGA" ]]
+        echo $strLine                                                   # DEBUG
+        if [[ ${strLine:8:3} -eq "VGA" ]]
         then
-            PCI_ID=${line:1:5}                  # EXAMPLE: '01:00.0 VGA'    => '01:00.0'
-            echo "$PCI_ID"      # DEBUG
-            sub1=${PCI_ID:5:2}+:${PCI_ID:6:1}   # EXAMPLE: '01:00.0'        => '01:00:0'
-            echo "$sub1"        # DEBUG
-            sub2=${sub1:0:3}+${sub2:4:3}        # EXAMPLE: '01:00:0'        => '01:0:0'
-            echo "$sub2"        # DEBUG
-            newPCI_ID=${sub2:1:6}               # EXAMPLE: '01:0:0'         => '1:0:0'
-            echo "$newPCI_ID"   # DEBUG
+            strPciID=${strLine:1:5}                                     # EXAMPLE: '01:00.0 VGA'    => '01:00.0'
+            strSub1=${strPciID:5:2}+:${strPciID:6:1}                    # EXAMPLE: '01:00.0'        => '01:00:0'
+            #echo "$strSub1"                                             # DEBUG
+            strSub2=${strSub1:0:3}+${strSub2:4:3}                       # EXAMPLE: '01:00:0'        => '01:0:0'
+            #echo "$strSub2"                                             # DEBUG
+            strNewPciID=${strSub2:1:6}                                  # EXAMPLE: '01:0:0'         => '1:0:0'
+            #echo "$strNewPciID"                                         # DEBUG
+        else
+            echo "Line 1: False match. Skipping."
         fi
-        if [[ ${line:0:22}="Kernel driver in use: " ]]
+        if [[ ${strLine:0:22}="Kernel driver in use: " ]]
         then
-            n=${#line}-21
-            kernel_driver=${line:21:n}
-            echo $kernel_driver # DEBUG
-            if [[ $kernel_driver -ne "vfio-pci" ]]
+            n=${#strLine}-21
+            strDrv=${strLine:21:n}
+            echo $strDrv # DEBUG
+            if [[ $strDrv -ne "vfio-pci" ]]
             then
-                ((bool=true))
+                ((boolVfio=true))
+                ((boolDrv=false))
                 break
+            else
+                ((boolDrv=true))
+                ((boolVfio=false))
             fi
+        else
+            echo "Line 3: False match. Skipping."
         fi
-    done < $file
+    done < $strFile
 }
 
-setup_xorg() {
-    echo "'/etc/X11/xorg.conf.d/': set all VGA kernel driver files to NOT readable (0200)."
-    chmod 200 /etc/X11/xorg.conf.d/10-*.conf    # set all XORG conf's of VGA kernel drivers to NOT readable.
-    if [[ -f "/etc/X11/xorg.conf.d/10-$kernel_driver" ]] # check if current VGA kernel driver's XORG conf exists.
+function setup_xorg {
+    if [[ $boolDrv || $boolVfio ]]
     then
-        echo "'/etc/X11/xorg.conf.d/10-$kernel_driver': file exists."
-        else    # if NOT, create one.
-        echo "'/etc/X11/xorg.conf.d/10-$kernel_driver': file does NOT exist. Creating file..."
-        cat > /etc/X11/xorg.conf.d/10-$kernel_driver.conf < EOF
+        if $boolDrv
+        then
+            cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: nouveau"
 Section "Device"
 Identifier     "Device0"
-Driver         "$kernel_driver"
-BusID          "PCI:$PCI_ID"
+Driver         "$strDrv"
+BusID          "PCI:$strPciID"
 EndSection
 EOF
+        fi
+        if $boolVfio
+        then
+            cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: vfio-pci"
+#Section "Device"
+#Identifier     "Device0"
+#Driver         "$strDrv"
+#BusID          "PCI:$strPciID"
+#EndSection
+#EOF
+        fi
     fi
-    echo "'/etc/X11/xorg.conf.d/10-$kernel_driver': set file to readable (0644)."   # then set to executable.
-    chmod 644 /etc/X11/xorg.conf.d/10-$kernel_driver.conf
+    # reset booleans.
+    ((boolDrv=false))
+    ((boolVfio=false))
 }
 
-restart_dm () {
-    cat /etc/X11/default-display-manager > $line # find primary display manager
-    echo $line  # DEBUG
-    dm=${line:8:(${#line}-9)}
-    echo $dm    # DEBUG
-    systemctl restart $dm # restart display manager
+function restart_dm {
+    cat /etc/X11/default-display-manager > $strLine                     # find primary display manager
+    echo $strLine                                                       # DEBUG
+    strDM=${strLine:8:(${#strLine}-9)}
+    echo $strDM                                                         # DEBUG
+    systemctl restart $strDM                                            # restart display manager
 }
 ##
 
 ## MAIN ##
-new_logfile ()
-find_line ()
-if $bool
-then
-    setup_xorg ()
-fi
-#restart_dm ()
-rm $file
+#new_logfile
+find_line
+setup_xorg
+#restart_dm
+#rm $strFile
 exit 0
 ##
