@@ -18,22 +18,27 @@
 #
 ##
 
-## PARAMETERS ##
+## INIT ##
+rm -rf /etc/X11/xorg.conf.d/10-*.conf
+boolLoop=true
 boolDrv=false
 boolVfio=false
 
 ## FUNCTIONS ##
-#function new_logfile {
-    #lspci -nnk > /var/log/lscpi.log
-    #strFile="/var/log/lspci.log"
-#}
-
-function find_line {
+function new_logfile {
     lspci -nnk > /var/log/lscpi.log
     strFile="/var/log/lspci.log"
+}
+
+function find_line {
     while IFS= read -r strLine
     do
-        echo $strLine                                                   # DEBUG
+        #echo $strLine                                                   # DEBUG
+        if [[ strLine -eq null ]]
+            echo "'$strFile': End of file."
+            ((boolLoop=false))
+            break
+        fi
         if [[ ${strLine:8:3} -eq "VGA" ]]
         then
             strPciID=${strLine:1:5}                                     # EXAMPLE: '01:00.0 VGA'    => '01:00.0'
@@ -79,16 +84,19 @@ BusID          "PCI:$strPciID"
 EndSection
 EOF
         fi
-        if $boolVfio
-        then
-            cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: vfio-pci"
+        # NOTE: not usable #
+        #
+        #if $boolVfio
+        #then
+            #cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: vfio-pci"
 #Section "Device"
 #Identifier     "Device0"
 #Driver         "$strDrv"
 #BusID          "PCI:$strPciID"
 #EndSection
 #EOF
-        fi
+        #fi
+        #
     fi
     # reset booleans.
     ((boolDrv=false))
@@ -97,17 +105,20 @@ EOF
 
 function restart_dm {
     cat /etc/X11/default-display-manager > $strLine                     # find primary display manager
-    echo $strLine                                                       # DEBUG
+    #echo $strLine                                                       # DEBUG
     strDM=${strLine:8:(${#strLine}-9)}
-    echo $strDM                                                         # DEBUG
+    #echo $strDM                                                         # DEBUG
     systemctl restart $strDM                                            # restart display manager
 }
 ##
 
 ## MAIN ##
-#new_logfile
-find_line
-setup_xorg
+new_logfile
+while $boolLoop
+do
+    find_line
+    setup_xorg
+done
 #restart_dm
 #rm $strFile
 exit 0
