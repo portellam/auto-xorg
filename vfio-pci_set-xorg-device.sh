@@ -93,10 +93,10 @@ function restartDM {
 ##
 
 ## MAIN ##
-newLogFile()
-findLine()
-setupXorg()
-#restartDM()
+newLogFile ()
+findLine ()
+setupXorg ()
+#restartDM ()
 #rm $strFile
 exit 0
 ##
