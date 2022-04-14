@@ -1,4 +1,4 @@
-# vfio-pci_host-xorg-device
+# vfio-xorg-vga
 TL;DR:
 
   Script runs at boot, finds first VGA device with proper driver active and runs xorg from said device. See README.
