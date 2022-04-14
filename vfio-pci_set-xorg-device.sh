@@ -20,7 +20,6 @@
 
 ## INIT ##
 rm -rf /etc/X11/xorg.conf.d/10-*.conf
-boolLoop=true
 boolDrv=false
 boolVGA=false
 
@@ -37,7 +36,6 @@ function findLine {
         if [[ -z $strLine ]]
         then
             echo "'$strFile': End of file."
-            ((boolLoop=false))
             break
         fi
         if [[ ! $boolVGA && ${strLine:8:3}="VGA" ]]
@@ -83,7 +81,6 @@ EndSection
 EOF
     fi
     echo "'$strDrv': End of file."
-    ((boolLoop=false))
 }
 
 function restartDM {
@@ -97,11 +94,8 @@ function restartDM {
 
 ## MAIN ##
 newLogFile()
-while $boolLoop
-do
-    findLine()
-    setupXorg()
-done
+findLine()
+setupXorg()
 #restartDM()
 #rm $strFile
 exit 0
