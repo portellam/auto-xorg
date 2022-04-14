@@ -22,48 +22,48 @@
 rm -rf /etc/X11/xorg.conf.d/10-*.conf
 boolLoop=true
 boolDrv=false
-boolVfio=false
+boolVGA=false
 
 ## FUNCTIONS ##
-function new_logfile {
+function newLogFile {
     lspci -nnk > /var/log/lscpi.log
     strFile="/var/log/lspci.log"
 }
 
-function find_line {
+function findLine {
     while IFS= read -r strLine
     do
-        #echo $strLine                                                   # DEBUG
-        if [[ strLine -eq null ]]
+        echo "Line 1: strLine: '$strLine'"                              # DEBUG
+        if [[ -z $strLine ]]
+        then
             echo "'$strFile': End of file."
             ((boolLoop=false))
             break
         fi
-        if [[ ${strLine:8:3} -eq "VGA" ]]
+        if [[ ! $boolVGA && ${strLine:8:3}="VGA" ]]
         then
             strPciID=${strLine:1:5}                                     # EXAMPLE: '01:00.0 VGA'    => '01:00.0'
             strSub1=${strPciID:5:2}+:${strPciID:6:1}                    # EXAMPLE: '01:00.0'        => '01:00:0'
-            #echo "$strSub1"                                             # DEBUG
             strSub2=${strSub1:0:3}+${strSub2:4:3}                       # EXAMPLE: '01:00:0'        => '01:0:0'
-            #echo "$strSub2"                                             # DEBUG
             strNewPciID=${strSub2:1:6}                                  # EXAMPLE: '01:0:0'         => '1:0:0'
-            #echo "$strNewPciID"                                         # DEBUG
+            echo "Line 1: {strLine:8:3}: '${strLine:8:3}'"              # DEBUG
+            echo "Line 1: strSub1: '$strSub1'"                          # DEBUG
+            echo "Line 1: strSub2: '$strSub2'"                          # DEBUG
+            echo "Line 1: strNewPciID: '$strNewPciID'"                  # DEBUG
+            ((boolVGA=true))
         else
             echo "Line 1: False match. Skipping."
         fi
-        if [[ ${strLine:0:22}="Kernel driver in use: " ]]
+        if [[ $boolVGA && ${strLine:0:23}="Kernel driver in use: " ]]
         then
-            n=${#strLine}-21
-            strDrv=${strLine:21:n}
-            echo $strDrv # DEBUG
+            echo "Line 3: ${strLine:0:23}: '${strLine:0:23}'"           # DEBUG
+            n=${#strLine}-23
+            strDrv=${strLine:23:n}
             if [[ $strDrv -ne "vfio-pci" ]]
             then
-                ((boolVfio=true))
-                ((boolDrv=false))
-                break
-            else
                 ((boolDrv=true))
-                ((boolVfio=false))
+                echo "Driver found: '$strDrv'"                          # DEBUG
+                break
             fi
         else
             echo "Line 3: False match. Skipping."
@@ -71,55 +71,38 @@ function find_line {
     done < $strFile
 }
 
-function setup_xorg {
-    if [[ $boolDrv || $boolVfio ]]
+function setupXorg {
+    if $boolDrv
     then
-        if $boolDrv
-        then
-            cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: nouveau"
+        cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: nouveau"
 Section "Device"
 Identifier     "Device0"
 Driver         "$strDrv"
 BusID          "PCI:$strPciID"
 EndSection
 EOF
-        fi
-        # NOTE: not usable #
-        #
-        #if $boolVfio
-        #then
-            #cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: vfio-pci"
-#Section "Device"
-#Identifier     "Device0"
-#Driver         "$strDrv"
-#BusID          "PCI:$strPciID"
-#EndSection
-#EOF
-        #fi
-        #
     fi
-    # reset booleans.
-    ((boolDrv=false))
-    ((boolVfio=false))
+    echo "'$strDrv': End of file."
+    ((boolLoop=false))
 }
 
-function restart_dm {
+function restartDM {
     cat /etc/X11/default-display-manager > $strLine                     # find primary display manager
-    #echo $strLine                                                       # DEBUG
+    echo "'/etc/X11/default-display-manager': strLine: '$strLine'"      # DEBUG
     strDM=${strLine:8:(${#strLine}-9)}
-    #echo $strDM                                                         # DEBUG
+    echo "strDM: '$strDM'"                                              # DEBUG
     systemctl restart $strDM                                            # restart display manager
 }
 ##
 
 ## MAIN ##
-new_logfile
+newLogFile()
 while $boolLoop
 do
-    find_line
-    setup_xorg
+    findLine()
+    setupXorg()
 done
-#restart_dm
+#restartDM()
 #rm $strFile
 exit 0
 ##
