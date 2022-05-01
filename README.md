@@ -2,7 +2,7 @@
 # Xorg-vfio-pci
 TL;DR:
 
-  Script runs at boot, finds first **VGA device without vfio-pci** kernel driver. Creates an Xorg file (example: "/etc/X11/xorg.conf.d/10-nvidia-pci1_0_0.conf") with the VGA device's **PCI bus ID** and **PCI kernel driver**. Prior to creation of the Xorg file, all other files with the same filename ("/etc/X11/xorg.conf.d/10-**kernel_driver**.conf") will be deleted.
+  Runs at boot. Finds first **VGA device without vfio-pci** kernel driver. Creates an Xorg file (example: "/etc/X11/xorg.conf.d/10-nvidia-pci1_0_0.conf") with the VGA device's **PCI bus ID** and **PCI kernel driver**. Prior to creation of the Xorg file, all other files with the same filename ("/etc/X11/xorg.conf.d/10-**kernel_driver**.conf") will be deleted.
 
 Why?
 
