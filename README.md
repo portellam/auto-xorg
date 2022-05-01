@@ -7,3 +7,7 @@ TL;DR:
 Why?
 
   **I want to use this.** My goal is to use multiple GRUB boot options with custom command-lines (including vfio-pci), of each device to passthrough. Each GRUB boot option will have a **different VGA device that is NOT grabbed by vfio-pci**. Does this make sense?
+  
+TO-DO:
+* test!
+* allow script to run at boot, example: Systemd service
