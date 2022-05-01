@@ -1,102 +1,183 @@
 #!/bin/bash
 
-# NOTE: run as 'sudo bash script.sh'
+## METHODS start ##
 
-## FUNCTION ##
-#
-# DESCRIPTION:
-# -function sets current xorg display device by finding the first VGA device WITHOUT the kernel driver 'vfio-pci'.
-# -function is to be run (at boot) by root or sudo.
-#
-# STEPS:
-# -save logfile of lspci
-# -read from lspci logfile
-# -save output from two lines, first line and third line.
-# -check first line PCI is VGA (EXAMPLE: '01:00.0 VGA compatible controller'...), then save IOMMU ID (example: '01:00.0'), and continue to third line.
-# -check third line for kernel driver (EXAMPLE: 'Kernel driver in use: vfio-pci'). If 'vfio-pci' save as commented file. If a valid driver, save as file.
-# -delete logfile
-#
-##
+function 0A_FindVGA {
 
-## INIT ##
-rm -rf /etc/X11/xorg.conf.d/10-*.conf
-boolDrv=false
-boolVGA=false
+    echo "PCI: Start."
 
-## FUNCTIONS ##
-function newLogFile {
-    lspci -nnk > /var/log/lscpi.log
-    strFile="/var/log/lspci.log"
-}
+    # PARAMETERS
+    str_first_PCIbusID="01.00.0"
+    str_PCI_type=""
+    bool_beginParse=false
 
-function findLine {
-    while IFS= read -r strLine
-    do
-        echo "Line 1: strLine: '$strLine'"                              # DEBUG
-        if [[ -z $strLine ]]
-        then
-            echo "'$strFile': End of file."
-            break
-        fi
-        if [[ ! $boolVGA && ${strLine:8:3}="VGA" ]]
-        then
-            strPciID=${strLine:1:5}                                     # EXAMPLE: '01:00.0 VGA'    => '01:00.0'
-            strSub1=${strPciID:5:2}+:${strPciID:6:1}                    # EXAMPLE: '01:00.0'        => '01:00:0'
-            strSub2=${strSub1:0:3}+${strSub2:4:3}                       # EXAMPLE: '01:00:0'        => '01:0:0'
-            strNewPciID=${strSub2:1:6}                                  # EXAMPLE: '01:0:0'         => '1:0:0'
-            echo "Line 1: {strLine:8:3}: '${strLine:8:3}'"              # DEBUG
-            echo "Line 1: strSub1: '$strSub1'"                          # DEBUG
-            echo "Line 1: strSub2: '$strSub2'"                          # DEBUG
-            echo "Line 1: strNewPciID: '$strNewPciID'"                  # DEBUG
-            ((boolVGA=true))
-        else
-            echo "Line 1: False match. Skipping."
-        fi
-        if [[ $boolVGA && ${strLine:0:23}="Kernel driver in use: " ]]
-        then
-            echo "Line 3: ${strLine:0:23}: '${strLine:0:23}'"           # DEBUG
-            n=${#strLine}-23
-            strDrv=${strLine:23:n}
-            if [[ $strDrv -ne "vfio-pci" ]]
-            then
-                ((boolDrv=true))
-                echo "Driver found: '$strDrv'"                          # DEBUG
-                break
-            fi
-        else
-            echo "Line 3: False match. Skipping."
-        fi
-    done < $strFile
-}
+    # CREATE LOG FILE
+    str_file="/var/log/lspci.log"
 
-function setupXorg {
-    if $boolDrv
-    then
-        cat > /etc/X11/xorg.conf.d/10-$strDrv.conf < EOF            # EXAMPLE: "Kernel driver in use: nouveau"
-Section "Device"
-Identifier     "Device0"
-Driver         "$strDrv"
-BusID          "PCI:$strPciID"
-EndSection
-EOF
+    if [ -e $str_file ] ; then
+        rm $str_file
     fi
-    echo "'$strDrv': End of file."
+    lspci -nnk > $str_file
+
+    # CREATE DEBUG LOG FILE
+    cd /home/user
+    str_file2="lspci.log.txt"
+    if [ -e $str_file2 ] ; then
+        rm $str_file2
+    fi
+    lspci -nnk > $str_file2
+    
+    # PARSE LOG FILE
+    while read str_line; do
+
+        # PARAMETERS
+        str_PCIbusID=(${str_line:0:7})    # EXAMPLE: "01:00.0"
+        #echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+        
+        # RUN ONCE: ASSUME CURRENT LINE IS LINE ONE, IF PCI BUS ID IS FIRST PCI CARD, AND BOOL IS FALSE
+        if [[ $str_PCIbusID=$str_first_PCIbusID && $bool_beginParse=false ]]; then
+                    
+            # EXIT STATEMENT, AND NEVER RUN AGAIN
+            bool_beginParse=true
+            
+        fi
+        
+        # GRAB PCI TYPE # EXAMPLE: "VGA" "Audio" "USB" etc.
+        # SUBSTRING RANGE IS FIRST CHAR OF PCI TYPE WITH LENGTH OF ARBITRARY INTEGER
+        str_PCI_type=$(echo ${str_line:8:50} | cut -d " " -f1)    # EXAMPLE: "VGA compatible controller..."
+        #echo "PCI: str_PCI_type: \"$str_PCI_type\""
+        
+        
+        if $bool_beginParse; then
+        
+            # IGNORED LINES
+            if [[ $str_line=*'DeviceName: '* || $str_line=*'Subsystem: '* || $str_line=*'Kernel modules: '* ]]; then
+        
+                echo "PCI: No match found."
+            
+            # FIND KERNEL DRIVER
+            else if [[ $str_line=*'Kernel driver in use: '* ]]; then
+        
+                    echo "PCI: Kernel driver: Found device."
+                
+                    # IF DEVICE IS VGA, AND FIRST VGA DEVICE IS NOT FOUND...
+                    if [[ $str_PCI_type="VGA" ]]; then
+        
+                        echo "PCI: Kernel driver: Found VGA device."
+                    
+                        int_n=${#str_line}-22
+                        str_PCIdriver=${str_line:22:$int_n}
+                
+                        # IF NOT GRABBED BY VFIO-PCI...
+                        if [[ $str_PCIdriver -ne "vfio-pci" ]]; then
+                         
+                            # SAVE STRINGS FOR XORG FILE
+                            str_firstVGA_PCIbusID=$str_PCIbusID
+                            str_firstVGA_PCIdriver=$str_PCIdriver
+                        
+                            # DEBUG
+                            echo "PCI: PCI Bus ID: '$str_firstVGA_PCIbusID'"    # DEBUG
+                            echo "PCI: PCI driver: '$str_firstVGA_PCIdriver'"   # DEBUG
+                    
+                            # EXIT FUNCTION
+                            break
+                
+                        fi
+                
+                        # DEBUG
+                        echo "PCI: PCI Bus ID: '$str_PCIbusID'"     # DEBUG
+                        echo "PCI: PCI driver: '$str_PCIdriver'"    # DEBUG
+                
+                    fi
+                 
+                else
+                
+                    # FIND PCI BUS ID
+                    # TODO: FIND PCI HW ID, eight-char in two brackets, second set of brackets
+                    if [[ ${str_line:8:3}="VGA" ]]; then
+            
+                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                        str_PCIbusID="${str_line:1:5}"                          # EXPECT: '01:00.0'
+                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                        str_PCIbusID="${str_PCIbusID:5:2}:${str_PCIbusID:6:1}"  # EXPECT: '01:00:0'
+                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                        str_PCIbusID="${str_PCIbusID:0:3}${str_PCIbusID:4:3}"   # EXPECT: '01:0:0'
+                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                        str_PCIbusID="${str_PCIbusID:1:6}"                      # EXPECT: '1:0:0'
+                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+        
+                    fi
+                
+                fi
+                
+            fi
+        
+        fi
+    
+    done < $str_file
+
+    # CLEAR LOG FILE
+    rm $str_file
+    
+    echo "PCI: End."
+
 }
 
-function restartDM {
-    cat /etc/X11/default-display-manager > $strLine                     # find primary display manager
-    echo "'/etc/X11/default-display-manager': strLine: '$strLine'"      # DEBUG
-    strDM=${strLine:8:(${#strLine}-9)}
-    echo "strDM: '$strDM'"                                              # DEBUG
-    systemctl restart $strDM                                            # restart display manager
-}
-##
+function 0B_Xorg {
 
-## MAIN ##
-newLogFile ()
-findLine ()
-setupXorg ()
-#restartDM ()
-#rm $strFile
+    echo "Xorg: Start."
+
+    # SET WORKING DIRECTORY
+    str_dir="/etc/X11/xorg.conf.d/"
+
+    # SET FILE
+    str_file=$str_dir'10-'$str_firstVGA_PCIdriver'.conf'
+    
+    # CLEAR FILES
+    rm $str_dir'10-'*
+    
+    # PARAMETERS
+    declare -a arr_Xorg=(
+"Section "Device"
+Identifier     "Device0"
+Driver         "$str_firstVGA_PCIbusID"
+BusID          "PCI:$str_firstVGA_PCIdriver"
+EndSection
+"
+)
+
+    int_line=${#arr_sources[@]}
+    for (( int_index=0; int_index<$int_line; int_index++ )); do
+        str_line=${arr_Xorg[$int_index]}
+        echo $str_line >> $str_file
+    done
+
+    # FIND PRIMARY DISPLAY MANAGER
+    #$str_line=$(cat /etc/X11/default-display-manager)
+    #str_DM=${str_line:8:(${#str_line}-9)}
+
+    # RESTART DM
+    #systemctl restart $str_DM
+
+    echo "Xorg: End."
+
+}
+
+## METHODS end ##
+
+## MAIN start ##
+
+echo "MAIN: Start."
+
+# PARAMETERS #
+str_line_PCI_type=""
+
+# METHODS #
+0A_FindVGA
+#0B_Xorg
+
+echo "MAIN: End."
+
+## MAIN end ##
+
 exit 0
-##
