@@ -1,9 +1,9 @@
-# WIP
-# vfio-xorg-vga
+# Work-in-progress
+# Xorg-vfio-pci
 TL;DR:
 
-  Script runs at boot, finds first VGA device with proper driver active and runs xorg from said device. See README.
+  Script runs at boot, finds first **VGA device without vfio-pci** kernel driver. Creates an Xorg file (example: "/etc/X11/xorg.conf.d/10-nvidia-pci1_0_0.conf") with the VGA device's **PCI bus ID** and **PCI kernel driver**. Prior to creation of the Xorg file, all other files with the same filename ("/etc/X11/xorg.conf.d/10-**kernel_driver**.conf") will be deleted.
 
 Why?
 
-  I use GRUB customizer to setup multiple boot options with my VM with VFIO Passthrough setup. Right now, VFIO works short of perfect. Without this script, I have to manually comment/uncomment "secondary-gpu.conf" to get to my display manager. :-)
+  **I want to use this.** My goal is to use multiple GRUB boot options with custom command-lines (including vfio-pci), of each device to passthrough. Each GRUB boot option will have a **different VGA device that is NOT grabbed by vfio-pci**.
