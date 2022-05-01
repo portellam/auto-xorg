@@ -50,12 +50,16 @@ function 0A_FindVGA {
         if $bool_beginParse; then
         
             # IGNORED LINES
-            if [[ $str_line=*'DeviceName: '* || $str_line=*'Subsystem: '* || $str_line=*'Kernel modules: '* ]]; then
+            if [[ $str_line=*"DeviceName: *" || $str_line=*"Subsystem: *" || $str_line=*"Kernel modules: *" ]]; then
         
+                echo "PCI: str_line: \"$str_line\""
                 echo "PCI: No match found."
+            fi
             
-            # FIND KERNEL DRIVER
-            else if [[ $str_line=*'Kernel driver in use: '* ]]; then
+            if [[ ! $str_line=*"DeviceName: *" || $str_line=*"Subsystem: *" || $str_line=*"Kernel modules: *" ]]; then
+            
+                # FIND KERNEL DRIVER
+                if [[ $str_line=*"Kernel driver in use: *" ]]; then
         
                     echo "PCI: Kernel driver: Found device."
                 
@@ -91,7 +95,6 @@ function 0A_FindVGA {
                     
             # FIND PCI BUS ID
             else
-                
                 # TODO: FIND PCI HW ID, eight-char in two brackets, second set of brackets
                 if [[ ${str_line:8:3}="VGA" ]]; then
             
@@ -130,10 +133,10 @@ function 0B_Xorg {
     str_dir="/etc/X11/xorg.conf.d/"
 
     # SET FILE
-    str_file=$str_dir'10-'$str_firstVGA_PCIdriver'.conf'
+    str_file=$str_dir"10-"$str_firstVGA_PCIdriver".conf"
     
     # CLEAR FILES
-    rm $str_dir'10-'*
+    rm $str_dir"10-"*".conf"
     
     # PARAMETERS
     declare -a arr_Xorg=(
@@ -146,9 +149,12 @@ EndSection
 )
 
     int_line=${#arr_sources[@]}
+    
     for (( int_index=0; int_index<$int_line; int_index++ )); do
+    
         str_line=${arr_Xorg[$int_index]}
         echo $str_line >> $str_file
+        
     done
 
     # FIND PRIMARY DISPLAY MANAGER
