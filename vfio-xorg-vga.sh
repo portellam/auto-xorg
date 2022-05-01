@@ -47,7 +47,6 @@ function 0A_FindVGA {
         str_PCI_type=$(echo ${str_line:8:50} | cut -d " " -f1)    # EXAMPLE: "VGA compatible controller..."
         #echo "PCI: str_PCI_type: \"$str_PCI_type\""
         
-        
         if $bool_beginParse; then
         
             # IGNORED LINES
@@ -89,30 +88,30 @@ function 0A_FindVGA {
                         echo "PCI: PCI driver: '$str_PCIdriver'"    # DEBUG
                 
                     fi
-                 
-                else
+                    
+            # FIND PCI BUS ID
+            else
                 
-                    # FIND PCI BUS ID
-                    # TODO: FIND PCI HW ID, eight-char in two brackets, second set of brackets
-                    if [[ ${str_line:8:3}="VGA" ]]; then
+                # TODO: FIND PCI HW ID, eight-char in two brackets, second set of brackets
+                if [[ ${str_line:8:3}="VGA" ]]; then
             
-                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
-                        str_PCIbusID="${str_line:1:5}"                          # EXPECT: '01:00.0'
-                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
-                        str_PCIbusID="${str_PCIbusID:5:2}:${str_PCIbusID:6:1}"  # EXPECT: '01:00:0'
-                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
-                        str_PCIbusID="${str_PCIbusID:0:3}${str_PCIbusID:4:3}"   # EXPECT: '01:0:0'
-                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
-                        str_PCIbusID="${str_PCIbusID:1:6}"                      # EXPECT: '1:0:0'
-                        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                    echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                    str_PCIbusID="${str_line:1:5}"                          # EXPECT: '01:00.0'
+                    echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                    str_PCIbusID="${str_PCIbusID:5:2}:${str_PCIbusID:6:1}"  # EXPECT: '01:00:0'
+                    echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                    str_PCIbusID="${str_PCIbusID:0:3}${str_PCIbusID:4:3}"   # EXPECT: '01:0:0'
+                    echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+                    str_PCIbusID="${str_PCIbusID:1:6}"                      # EXPECT: '1:0:0'
+                    echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
         
-                    fi
-                
                 fi
                 
             fi
-        
+                
         fi
+        
+    fi
     
     done < $str_file
 
