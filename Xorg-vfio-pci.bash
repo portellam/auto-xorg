@@ -7,11 +7,11 @@ function 01_FindPCI {
     echo "FindPCI: Start."
 
     ## PARAMETERS ##
-    bool_foundFirstVGA=false
-    bool_isMatch=false
-    bool_isVGA=false
     bool_read=false
-    int_count=0
+    bool_matchPCIbusID
+    bool_matchVGA
+    bool_matchPCIdriver
+    int_count=1
     # CREATE LOG FILE #
     str_dir="/var/log/"
     str_file_1=$str_file'lspci_n.log'
@@ -21,111 +21,109 @@ function 01_FindPCI {
     lspci > $str_file_2
     lspci -k > $str_file_3
     #
-    str_first_PCIbusID="01.00.0"
+    str_first_PCIbusID="1:00.0"
     str_PCIbusID=""
     str_PCIdriver=""
     str_PCIhwID=""
     str_PCItype=""
     str_xorg_PCIbusID=""
     str_xorg_PCIdriver=""
-    declare -a arr_PCIbusID=()
-    declare -a arr_PCIdriver=()
-    declare -a arr_PCIhwID=()
+    declare -a arr_PCIbusID
+    declare -a arr_PCIdriver
+    declare -a arr_PCIhwID
     
     # FILE_1 #
     # PARSE FILE AND SAVE TO ARRAY
     while read str_line_1; do
         
-        str_PCIbusID=${str_line_1:1:7}
-        
+        str_PCIbusID=${str_line_1:1:6}
+
         # START READ FROM FIRST EXTERNAL PCI
-        if [[ $str_PCIbusID -eq $str_first_PCIbusID ]]; then
+        if [[ $str_PCIbusID == $str_first_PCIbusID ]]; then
                 
             bool_read=true
-            
+
         fi
         
         # SAVE PCI HARDWARE ID
-        if [[ $bool_read ]]; then
+        if [[ $bool_read == true ]]; then
         
-            str_PCIhwID=$(echo ${str_line_1:14:8})
-            arr_PCIbusID+=("$PCIbusID")
+            str_PCIhwID=$( echo ${str_line_1:14:9} )
+            echo "PCI: str_PCIhwID: \"$str_PCIhwID\""
+            arr_PCIbusID+=("$str_PCIbusID")
 
         fi
 
     done < $str_file_1
     # FILE 1 END #
-                
+
+    # FILE 2 #
+    # PARSE FILE AND CHECK FOR VGA MATCH
+    while read str_line_2; do
+
+        # PARSE ARRAY
+        for str_arr_PCIbusID in "${arr_PCIbusID[@]}"; do
+
+            #echo "PCI: str_arr_PCIbusID: \"$str_arr_PCIbusID\""
+            #echo "PCI: {str_line_2:1:6}: \"${str_line_2:1:6}\""
+
+            # VALIDATE PCI BUS ID
+            if [[ $str_arr_PCIbusID == ${str_line_2:1:6} ]]; then
+                           
+                bool_matchPCIbusID=true
+                echo "PCI: bool_matchPCIbusID: \"$bool_matchPCIbusID\""
+
+            fi
+        
+        done
+
+    done < $str_file_2
+     # FILE 2 END #  
+
+
     # FILE 3 #
-    # VFIO SETUP (FIRST-TIME):  PARSE FILE, CHECK FOR PCI MATCH, SAVE EACH PCI HW ID, AND SAVE EACH NON VFIO-PCI DRIVER
-    # XORG SETUP (CONSECUTIVE): PARSE FILE, CHECK FOR PCI MATCH, SAVE EACH PCI VGA BUS ID, NON VFIO-PCI VGA DRIVER (COPY AND CREATE ON DIFFERENT SCRIPT FILE)
-    while read str_line_3; do
-
-        # FILE 2 #
-        # PARSE FILE AND CHECK FOR VGA MATCH
-        while read str_line_2; do
-    
-            # LENGTH OF ARRAY
-            int_arr_PCIbusID=${#arr_PCIbusID[@]} 
-
-            # PARSE ARRAY
-            for (( int_index=0; int_index<$int_arr_PCIbusID; int_index++ )); do
-
-                # VALIDATE PCI BUS ID
-                if [[ $arr_PCIbusID[$int_index] -eq ${str_line_2:1:7} ]]; then
+    # PARSE FILE, CHECK FOR PCI MATCH, SAVE EACH PCI VGA BUS ID, NON VFIO-PCI VGA DRIVER
+    while read str_line_3; do  
         
-                    #str_PCItype=$(echo ${str_line_2:8:50} | cut -d ":" -f1)    # OLD
-                    str_PCItype=$(echo ${str_line_2:8:3} )
+        # VALIDATE STRING FOR PCI TYPE
+        if [[ $bool_matchPCIbusID == true && $str_line_3 != *"Kernel driver in use: "* && $str_line_3 != *"Subsystem: "* && $str_line_3 != *"Kernel modules: "* ]]; then
 
-                    # CHECK IF PCI IS VGA
-                    #if [[ $str_PCItype -eq "VGA compatible controller" ]]; then    # OLD
-                    if [[ $str_PCItype -eq "VGA" ]]; then
+            str_PCItype=${str_line_3:8:3}
+            echo "PCI: str_PCItype: \"$str_PCItype\""
 
-                        bool_isVGA=true
+            # CHECK IF PCI IS VGA
+            if [[ $str_PCItype == "VGA" ]]; then
+
+                bool_matchVGA=true
+                echo "PCI: bool_matchVGA: \"$bool_matchVGA\""
                 
-                    fi
+            else
 
-                fi
-        
-            done
+                bool_matchVGA=false
 
-        done < $str_file_2
-        # FILE 2 END #
-                            
-        # VALIDATE PCI BUS ID
-        if [[ $str_PCIbusID -eq ${str_line_3:1:7} ]]; then
-                                
-            bool_isMatch=true
-                                
-        fi         
-        
+            fi
+
+        fi
+
         # VALIDATE STRING FOR PCI DRIVER
-        if [[ $bool_isMatch && $str_line_3 -eq *"Kernel driver in use: "* && $str_line_3 -ne *"Subsystem: "* && $str_line_3 -ne *"Kernel modules: "* ]]; then
+        if [[ $bool_matchVGA == true && $str_line_3 == *"Kernel driver in use: "* && $str_line_3 != *"Subsystem: "* && $str_line_3 != *"Kernel modules: "* ]]; then
                                                                     
             int_len_str_line_3=${#str_line_3}-22
             str_PCIdriver=${str_line_3:22:$int_len_str_line_3}
+            echo "PCI: str_PCIdriver: \"$str_PCIdriver\""
+            bool_matchPCIdriver=true
+            echo "PCI: bool_matchPCIdriver: \"$bool_matchPCIdriver\""
+
+        fi
+
+        # SAVE FIRST EXTERNAL VGA NON VFIO-PCI DEVICE
+        if [[ $bool_matchPCIdriver == true && $str_PCIdriver != "vfio-pci" ]]; then
                                     
-            
-
-            # SAVE EVERY EXTERNAL PCI DEVICE
-            if [[ $str_PCIdriver -ne "vfio-pci" ]]; then
-
-                echo "FindPCI: str_PCIdriver: \"$str_PCIdriver\""
-                echo "FindPCI: str_PCIhwID: \"$str_PCIhwID\"" 
-                arr_PCIdriver+=("$str_PCIdriver")
-                arr_PCIhwID+=("$str_PCIhwID")
-                                        
-            fi
-
-
-            # SAVE FIRST EXTERNAL VGA NON VFIO-PCI DEVICE
-            #if [[ $bool_isVGA && $bool_foundFirstVGA -eq false && $str_PCIdriver -ne "vfio-pci" ]]; then
-                                    
-                #str_xorg_PCIbusID=$str_PCIbusID
-                #str_xorg_PCIdriver=$str_PCIdriver
-                #bool_foundFirstVGA=true
-                                        
-            #fi
+            str_xorg_PCIbusID=$str_PCIbusID
+            str_xorg_PCIdriver=$str_PCIdriver
+            echo "PCI: str_xorg_PCIbusID: \"$str_xorg_PCIbusID\""
+            echo "PCI: str_xorg_PCIdriver: \"$str_xorg_PCIdriver\""
+            break                        
 
         fi
 
@@ -199,15 +197,13 @@ declare -a arr_PCIhwID=()
 
 # METHODS #
 01_FindPCI
-#echo "MAIN: str_xorg_PCIbusID: \"$str_xorg_PCIbusID\""
-#echo "MAIN: str_xorg_PCIdriver: \"$str_xorg_PCIdriver\""
-
-#02_VFIO
-#03_Xorg
+echo "MAIN: str_xorg_PCIbusID: \"$str_xorg_PCIbusID\""
+echo "MAIN: str_xorg_PCIdriver: \"$str_xorg_PCIdriver\""
+#02_Xorg
 #
 
 echo "MAIN: End."
 
 ## MAIN end ##
 
-exit 0
+exi 0
