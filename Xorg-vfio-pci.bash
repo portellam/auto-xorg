@@ -7,11 +7,11 @@ function 01_FindPCI {
     echo "FindPCI: Start."
 
     ## PARAMETERS ##
-    bool_read=false
-    bool_matchPCIbusID
-    bool_matchVGA
-    bool_matchPCIdriver
-    int_count=1
+    declarebool_read=false
+    bool_matchPCIbusID=false
+    bool_matchVGA=false
+    bool_matchPCIdriver=false
+    declare -i int_count=1
     # CREATE LOG FILE #
     str_dir="/var/log/"
     str_file_1=$str_file'lspci_n.log'
@@ -49,7 +49,7 @@ function 01_FindPCI {
         if [[ $bool_read == true ]]; then
         
             str_PCIhwID=$( echo ${str_line_1:14:9} )
-            echo "PCI: str_PCIhwID: \"$str_PCIhwID\""
+            #echo "PCI: str_PCIhwID: \"$str_PCIhwID\""
             arr_PCIbusID+=("$str_PCIbusID")
 
         fi
@@ -71,7 +71,21 @@ function 01_FindPCI {
             if [[ $str_arr_PCIbusID == ${str_line_2:1:6} ]]; then
                            
                 bool_matchPCIbusID=true
-                echo "PCI: bool_matchPCIbusID: \"$bool_matchPCIbusID\""
+                #echo "PCI: bool_matchPCIbusID: \"$bool_matchPCIbusID\""
+                str_PCItype=${str_line_2:8:3}
+                echo "PCI: str_PCItype: \"$str_PCItype\""
+
+                # CHECK IF PCI IS VGA
+                if [[ $str_PCItype == "VGA" ]]; then
+
+                    bool_matchVGA=true
+                    echo "PCI: bool_matchVGA: \"$bool_matchVGA\""
+                
+                else
+
+                    bool_matchVGA=false
+
+                fi
 
             fi
         
@@ -89,13 +103,13 @@ function 01_FindPCI {
         if [[ $bool_matchPCIbusID == true && $str_line_3 != *"Kernel driver in use: "* && $str_line_3 != *"Subsystem: "* && $str_line_3 != *"Kernel modules: "* ]]; then
 
             str_PCItype=${str_line_3:8:3}
-            echo "PCI: str_PCItype: \"$str_PCItype\""
+            #echo "PCI: str_PCItype: \"$str_PCItype\""
 
             # CHECK IF PCI IS VGA
             if [[ $str_PCItype == "VGA" ]]; then
 
                 bool_matchVGA=true
-                echo "PCI: bool_matchVGA: \"$bool_matchVGA\""
+                #echo "PCI: bool_matchVGA: \"$bool_matchVGA\""
                 
             else
 
@@ -206,4 +220,4 @@ echo "MAIN: End."
 
 ## MAIN end ##
 
-exi 0
+exit 0
