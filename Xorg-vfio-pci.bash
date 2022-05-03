@@ -238,25 +238,23 @@ function 02_VFIO {
     #
     str_rootKernel=( `uname -r` )
     #
-    str_GRUB="acpi=force apm=power_off iommu=1,pt amd_iommu=on intel_iommu=on rd.driver.pre=vfio-pci pcie_aspm=off kvm.ignore_msrs=1 default_hugepagesz=1G hugepagesz=1G hugepages=24 modprobe.blacklist=$str_arr_PCIdriver vfio_pci.ids=$str_arr_PCIhwID"
-    declare -a arr_dir_1_file=(
+    for $element in $arr_int_indexOfVGA[@]; do
+
+        ## TO-DO: have an array of ALL PCI hw ID, and and array of ALL drivers (with VGA), and have two arrays without VGA
+        # to make multiple grub boot menus for different vga devices as host graphics :)
+
+        #str_thisVGAbusID=
+        str_GRUB="acpi=force apm=power_off iommu=1,pt amd_iommu=on intel_iommu=on rd.driver.pre=vfio-pci pcie_aspm=off kvm.ignore_msrs=1 default_hugepagesz=1G hugepagesz=1G hugepages=24 modprobe.blacklist=$str_thisVGAdriver,$str_arr_PCIdriver vfio_pci.ids=$str_thisVGAbusID,$str_arr_PCIhwID"
+        declare -a arr_dir_1_file=(
 "menuentry '$element' {
-    load_video
     insmod gzio
-    if [ x$'grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
-    insmod part_gpt
-    insmod ext2
-    set root='hd2,gpt4'
-    if [ x$'feature_platform_search_hint = xy ]; then
-        search --no-floppy --fs-uuid --set=root --hint-bios=hd2,gpt4 --hint-efi=hd2,gpt4 --hint-baremetal=ahci2,gpt4  212454f8-0d3a-49f0-938e-8aeef9b27deb
-    else
-        search --no-floppy --fs-uuid --set=root 212454f8-0d3a-49f0-938e-8aeef9b27deb
-    fi
-    echo    'Loading Linux 5.10.0-14-amd64 ...'
-    linux   /boot/vmlinuz-5.10.0-14-amd64 root=UUID=212454f8-0d3a-49f0-938e-8aeef9b27deb ro  acpi=force apm=power_off iommu=1,pt amd_iommu=on intel_iommu=on rd.driver.pre=vfio-pci pcie_aspm=off kvm.ignore_msrs=1 default_hugepagesz=1G hugepagesz=1G hugepages=24 modprobe.blacklist=${arr_PCIdriver[@]} vfio_pci.ids=
+    set root='$str_rootDisk'
+    echo    'Loading Linux $str_rootKernel ...'
+    linux   /boot/vmlinuz-$str_rootKernel root=UUID=$str_rootUUID ro $str_GRUB
     echo    'Loading initial ramdisk ...'
     initrd  /boot/initrd.img-")
-    #echo ${arr_file_1[@]} > $str_file_1
+
+        #echo ${arr_file_1[@]} > $str_file_1
     # GRUB.D END #
 
     # MODPROBE.D/BLACKLIST #
