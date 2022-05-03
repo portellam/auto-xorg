@@ -12,14 +12,13 @@ function 01_FindPCI {
     str_file_2=$str_file'lspci.log'
     str_file_3=$str_file'lspci_k.log'
     lspci -n > $str_file_1
-    lspci > $str_file_2
-    lspci -k > $str_file_3
+    lspci -k > $str_file_2
     #
 
     ## BOOLEANS ##
     bool_beginParsePCI=false
     bool_beginParseVGA=false
-    bool_foundFirstVGA=false
+    bool_thisVGA=false
     #
 
     # COUNTER #
@@ -27,17 +26,17 @@ function 01_FindPCI {
     #
 
     # PCI #
-    str_first_PCIbusID="1:00.0"
-    str_PCIbusID=""
-    str_PCIdriver=""
-    str_PCIhwID=""
-    str_PCItype=""
+    str_firstPCIbusID="1:00.0"
+    str_thisPCIbusID=""
+    str_thisPCIdriver=""
+    str_thisPCIhwID=""
+    str_thisPCItype=""
     str_VGAbusID=""
     str_VGAdriver=""
     declare -a arr_PCIbusID
     declare -a arr_PCIdriver
     declare -a arr_PCIhwID
-    declare -a arr_int_indexOfVGA
+    declare -a arr_VGAindex
     #
 
     # AUTO VFIO PCI SETUP TO-DO:
@@ -45,7 +44,6 @@ function 01_FindPCI {
     # second loop: assume first-run for new system (no devices added to VFIO-PCI): cycle list, save all PCI drivers to an array (same size as before).
     # final loop: cycle list, save all PCI HW IDs to an array (same size as before).
     # next function: update config files (/etc/modules, /etc/default/grub)
-
 
     # XORG VFIO PCI SETUP TO-DO:
     # *run as a systemd service
@@ -57,11 +55,11 @@ function 01_FindPCI {
     # PARSE FILE, SAVE PCI BUS ID AND PCI HW ID TO ARRAYS
     while read str_line_1; do
         
-        str_PCIbusID=${str_line_1:1:6}
-        echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
+        str_thisPCIbusID=${str_line_1:1:6}
+        echo "PCI: str_thisPCIbusID: \"$str_thisPCIbusID\""
 
         # START READ FROM FIRST EXTERNAL PCI
-        if [[ $str_PCIbusID == $str_first_PCIbusID ]]; then
+        if [[ $str_thisPCIbusID == $str_firstPCIbusID ]]; then
                 
             bool_beginParsePCI=true
 
@@ -70,12 +68,11 @@ function 01_FindPCI {
         # SAVE PCI HARDWARE ID
         if [[ $bool_beginParsePCI == true ]]; then
 
-            arr_PCIbusID+=("$str_PCIbusID")
-            echo "PCI: str_PCIbusID: \"$str_PCIbusID\""
-
-            str_PCIhwID=$( echo ${str_line_1:14:9} )
-            echo "PCI: str_PCIhwID: \"$str_PCIhwID\""
-            arr_PCIhwID+=("$str_PCIhwID")
+            arr_PCIbusID+=("$str_thisPCIbusID")
+            echo "PCI: str_thisPCIbusID: \"$str_thisPCIbusID\""
+            str_thisPCIhwID=$( echo ${str_line_1:14:9} )
+            echo "PCI: str_thisPCIhwID: \"$str_thisPCIhwID\""
+            arr_PCIhwID+=("$str_thisPCIhwID")
             
         fi
 
@@ -83,152 +80,270 @@ function 01_FindPCI {
     # FILE 1 END #
 
     # FILE 2 #
-    # PARSE FILE, CHECK IF PCI DEVICE IS VGA AND SAVE INDEX TO ARRAY
+    # PARSE FILE, SAVE EACH DRIVER FOR VFIO SETUP, AND CHECK IF INDEXED VGA DEVICE IS NOT GRABBED BY VFIO-PCI DRIVER AND SAVE VGA DEVICE PCI BUS ID, HW ID, AND DRIVER FOR XORG SETUP
     while read str_line_2; do
-        
-        # PARSE ARRAY
-        for str_arr_PCIbusID in "${arr_PCIbusID[@]}"; do
 
-            echo "PCI: str_arr_PCIbusID: \"$str_arr_PCIbusID\""
+        str_thisPCIbusID=${str_line_2:1:6}
+        echo "PCI: str_thisPCIbusID: \"$str_thisPCIbusID\""
+        int_len_str_line_3=${#str_line_3}-22
+        str_thisPCIdriver=${str_line_3:22:$int_len_str_line_3}
+        echo "PCI: str_thisPCIdriver: \"$str_thisPCIdriver\""
 
-            # VALIDATE PCI BUS ID
-            if [[ $str_arr_PCIbusID == ${str_line_2:1:6} ]]; then
+        # START READ FROM FIRST EXTERNAL PCI
+        if [[ $str_thisPCIbusID == $str_firstPCIbusID && $str_line_2 != *"Kernel driver in use: "* && $str_line_2 != *"Subsystem: "* && $str_line_2 != *"Kernel modules: "* ]]; then
+            
+            if [[ $str_line_2 == *"VGA compatible controller"* ]]; then
 
-                echo "PCI: str_arr_PCIbusID: \"$str_arr_PCIbusID\""   
+                bool_beginParseVGA=true
 
-                str_PCItype=${str_line_2:8:3}
+            else
 
-                # CHECK IF PCI IS VGA
-                if [[ $str_PCItype == "VGA" ]]; then
+                bool_beginParseVGA=false
+            
+            fi
 
-                    arr_int_indexOfVGA+=("$int_count")
-                    echo "PCI: Found VGA device at $str_arr_PCIbusID"
+            bool_beginParsePCI=true
 
-                fi
+        fi
+
+        # VALIDATE STRING FOR PCI DRIVER
+        if [[ $bool_beginParsePCI == true && $str_thisPCIdriver != "vfio-pci" && $str_line_2 == *"Kernel driver in use: "* ]]; then
+            
+            if [[ $bool_beginParseVGA == true ]]; then
+
+                arr_VGAindex+="$int_count"
+                bool_beginParseVGA=false
+
+            else
+
+                arr_PCIdriver+=("$str_thisPCIdriver")
 
             fi
-        
-        done
+            
+            bool_beginParsePCI=false
+
+        fi
 
         echo "PCI: int_count:\"$int_count\""
         int_count=$int_count+1
         echo "PCI: int_count:\"$int_count\""
 
     done < $str_file_2
-    # FILE 2 END #  
-
-    # FILE 3 #
-    # PARSE FILE, SAVE EACH DRIVER FOR VFIO SETUP, AND CHECK IF INDEXED VGA DEVICE IS NOT GRABBED BY VFIO-PCI DRIVER AND SAVE VGA DEVICE PCI BUS ID, HW ID, AND DRIVER FOR XORG SETUP
-    while read str_line_3; do
-
-        # PARSE THIS PCI DEVICE
-        while [[ $bool_beginParseVGA == false ]]; do
-        
-            # PARSE ARRAY
-            for int_indexOfVGA in "${arr_int_indexOfVGA[@]}"; do
-
-                str_thisPCIbusID=$arr_PCIbusID[$int_indexOfVGA]
-                #echo "PCI: str_thisPCIbusID: \"$str_thisPCIbusID\""
-
-                if [[ $arr_PCIbusID[$int_indexOfVGA] == ${str_line_3:1:6} && $str_line_3 != *"Kernel driver in use: "* && $str_line_3 != *"Subsystem: "* && $str_line_3 != *"Kernel modules: "* ]]; then
-
-                    bool_beginParseVGA=true
-                    echo "PCI: bool_beginParseVGA: \"$bool_beginParseVGA\""
-
-                fi
-
-            done
-
-        done
-
-        # VALIDATE STRING FOR PCI DRIVER
-        if [[ $str_line_3 == *"Kernel driver in use: "* && $str_line_3 != *"Subsystem: "* && $str_line_3 != *"Kernel modules: "* ]]; then
-                                                                    
-            int_len_str_line_3=${#str_line_3}-22
-            str_thisPCIdriver=${str_line_3:22:$int_len_str_line_3}
-            echo "PCI: str_PCIdriver: \"$str_PCIdriver\""
-
-            # SAVE EACH VALID PCI DRIVER, IF NOT VGA AND IF NOT GRABBED BY VFIO-PCI DRIVER
-            # NOTE: RUN SCRIPT ONCE TO HAVE EACH EXTERNAL PCI DEVICE ADDED TO VFIO-PCI
-            if [[ $str_PCIdriver != "vfio-pci" ]]; then
-
-                # SAVE THIS PCI DEVICE IF IT IS VGA
-                if [[ $bool_beginParseVGA == true && $bool_foundFirstVGA==false ]]; then
-                
-                    echo "PCI: bool_beginParseVGA: \"$bool_beginParseVGA\""
-                    str_VGAbusID=$str_thisPCIbusID
-                    echo "PCI: str_VGAbusID: \"$str_VGAbusID\""
-                    str_VGAdriver=$str_thisPCIdriver
-                    echo "PCI: str_VGAdriver: \"$str_VGAdriver\""
-                    bool_foundFirstVGA=true                    
-
-                # SAVE THIS PCI DRIVER IF PCI DEVICE IS NOT VGA
-                else
-
-                    arr_PCIdriver+=("$str_PCIdriver")
-
-                fi
-
-                echo "PCI: bool_foundFirstVGA: \"$bool_foundFirstVGA\""
-                bool_beginParseVGA=false
-                echo "PCI: bool_beginParseVGA: \"$bool_beginParseVGA\""
-
-            fi
-
-        fi
-        
-    done < $str_file_3
-    # FILE 3 END #
+    # FILE 2 END #
             
     # CLEAR LOG FILES
-    rm $str_file_1 $str_file_2 $str_file_3
+    rm $str_file_1 $str_file_2
         
     echo "FindPCI: End."
     
 }
 
-function 02_Xorg {
+function 02_VFIO {
 
-    echo "Xorg: Start."
+    echo "VFIO: Start."
 
-    # SET WORKING DIRECTORY
-    str_dir="/etc/X11/xorg.conf.d/"
+    # PARAMETERS #
+    declare -a arr_PCIdriver=""
+    for (( int_index=0; int_index<$[${#arr_PCIdriver[@]}]; int_index++ )); do
 
-    # INIT FILE
-    str_file=$str_dir"10-"$str_xorg_PCIdriver".conf"
-    
-    # CLEAR FILES
-    rm $str_dir"10-"*".conf"
-    
-    # PARAMETERS
-    declare -a arr_Xorg=(
-"Section "Device"
-Identifier     "Device0"
-Driver         "$str_xorg_PCIdriver"
-BusID          "PCI:$str_xorg_PCIbusID"
-EndSection
-"
-)
-
-    # ARRAY LENGTH
-    int_sources=${#arr_sources[@]}
-    
-    # WRITE ARRAY TO FILE
-    for (( int_index=0; int_index<$int_sources; int_index++ )); do
-    
-        str_line=${arr_Xorg[$int_index]}
-        echo $str_line >> $str_file
+        element=${arr_PCIdriver[$int_index]}
+        str_PCIdriver_softdep+=("#softdep $element pre: vfio vfio-pci" "$element")
+        if [[ $int_index -eq "${#arr_PCIdriver[@]}-1" ]]; then
         
+            str_arr_PCIhwID+=("$element")
+        
+        else
+
+            str_arr_PCIhwID+=("$element,")
+
+        fi
+
     done
+    #
+    str_arr_PCIhwID=""
+    for (( int_index=0; int_index<$[${#arr_PCIhwID[@]}]; int_index++ )); do
 
-    # FIND PRIMARY DISPLAY MANAGER
-    #$str_line=$(cat /etc/X11/default-display-manager)
-    #str_DM=${str_line:8:(${#str_line}-9)}
+        element=${arr_PCIhwID[$int_index]}
 
-    # RESTART DM
-    #systemctl restart $str_DM
+        if [[ $int_index -eq "${#arr_PCIhwID[@]}-1" ]]; then
+        
+            str_arr_PCIhwID+=("$element")
+        
+        else
 
-    echo "Xorg: End."
+            str_arr_PCIhwID+=("$element,")
+
+        fi
+
+    done
+    #
+    str_dir_1="/etc/grub.d/"
+    str_dir_2="/etc/modprobe.d/"
+    str_file_1="/etc/default/grub"
+    str_file_2="/etc/modules"
+    str_file_3="/etc/initramfs-tools/modules"
+    str_file_4="/etc/modprobe.d/vfio.conf"
+    #
+
+    # GRUB.D #
+    ## ROOT DISK ##
+    # ROMAN ALPHABET #
+    declare -a roman=(abcdefghijklmnopqrstuvwxyz)
+    #
+    str_rootDisk=""
+
+    str_rootMountDisk=( `sudo mount | grep " / "` )
+    str_rootDev=( `echo ${str_rootMountDisk:0:9}` )
+    declare -i int_overflow=0
+    for (( int_index=0; int_index<${#roman}; int_index++ )); do
+
+        str_roman=${roman[$int_index]}${roman[$int_overflow]}
+
+        # EXAMPLE: /DEV/SDA2 == HD1,GPT2
+        if [[ $str_rootDev == "/dev/sd${roman[$int_index]}*" ]]; then
+
+            str_rootDisk="hd$int_index,gpt${str_rootMountDisk:8:1}"
+
+        # EXAMPLE: IF NOT /DEV/SDZ2, THEN OVERFLOW TO /DEV/SDAA2
+        else
+
+            if [[ int_index=$[${#roman}]-1 ]]; then
+
+                int_overflow=$int_overflow+1
+
+            fi
+
+        fi
+
+    done
+    ##
+
+    # ROOT UUID #
+    str_rootUUID=""
+    declare -a arr_str_rootBlkMount+=( `sudo lsblk -o MOUNTPOINT` )
+    declare -a arr_str_rootBlkUUID+=( `sudo lsblk -o UUID` )
+    echo ${str_line_1:14:9}
+    for (( int_index=0; int_index<${#arr_str_rootBlkMount}; int_index++ )); do
+
+        declare -i int_indexOffset=$int_index+2
+
+        if [[ ${#arr_str_rootBlkMount[$int_index]} == "1" ]]; then
+
+            str_rootUUID=${arr_str_rootBlkUUID[$int_indexOffset]}
+            echo $str_rootUUID
+
+        fi
+
+    done
+    #
+    str_rootKernel=( `uname -r` )
+    #
+    str_GRUB="acpi=force apm=power_off iommu=1,pt amd_iommu=on intel_iommu=on rd.driver.pre=vfio-pci pcie_aspm=off kvm.ignore_msrs=1 default_hugepagesz=1G hugepagesz=1G hugepages=24 modprobe.blacklist=$str_arr_PCIdriver vfio_pci.ids=$str_arr_PCIhwID"
+    declare -a arr_dir_1_file=(
+"menuentry '$element' {
+    load_video
+    insmod gzio
+    if [ x$'grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+    insmod part_gpt
+    insmod ext2
+    set root='hd2,gpt4'
+    if [ x$'feature_platform_search_hint = xy ]; then
+        search --no-floppy --fs-uuid --set=root --hint-bios=hd2,gpt4 --hint-efi=hd2,gpt4 --hint-baremetal=ahci2,gpt4  212454f8-0d3a-49f0-938e-8aeef9b27deb
+    else
+        search --no-floppy --fs-uuid --set=root 212454f8-0d3a-49f0-938e-8aeef9b27deb
+    fi
+    echo    'Loading Linux 5.10.0-14-amd64 ...'
+    linux   /boot/vmlinuz-5.10.0-14-amd64 root=UUID=212454f8-0d3a-49f0-938e-8aeef9b27deb ro  acpi=force apm=power_off iommu=1,pt amd_iommu=on intel_iommu=on rd.driver.pre=vfio-pci pcie_aspm=off kvm.ignore_msrs=1 default_hugepagesz=1G hugepagesz=1G hugepages=24 modprobe.blacklist=${arr_PCIdriver[@]} vfio_pci.ids=
+    echo    'Loading initial ramdisk ...'
+    initrd  /boot/initrd.img-")
+    #echo ${arr_file_1[@]} > $str_file_1
+    # GRUB.D END #
+
+    # MODPROBE.D/BLACKLIST #
+    for $element in $arr_PCIdriver[@]; do
+
+        echo "blacklist $element" > $str_dir_2$element'.conf'
+
+    done
+    #
+
+    # GRUB ########
+    declare -a arr_file_1=("
+    #GRUB_CMDLINE_LINUX_DEFAULT=\"acpi=force apm=power_off iommu=1,pt amd_iommu=on intel_iommu=on rd.driver.pre=vfio-pci pcie_aspm=off kvm.ignore_msrs=1 default_hugepagesz=1G hugepagesz=1G hugepages=24 modprobe.blacklist=${arr_PCIdriver[@]} vfio_pci.ids=\"")
+    #
+
+    # MODULES #
+    declare -a arr_file_2=(
+"# /etc/modules: kernel modules to load at boot time.
+#
+# This file contains the names of kernel modules that should be loaded
+# at boot time, one per line. Lines beginning with \"#\" are ignored.
+#
+# NOTE: GRUB command line is an easier and cleaner method if vfio-pci grabs all hardware.
+# Example: Reboot hypervisor (Linux) to swap host graphics (Intel, AMD, NVIDIA) by use-case (AMD for Win XP, NVIDIA for Win 10).
+# NOTE: If you change this file, run 'update-initramfs -u -k all' afterwards to update.
+#
+vfio
+vfio_iommu_type1
+vfio_pci
+vfio_virqfd
+kvm
+kvm_intel
+apm power_off=1
+
+# In terminal, execute \"lspci -nnk\".
+
+# GRUB kernel parameters:
+vfio_pci ids=$str_arr_PCIhwID"
+)
+    #echo ${arr_file_2[@]} > $str_file_2
+    #
+
+    # INITRAMFS-TOOLS/MODULES #
+    declare -a arr_file_3=(
+"# List of modules that you want to include in your initramfs.
+# They will be loaded at boot time in the order below.
+#
+# Syntax:  module_name [args ...]
+#
+# You must run update-initramfs(8) to effect this change.
+#
+# Examples:
+#
+# raid1
+# sd_mod
+#
+# NOTE: GRUB command line is an easier and cleaner method if vfio-pci grabs all hardware.
+# Example: Reboot hypervisor (Linux) to swap host graphics (Intel, AMD, NVIDIA) by use-case (AMD for Win XP, NVIDIA for Win 10).
+# NOTE: If you change this file, run 'update-initramfs -u -k all' afterwards to update.
+
+# Soft dependencies and PCI kernel drivers:
+$str_PCIdriver_softdep
+
+vfio
+vfio_iommu_type1
+vfio_virqfd
+
+# GRUB command line and PCI hardware IDs:
+options vfio_pci ids=$str_arr_PCIhwID
+vfio_pci ids=$str_arr_PCIhwID
+vfio_pci"
+)
+    #echo ${arr_file_3[@]} > $str_file_3
+    #
+
+    # MODPROBE.D/VFIO #
+    declare -a arr_file_4=(
+"# NOTE: If you change this file, run 'update-initramfs -u -k all' afterwards to update.
+# Soft dependencies:
+$str_PCIdriver_softdep
+
+# PCI hardware IDs:
+options vfio_pci ids=$str_arr_PCIhwID")
+    #echo ${arr_file_4[@]} > $str_file_4
+    #
+
+    echo "VFIO: End."
 
 }
 
@@ -240,8 +355,8 @@ echo "MAIN: Start."
 
 # METHODS #
 01_FindPCI
-#02_Xorg
-#
+#02_Modules
+#03_GRUB
 
 echo "MAIN: End."
 
