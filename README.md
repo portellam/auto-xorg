@@ -29,6 +29,6 @@ Generates Xorg for first non-VFIO VGA device.
         01:00.0 VGA compatible controller: ...
         Kernel driver in use: vfio-pci
 * Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
-* Optionally, restart active display manager (you may modify 'Auto-Xorg.service' to do this automatically. However, service executes at boot before Xorg).
+* Optionally, restart active display manager (you may modify 'Auto-Xorg.service' to do this automatically).
 
         sudo bash Auto-Xorg.sh dm
