@@ -17,8 +17,10 @@ Run Once at boot. Parses list of PCI devices, saves first VGA device (without vf
 ## Why?
 If you setup VFIO Passthrough statically or dynamically (Multi-Boot), this script will automate the process of Xorg finding a valid VGA device.
 * Valid VGA device example:
+
         *01:00.0 VGA compatible controller: ...
         *Kernel driver in use: **nvidia***
 * Invalid VGA device example:
+
         *01:00.0 VGA compatible controller: ...
         *Kernel driver in use: **vfio-pci***
