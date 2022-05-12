@@ -8,7 +8,7 @@
         sudo bash installer.sh
 * It is NOT necessary to execute 'Auto-Xorg.sh'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
 * Optionally, execute
-* 
+
         sudo bash Auto-Xorg.sh dm
   to restart the active Display Manager.
 
