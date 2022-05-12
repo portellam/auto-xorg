@@ -4,9 +4,9 @@
 #
 ## How-to
 * In terminal, execute
-* 
+ 
         sudo bash installer.sh
-  * It is NOT necessary to execute 'Auto-Xorg.sh'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
+* It is NOT necessary to execute 'Auto-Xorg.sh'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
 * Optionally, execute
 * 
         sudo bash Auto-Xorg.sh dm
@@ -17,7 +17,7 @@
 Generates Xorg for first found available VGA device.
 * Runs once at boot.
 * Parses list of PCI devices
-* 
+
         lspci -k
   saves first (valid) available VGA device. **[1]**
 * Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
