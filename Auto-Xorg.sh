@@ -92,7 +92,7 @@ fi
 #
 
 # write to Xorg #
-if [[ -z $str_file2 ]]; then sudo rm $str_file2; fi
+if [[ ! -z $str_file2 ]]; then sudo rm $str_file2; fi
 for str_line in ${arr_XorgConf[@]}; do echo -e $str_line >> $str_file2; done
 echo "Auto-Xorg: Xorg conf modified."
 #
