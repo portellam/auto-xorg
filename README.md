@@ -14,7 +14,7 @@
 
 #
 ## Auto-Xorg
-Generates Xorg for first found, available VGA device.
+Generates Xorg for first non-VFIO VGA device.
 * Runs once at boot.
 * Parses list of PCI devices:
 
