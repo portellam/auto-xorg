@@ -4,9 +4,12 @@
 * Community:      https://old.reddit.com/r/VFIO
 #
 
+#
+
 ## How-to
 * In terminal, execute 'sudo bash installer.sh'
   * It is NOT necessary to run 'Auto-Xorg'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
+#
 
 ## Auto-Xorg
 Generates Xorg for first found available VGA device.
@@ -23,7 +26,4 @@ Generates Xorg for first found available VGA device.
 * Invalid VGA device example:
 
         01:00.0 VGA compatible controller: ...
-        Kernel driver in use: vfio-pci
-        
-## Why?
-If you setup VFIO Passthrough statically or dynamically (Multi-Boot), this script will automate the process of Xorg finding an available VGA device.
+        Kernel driver in use: vfio-pci  
