@@ -20,7 +20,7 @@ Generates Xorg for first non-VFIO VGA device.
 
         lspci -k
 * Saves first (valid) available VGA device.
-  * Valid VGA device example:
+  * Valid example:
 
         04:00.0 VGA compatible controller: ...
         Kernel driver in use: nvidia
@@ -30,4 +30,5 @@ Generates Xorg for first non-VFIO VGA device.
         Kernel driver in use: vfio-pci
 * Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
 * Optionally, restart active display manager
+
         sudo bash Auto-Xorg.sh dm
