@@ -9,13 +9,16 @@
   * It is NOT necessary to run 'Auto-Xorg'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
 
 ## Auto-Xorg
-**TL;DR:** Generates Xorg for first available VGA device.
+If you setup VFIO Passthrough statically or dynamically (Multi-Boot), this script will automate the process of Xorg finding a valid VGA device.
 
-Run Once at boot. Parses list of PCI devices, saves first available VGA device. Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf'). Optionally, restart active display manager ('sudo bash 
+* Runs once at boot.
+* Parses list of PCI devices, saves first available VGA device.
+* Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
+* Optionally, restart active display manager ('sudo bash 
 #
 
 ## Why?
-If you setup VFIO Passthrough statically or dynamically (Multi-Boot), this script will automate the process of Xorg finding a valid VGA device.
+
 * Valid VGA device example:
 
         04:00.0 VGA compatible controller: ...
