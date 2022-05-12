@@ -1,13 +1,24 @@
-## Status: Work-in-progress
-# Xorg-vfio-pci
-TL;DR:
+## What is VFIO?
+* See hyperlink:  https://www.kernel.org/doc/html/latest/driver-api/vfio.html
+* Useful guide:   https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF
+* Community:      https://old.reddit.com/r/VFIO
+#
 
-  Runs at boot. Finds first **VGA device without vfio-pci** kernel driver. Creates an Xorg file (example: "/etc/X11/xorg.conf.d/10-nvidia-pci1_0_0.conf") with the VGA device's **PCI bus ID** and **PCI kernel driver**. Prior to creation of the Xorg file, all other files with the same filename ("/etc/X11/xorg.conf.d/10-**kernel_driver**.conf") will be deleted.
+## How-to
+* In terminal, execute 'sudo bash installer.sh'
+  * It is NOT necessary to run 'Auto-Xorg'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
 
-Why?
+## Auto-Xorg
+**TL;DR:** Generates Xorg for first available VGA device.
+#### Long version;
+Run Once at boot. Parses list of PCI devices, saves first VGA device (without vfio-pci driver). Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
+#
 
-  **I want to use this.** My goal is to use multiple GRUB boot options with custom command-lines (including vfio-pci), of each device to passthrough. Each GRUB boot option will have a **different VGA device that is NOT grabbed by vfio-pci**. Does this make sense?
-  
-TO-DO:
-* test!
-* allow script to run at boot, example: Systemd service
+## Why?
+If you setup VFIO Passthrough statically or dynamically (Multi-Boot), this script will automate the process of Xorg finding a valid VGA device.
+Valid VGA device example:
+* *01:00.0 VGA compatible controller: ...
+        *Kernel driver in use: **nvidia***
+Invalid VGA device example:
+* *01:00.0 VGA compatible controller: ...
+        Kernel driver in use: **vfio-pci** *
