@@ -19,17 +19,18 @@ Generates Xorg for first found available VGA device.
 * Parses list of PCI devices
 
         lspci -k
-  saves first (valid) available VGA device. **[1]**
+  saves first (valid) available VGA device.
+  * Valid VGA device example:
+
+        04:00.0 VGA compatible controller: ...
+        Kernel driver in use: nvidia
+  * Invalid example:
+
+        01:00.0 VGA compatible controller: ...
+        Kernel driver in use: vfio-pci
 * Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
 * Optionally, restart active display manager
         sudo bash Auto-Xorg.sh dm
 
 **[1]**
-Valid VGA device example:
 
-        04:00.0 VGA compatible controller: ...
-        Kernel driver in use: nvidia
-Invalid example:
-
-        01:00.0 VGA compatible controller: ...
-        Kernel driver in use: vfio-pci
