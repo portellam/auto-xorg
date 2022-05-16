@@ -3,7 +3,6 @@
 * community:        https://old.reddit.com/r/VFIO
 * a useful guide:   https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF
 
-#
 ## How-to
 * In terminal, execute:
  
@@ -12,9 +11,7 @@
 * Optionally, to restart the active Display Manager, execute:
 
         sudo bash Auto-Xorg.sh dm
-  
 
-#
 ## Auto-Xorg
 Generates Xorg for first non-VFIO VGA device.
 * Runs once at boot.
@@ -35,7 +32,6 @@ Generates Xorg for first non-VFIO VGA device.
 
         sudo bash Auto-Xorg.sh dm
 
-#
 ## Why?
 In my experience, swapping host graphics is trivial and tedious. Either by changing config files or 'Multi-Booting' (see **https://github.com/portellam/Auto-VFIO/**), updating Xorg is necessary to boot properly.
 
