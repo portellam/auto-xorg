@@ -41,6 +41,4 @@ In my experience, swapping host graphics is trivial and tedious. Either by chang
 
 I don't believe the Linux team or VFIO community has made a simple script for this purpose already. In response, I made this simple script, and enjoyed the time spent.
 
-I know the majority of the VFIO community is part of the greater Linux community, which itself is *small*. Both understand Linux can be a time-sink (looking at Debian, servers, Arch, Gentoo...). So is setting up VFIO. If I can automate this task and more, at least the end-result will make up for those wasted nights.
-
-Debian *main*-race.
+I know the majority of the VFIO community is part of the greater Linux community, which itself is *small*. Both understand Linux can be a time-sink (looking at Debian, Proxmox server, Arch, Gentoo)... including VFIO. If I can automate this task and more, at least the end-result will make up for those wasted nights.
