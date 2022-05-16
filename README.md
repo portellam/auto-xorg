@@ -1,5 +1,7 @@
 ## What is VFIO?
-* See hyperlink:  https://www.kernel.org/doc/html/latest/driver-api/vfio.html
+* see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
+* community:        https://old.reddit.com/r/VFIO
+* a useful guide:   https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF
 
 #
 ## How-to
@@ -32,3 +34,8 @@ Generates Xorg for first non-VFIO VGA device.
 * Optionally, restart active display manager (you may modify 'Auto-Xorg.service' to do this automatically).
 
         sudo bash Auto-Xorg.sh dm
+
+#
+## Why?
+In my experience, swapping host graphics is trivial and tedious. Either by changing config files or 'Multi-Booting' (see **https://github.com/portellam/Auto-VFIO/**), updating Xorg is necessary to boot properly.
+I don't believe the Linux team or VFIO community has made a simple script for this purpose already.
