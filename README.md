@@ -38,4 +38,7 @@ Generates Xorg for first non-VFIO VGA device.
 #
 ## Why?
 In my experience, swapping host graphics is trivial and tedious. Either by changing config files or 'Multi-Booting' (see **https://github.com/portellam/Auto-VFIO/**), updating Xorg is necessary to boot properly.
-I don't believe the Linux team or VFIO community has made a simple script for this purpose already.
+
+I don't believe the Linux team or VFIO community has made a simple script for this purpose already. In response, I made this simple script, and enjoyed the time spent.
+
+I understand the majority of the VFIO community is part of the greater Linux community, which itself is small relative to the world. They will understand this, I spent too long with VFIO setups before. This too lol
