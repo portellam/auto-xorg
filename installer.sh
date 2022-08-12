@@ -48,7 +48,7 @@ if [[ $bool_missingFiles == true ]]; then
 else
     echo -e "Complete.\n"
     systemctl enable $str_inFile2
-    systemctl start $str_inFile2
+    systemctl restart $str_inFile2
     systemctl daemon-reload
     echo -e "$0: It is NOT necessary to run '$str_inFile1'.\n\t'$str_inFile2' will run automatically at boot, to grab the first non-VFIO VGA device.\n\tIf no available VGA device is found, an Xorg template will be created.\n\tIt will be assumed the system is running 'headless'."
 fi
