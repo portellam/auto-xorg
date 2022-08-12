@@ -1,5 +1,5 @@
 ## Description
-Generates Xorg for first non-VFIO (valid) video card (VGA) device.
+Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
 
 ## How-to
 * In install, execute:
@@ -38,4 +38,4 @@ For whatever the reason, this script has you covered:
 * toggling the boot VGA or Multi-Boot (**https://github.com/portellam/VFIO-setup/**)
 * deploying multiple setups
 
-Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script. I have enjoyed the learning something new!
+Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script and enjoyed learning something new!

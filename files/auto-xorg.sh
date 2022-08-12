@@ -2,7 +2,7 @@
 
 #
 # Author:       Alex Portell <https://github.com/portellam>
-# Description:  Generates Xorg for first non-VFIO (valid) video card (VGA) device.
+# Description:  Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
 #
 
 # set IFS #
