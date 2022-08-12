@@ -2,10 +2,10 @@
 Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
 
 ## How-to
-* In install, execute:
+* To install, execute:
  
         sudo bash installer.bash
-* You may execute **'auto-xorg.bash'** stand-alone. Optionally, to restart the active Display Manager, execute:
+* To run stand-alone, execute: (add **'dm'** to restart the active Display Manager)
 
         sudo bash auto-xorg.bash dm
 
