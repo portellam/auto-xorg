@@ -1,19 +1,20 @@
+## Description
+Generates Xorg for first non-VFIO (valid) video card (VGA) device.
+
+## How-to
+* In install, execute:
+ 
+        sudo sh installer.sh
+* You may execute **'auto-xorg.sh'** stand-alone. Optionally, to restart the active Display Manager, execute:
+
+        sudo sh auto-xorg.sh dm
+
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
 * community:        https://old.reddit.com/r/VFIO
 * a useful guide:   https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF
 
-## How-to
-* In terminal, execute:
- 
-        sudo bash installer.sh
-* It is NOT necessary to execute 'Auto-Xorg.sh'. The service will run once at boot. See '/etc/X11/xorg.conf.d/10-Auto-Xorg.conf'.
-* Optionally, to restart the active Display Manager, execute:
-
-        sudo bash Auto-Xorg.sh dm
-
 ## Auto-Xorg
-Generates Xorg for first non-VFIO VGA device.
 * Runs once at boot.
 * Parses list of PCI devices:
 
@@ -27,17 +28,14 @@ Generates Xorg for first non-VFIO VGA device.
 
         01:00.0 VGA compatible controller: ...
         Kernel driver in use: vfio-pci
-* Appends to Xorg file ('/etc/X11/xorg.conf.d/10-Xorg-vfio-pci.conf').
-* Optionally, restart active display manager (you may modify 'Auto-Xorg.service' to do this automatically).
-
-        sudo bash Auto-Xorg.sh dm
+* Appends to Xorg file (**'/etc/X11/xorg.conf.d/10-auto-xorg.conf'**).
 
 ## Why?
-In my experience, swapping host graphics is trivial and tedious. Either by changing config files or 'Multi-Booting' (see **https://github.com/portellam/Auto-VFIO/**), updating Xorg is necessary to boot properly.
+Swapping the host/boot video card (VGA) is trivial and tedious.
 
-I don't believe the Linux team or VFIO community has made a simple script for this purpose already. In response, I made this simple script, and enjoyed the time spent learning Bash.
+For whatever the reason, this script has you covered:
+* a fresh VFIO setup
+* toggling the boot VGA or Multi-Boot (**https://github.com/portellam/VFIO-setup/**)
+* deploying multiple setups
 
-I know the majority of the VFIO community is part of the greater Linux community, which itself is *small*. Both understand Linux can be a time-sink (looking at Debian, Proxmox server, Arch, Gentoo)... including VFIO. If I can automate this task and more, at least the end-result will make up for those wasted nights (years).
-
-## Possible To-Do
-* is it possible to save Xorg display layout or Xorg from runtime session, of a given VGA device, to a backup file. Restore that file next boot?
+Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script. I have enjoyed the learning something new!
