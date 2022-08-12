@@ -15,7 +15,7 @@ echo -en "$0: Installing Auto-Xorg... "
 bool_missingFiles=false
 readonly str_outDir1="/usr/sbin/"
 readonly str_outDir2="/etc/systemd/system/"
-readonly str_inFile1="auto-xorg.sh"
+readonly str_inFile1="auto-xorg.bash"
 readonly str_inFile2="auto-xorg.service"
 
 # copy files and set file permissions #

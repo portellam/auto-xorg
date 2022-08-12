@@ -4,10 +4,10 @@ Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
 ## How-to
 * In install, execute:
  
-        sudo bash installer.sh
-* You may execute **'auto-xorg.sh'** stand-alone. Optionally, to restart the active Display Manager, execute:
+        sudo bash installer.bash
+* You may execute **'auto-xorg.bash'** stand-alone. Optionally, to restart the active Display Manager, execute:
 
-        sudo bash auto-xorg.sh dm
+        sudo bash auto-xorg.bash dm
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
