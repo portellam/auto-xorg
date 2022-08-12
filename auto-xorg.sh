@@ -1,4 +1,4 @@
-#!/bin/bash sh
+#!/bin/bash
 
 #
 # Author:       Alex Portell <https://github.com/portellam>
@@ -10,10 +10,10 @@ SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
 IFS=$'\n'      # Change IFS to newline char
 
 # parameters #
-str_input1=`echo $1 | tr '[:upper:]' '[:lower:]'`
-declare -a arr_input1=`lspci -k`
-str_outDir1="/etc/X11/xorg.conf.d/"
-str_outFile1="${str_outDir1}10-auto-xorg.conf"
+readonly str_input1=`echo $1 | tr '[:upper:]' '[:lower:]'`
+readonly declare -a arr_input1=`lspci -k`
+readonly str_outDir1="/etc/X11/xorg.conf.d/"
+readonly str_outFile1="${str_outDir1}10-auto-xorg.conf"
 
 ## find external PCI device Index values, Bus ID, and drivers ##
 bool_parseVGA=false
@@ -70,7 +70,7 @@ if [[ -e $str_outFile1 && -e $str_outDir1 ]]; then
 #EndSection")
 
         # append file #
-        for str_line1 in ${arr_output1[@]}; do echo -e $str_line1 >> ${str_outDir1}${str_outFile1}; done
+        for str_line1 in $arr_output1; do echo -e $str_line1 >> ${str_outDir1}${str_outFile1}; done
 
         # find display manager #
         str_DM=`cat /etc/X11/default-display-manager`
@@ -104,7 +104,7 @@ if [[ -e $str_outFile1 && -e $str_outDir1 ]]; then
 #EndSection")
 
         # append file #
-        for str_line1 in ${arr_output1[@]}; do echo -e $str_line1 >> ${str_outDir1}${str_outFile1}; done
+        for str_line1 in $arr_output1; do echo -e $str_line1 >> ${str_outDir1}${str_outFile1}; done
     fi
 
 # missing files #

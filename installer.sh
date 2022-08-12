@@ -1,4 +1,4 @@
-#!/bin/bash sh
+#!/bin/bash
 
 # check if sudo #
 if [[ `whoami` != "root" ]]; then
@@ -9,13 +9,14 @@ fi
 SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
 IFS=$'\n'      # Change IFS to newline char
 
-echo -en "$0: Installing Auto-Xorg..."
+echo -en "$0: Installing Auto-Xorg... "
 
 # parameters #
-str_outDir1="/usr/sbin/"
-str_outDir2="/etc/systemd/system/"
-str_inFile1=`find . -name *auto-xorg.sh*`
-str_inFile2=`find . -name *auto-xorg.service*`
+bool_missingFiles=false
+readonly str_outDir1="/usr/sbin/"
+readonly str_outDir2="/etc/systemd/system/"
+readonly str_inFile1="auto-xorg.sh"
+readonly str_inFile2="auto-xorg.service"
 
 # copy files and set file permissions #
 if [[ -e $str_outDir1 && -e $str_inFile1 ]]; then
@@ -36,7 +37,7 @@ fi
 
 # missing files #
 if [[ $bool_missingFiles == true ]]; then
-    echo -e "Failed. Missing directories/files:"
+    echo -e "Failed.\n\n$0: Missing directories/files:"
     
     if [[ -z $str_outDir1 ]]; then echo -e "\t$str_outDir1"; fi
     if [[ -z $str_outDir2 ]]; then echo -e "\t$str_outDir2"; fi
@@ -46,12 +47,12 @@ if [[ $bool_missingFiles == true ]]; then
 # setup services #
 else
     echo -e "Complete.\n"
-    systemctl enable auto-xorg.service
-    systemctl start auto-xorg.service
+    systemctl enable $str_inFile2
+    systemctl start $str_inFile2
     systemctl daemon-reload
-    echo -e "\n$0: It is NOT necessary to run '$str_inFile1'.\n\t'$str_inFile2' will run automatically at boot, to grab the first non-VFIO VGA device.\n\tIf no available VGA device is found, an Xorg template will be created. It will be assumed the system is running 'headless'."
+    echo -e "$0: It is NOT necessary to run '$str_inFile1'.\n\t'$str_inFile2' will run automatically at boot, to grab the first non-VFIO VGA device.\n\tIf no available VGA device is found, an Xorg template will be created.\n\tIt will be assumed the system is running 'headless'."
 fi
 
-echo -e "$0: Exiting."
+echo -e "\n$0: Exiting."
 IFS=$SAVEIFS   # Restore original IFS
 exit 0
