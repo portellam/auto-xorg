@@ -1,13 +1,13 @@
 ## Description
-Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
+Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
 
 ## How-to
 * To install, execute:
- 
-        sudo bash installer.bash
-* To run stand-alone, execute: (add **'dm'** to restart the active Display Manager)
 
-        sudo bash auto-xorg.bash dm
+        sudo bash installer.bash
+* To run stand-alone, execute: (add/remove input variable **'y'** to find first/last video device)
+
+        sudo bash auto-xorg.bash y
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -19,7 +19,7 @@ Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
 * Parses list of PCI devices:
 
         lspci -k
-* Saves first (valid) available VGA device.
+* Saves valid and available VGA device.
   * Valid example:
 
         04:00.0 VGA compatible controller: ...
@@ -31,11 +31,11 @@ Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
 * Appends to Xorg file (**'/etc/X11/xorg.conf.d/10-auto-xorg.conf'**).
 
 ## Why?
-Swapping the host/boot video card (VGA) is trivial and tedious.
+Swapping the host/boot video device (VGA) is trivial and tedious.
 
 For whatever the reason, this script has you covered:
 * a fresh VFIO setup
-* toggling the boot VGA or Multi-Boot (**https://github.com/portellam/VFIO-setup/**)
+* switching the boot VGA (**https://github.com/portellam/deploy-VFIO-setup/**)
 * deploying multiple setups
 
 Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script and enjoyed learning something new!

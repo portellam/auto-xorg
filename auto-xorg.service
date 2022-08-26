@@ -1,9 +1,9 @@
 [Unit]
-Description=Generates Xorg (video output) for the first valid non-VFIO video (VGA) device.
+Description=Generates Xorg for the first or last valid non-VFIO video device
 
 [Service]
-#ExecStart="/bin/bash /usr/sbin/auto-xorg.bash dm"    #   Restart DM
-ExecStart=/bin/bash /usr/sbin/auto-xorg.bash          #   Do NOT Restart DM
+ExecStart="/bin/bash /usr/sbin/auto-xorg.bash y"    #  first valid video device
+# ExecStart=/bin/bash /usr/sbin/auto-xorg.bash       # last valid video device
 RemainAfterExit=true
 Type=oneshot
 
