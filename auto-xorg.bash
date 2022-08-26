@@ -11,7 +11,7 @@
 
 # parameters #
     str_input1=`echo $1 | tr '[:upper:]' '[:lower:]'`
-    declare -a arr_input1=`lspci -k`
+    declare -a arr_input1=`lspci -k | grep -Eiv 'devicename|module|subsystem'`
     str_outDir1='/etc/X11/xorg.conf.d/'
     str_outFile1=${str_outDir1}'10-auto-xorg.conf'
 
@@ -39,28 +39,33 @@
             str_thisBusID=${str_thisBusID:1:2}${str_thisBusID:4:3}                                              # ab:cd.e   > b:d.e
             str_thisBusID=`echo $str_thisBusID | cut -d '.' -f 1`":"`echo $str_thisBusID | cut -d '.' -f 2`     # b:d.e     > b:d:e
 
+            # parse driver #
+            if [[ $bool_parseVGA == true ]]; then
+
+		# match driver #
+        	if [[ $str_line1 == *"driver"* && $str_line1 != *"vfio-pci"* ]]; then
+	            bool_parseVGA=false
+        	    str_thisVGADriver=`echo $str_line1 | cut -d ':' -f2`
+                    str_thisVGADriver=${str_thisVGADriver: 1}
+               	    echo -e "$0: Found driver '$str_thisVGADriver'"
+
+
+                    # exit after first successful parse #
+                    if [[ $bool_firstVGA == true ]]; then
+                    	break
+                    fi
+	        fi
+
+		bool_parseVGA=false
+            fi
+
             # match VGA device #
             if [[ $str_line1 == *"VGA"* ]]; then
-                ((int_i++))
-                str_thisVGABusID=$str_thisBusID
-                echo "$0: Found Bus ID '$str_thisVGABusID'"
                 bool_parseVGA=true
-            fi
-
-            # save only if driver is found and is not vfio-pci #
-            if [[ $bool_parseVGA == true && $str_line1 == *"driver"* && $str_line1 != *"vfio-pci"* ]]; then    # line includes PCI driver
-                bool_parseVGA=false
-                str_thisVGADriver=`echo $str_line1 | cut -d ':' -f2`
-                str_thisVGADriver=${str_thisVGADriver: 1}
-                echo "$0: Found driver '$str_thisVGADriver'"
-
-                # exit after first successful parse #
-                if [[ $bool_firstVGA == true ]]; then
-                    break
-                fi
-            fi
-
-            str_prevLine1=$str_line1    # save previous line for comparison
+                str_thisVGABusID=$str_thisBusID
+                echo -e "$0: Found Bus ID '$str_thisVGABusID'"
+                ((int_i++))
+	    fi
         done
 
 # write to file #
