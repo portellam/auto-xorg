@@ -2,8 +2,8 @@
 Description=Generates Xorg for the first or last valid non-VFIO video device
 
 [Service]
-ExecStart="/bin/bash /usr/sbin/auto-xorg.bash y"    #  first valid video device
-# ExecStart=/bin/bash /usr/sbin/auto-xorg.bash       # last valid video device
+ExecStart=/bin/bash /usr/sbin/auto-xorg.bash y
+# ExecStart=/bin/bash /usr/sbin/auto-xorg.bash
 RemainAfterExit=true
 Type=oneshot
 

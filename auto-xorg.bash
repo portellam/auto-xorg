@@ -42,21 +42,21 @@
             # parse driver #
             if [[ $bool_parseVGA == true ]]; then
 
-		# match driver #
-        	if [[ $str_line1 == *"driver"* && $str_line1 != *"vfio-pci"* ]]; then
-	            bool_parseVGA=false
-        	    str_thisVGADriver=`echo $str_line1 | cut -d ':' -f2`
-                    str_thisVGADriver=${str_thisVGADriver: 1}
-               	    echo -e "$0: Found driver '$str_thisVGADriver'"
+                # match driver #
+                if [[ $str_line1 == *"driver"* && $str_line1 != *"vfio-pci"* ]]; then
+                    bool_parseVGA=false
+                    str_thisVGADriver=`echo $str_line1 | cut -d ':' -f2`
+                        str_thisVGADriver=${str_thisVGADriver: 1}
+                        echo -e "$0: Found driver '$str_thisVGADriver'"
 
 
-                    # exit after first successful parse #
-                    if [[ $bool_firstVGA == true ]]; then
-                    	break
-                    fi
-	        fi
+                        # exit after first successful parse #
+                        if [[ $bool_firstVGA == true ]]; then
+                            break
+                        fi
+                fi
 
-		bool_parseVGA=false
+                bool_parseVGA=false
             fi
 
             # match VGA device #
