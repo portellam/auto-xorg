@@ -10,15 +10,31 @@
     IFS=$'\n'      # Change IFS to newline char
 
 # parameters #
-    str_input1=`echo $1 | tr '[:upper:]' '[:lower:]'`
-    declare -a arr_input1=`lspci -k | grep -Eiv 'devicename|module|subsystem'`
+    declare -a arr_busID=$(lspci -m | cut -d ' ' -f1)
+    declare -a arr_driver=()
+    bool_hasLatestIntelDriver=false
+    bool_forceNVIDIAOptimus=false
+    bool_parseFirstVGA=true
+    str_input1=$(echo $1 | tr '[:upper:]' '[:lower:]')
+    str_input2=$(echo $1 | tr '[:upper:]' '[:lower:]')
     str_outDir1='/etc/X11/xorg.conf.d/'
     str_outFile1=${str_outDir1}'10-auto-xorg.conf'
 
-    if [[ $str_input1 == "y"* && $str_input1 != "" ]]; then
-        bool_firstVGA=true
+# match input vars
+    if [[ $str_input2 == "y"* && $str_input2 != "" ]]; then
+        bool_forceNVIDIAOptimus=true
+    fi
+
+    if [[ $bool_forceNVIDIAOptimus == true ]]; then
+        bool_parseFirstVGA=false
+
     else
-        bool_firstVGA=false
+        if [[ $str_input1 == "y"* && $str_input1 != "" ]]; then
+            bool_parseFirstVGA=true
+
+        else
+            bool_parseFirstVGA=false
+        fi
     fi
 
 # clear existing file #
@@ -26,53 +42,106 @@
         rm $str_outFile1
     fi
 
-# find external PCI device Index values, Bus ID, and drivers #
-    bool_parseVGA=false
-    declare -i int_i=0    # reset counter
+# match package (with APT) and match newer Intel driver (should driver not be found or lspci reports the incorrect driver)
+    if [[ $(lsb_release -is | tr '[:upper:]' '[:lower:]') == *"debian"* ]]; then
+        if [[ -e `apt list --installed xserver-xorg-core` || -e $(apt list --installed xserver-xorg-video-modesetting) ]]; then
+            bool_hasLatestIntelDriver=true
 
-    # parse list of PCI devices #
-        for str_line1 in $arr_input1; do
+        else
+            bool_hasLatestIntelDriver=false
+        fi
+    fi
 
-            # save Info #
-            # convert raw string to copy readable by Xorg
-            str_thisBusID=${str_line1:0:7}                                                                      # raw VGA Bus ID
-            str_thisBusID=${str_thisBusID:1:2}${str_thisBusID:4:3}                                              # ab:cd.e   > b:d.e
-            str_thisBusID=`echo $str_thisBusID | cut -d '.' -f 1`":"`echo $str_thisBusID | cut -d '.' -f 2`     # b:d.e     > b:d:e
+# parse PCI Bus IDs #
+    for str_thisBusID in ${arr_busID}; do
+        str_thisVendor=$(lspci -ms $str_thisBusID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
+        str_thisDriver=$(lspci -ks $str_thisBusID | grep -E 'driver')
 
-            # parse driver #
-            if [[ $bool_parseVGA == true ]]; then
+        echo -e "$0: Found Bus ID: '$str_thisBusID'"
 
-                # match driver #
-                if [[ $str_line1 == *"driver"* && $str_line1 != *"vfio-pci"* ]]; then
-                    bool_parseVGA=false
-                    str_thisVGADriver=`echo $str_line1 | cut -d ':' -f2`
-                        str_thisVGADriver=${str_thisVGADriver: 1}
-                        echo -e "$0: Found driver '$str_thisVGADriver'"
+        # match valid driver #
+        if [[ -e $str_thisDriver || $str_thisDriver != "" ]]; then
+            if [[ $str_thisDriver != *"vfio-pci"* ]]; then
 
+                # save newer driver, as it lspci may report the wrong driver ('i915') #
+                if [[ $str_thisVendor == "*intel"* && $bool_hasLatestIntelDriver == true ]]; then
+                    arr_driver+=("modesetting");
 
-                        # exit after first successful parse #
-                        if [[ $bool_firstVGA == true ]]; then
-                            break
-                        fi
+                # save driver #
+                else
+                    arr_driver+=("$str_thisDriver");
                 fi
 
-                bool_parseVGA=false
+                echo -e "$0: Found Driver: '$str_thisDriver'"
+
+            # pad out array with null entry #
+            else
+                arr_driver+=("N/A");
             fi
 
-            # match VGA device #
-            if [[ $str_line1 == *"VGA"* ]]; then
-                bool_parseVGA=true
-                str_thisVGABusID=$str_thisBusID
-                echo -e "$0: Found Bus ID '$str_thisVGABusID'"
-                ((int_i++))
-	    fi
+        # pad out array with null entry #
+        else
+            arr_driver+=("N/A");
+        fi
+    done
+
+# parse first or last VGA driver
+# i don't have to do this this way
+# i can just pull the first valid driver
+# but I want to...
+
+# parse forward order #
+    if [[ $bool_parseFirstVGA == true ]]; then
+
+        # parameters #
+        declare -i int_i=0
+
+        while [[ $int_i -lt ${#arr_busID[@]} ]]; do
+
+            # parameters #
+            str_thisBusID=${arr_busID[$int_i]}
+            str_thisDriver=${arr_driver[$int_i]}
+
+            while [[ $int_i -ge 0 ]]; do
+
+                if [[ $str_thisDriver != "N/A" ]]; then
+                    readonly str_thisBusID
+                    readonly str_thisDriver
+                    break;
+                fi
+            done
+
+            ((int_i++))     # increment counter
         done
+
+# parse reverse order #
+    else
+
+        # parameters #
+        declare -i int_i=(({#arr_busID[@]}--))
+
+        while [[ $int_i -ge 0 ]]; do
+
+            # parameters #
+            str_thisBusID=${arr_busID[$int_i]}
+            str_thisDriver=${arr_driver[$int_i]}
+
+            # match valid driver, save and exit #
+            if [[ $str_thisDriver != "N/A" ]]; then
+                readonly str_thisBusID
+                readonly str_thisDriver
+                break;
+            fi
+
+            ((int_i--))     # decrement counter
+        done
+    fi
 
 # write to file #
     if [[ -e $str_outDir1 ]]; then
 
         # valid xorg #
-        if [[ $str_thisVGADriver != *"vfio-pci"* ]]; then
+        if [[ $str_thisDriver != "" ]]; then
             declare -a arr_output1=(
 "# Generated by 'portellam/Auto-Xorg'
 #
@@ -82,12 +151,14 @@
 #
 \nSection \"Device\"
 Identifier     \"Device0\"
-Driver         \"$str_thisVGADriver\"
-BusID          \"PCI:$str_thisVGABusID\"
+Driver         \"$str_thisDriver\"
+BusID          \"PCI:$str_thisBusID\"
 EndSection")
 
             # append file #
-            for str_line1 in ${arr_output1[@]}; do echo -e $str_line1 >> $str_outFile1; done
+            for str_line1 in ${arr_output1[@]}; do
+                echo -e $str_line1 >> $str_outFile1
+            done
 
             # # find display manager #
             # str_DM=`cat /etc/X11/default-display-manager`
@@ -122,7 +193,9 @@ EndSection")
 #EndSection")
 
             # append file #
-            for str_line1 in ${arr_output1[@]}; do echo -e $str_line1 >> $str_outFile1; done
+            for str_line1 in ${arr_output1[@]}; do
+                echo -e $str_line1 >> $str_outFile1
+            done
         fi
 
 # missing files #
