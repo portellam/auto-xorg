@@ -39,3 +39,9 @@ For whatever the reason, this script has you covered:
 * deploying multiple setups
 
 Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script and enjoyed learning something new!
+
+## DISCLAIMER
+Tested on Debian Linux, personal laptop (Thinkpad T500-series) and desktop (Intel Core 9th Gen. and Z390 motherboard).
+
+Given desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. however laptop has some.
+Using Auto-Xorg on given Laptop (with NVIDIA Optimus; active GPUs are Intel and NVIDIA) will output to terminal and NOT display manager.
