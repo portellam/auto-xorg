@@ -24,7 +24,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 
         04:00.0 VGA compatible controller: ...
 
-        lspci -ks 04:00.0 | grep driver | cut -d ':' -f2 | cut -d ' ' -f2
+        lspci -ks 04:00.0 | grep driver
         Kernel driver in use: nvidia
   * Invalid example:
 
