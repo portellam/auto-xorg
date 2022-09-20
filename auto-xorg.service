@@ -3,6 +3,7 @@ Description=Auto-Xorg
 
 [Service]
 ExecStart=/bin/bash /usr/sbin/auto-xorg.bash y
+# ExecStart=/bin/bash /usr/sbin/auto-xorg.bash n
 # ExecStart=/bin/bash /usr/sbin/auto-xorg.bash
 RemainAfterExit=true
 Type=oneshot

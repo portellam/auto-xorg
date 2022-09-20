@@ -23,12 +23,12 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
   * Valid example:
 
         04:00.0 VGA compatible controller: ...
-
         lspci -ks 04:00.0 | grep driver
         Kernel driver in use: nvidia
   * Invalid example:
 
         01:00.0 VGA compatible controller: ...
+        lspci -ks 01:00.0 | grep driver
         Kernel driver in use: vfio-pci
 * Appends to Xorg file (**'/etc/X11/xorg.conf.d/10-auto-xorg.conf'**).
 
@@ -47,6 +47,7 @@ Tested on Debian Linux, personal laptop (Thinkpad T500-series, with NVIDIA Optim
 
 The given desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. however laptop has some.
 
-On the given Laptop, *lspci* parses Intel VGA driver "i915" (which is blacklisted and superseded by "modesetting"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+On the given Laptop, **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
 
-In the future, I would like to create a specific, distro-independent function to check for if the more recent ("modesetting") driver is present, or not, and apply an Xorg file accordingly.
+## To-Do
+In the future, I would like to create a specific, distro-independent function. The function will check for if the more recent Intel driver (**"modesetting"**) is present or not, and apply an Xorg file accordingly.
