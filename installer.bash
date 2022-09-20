@@ -60,6 +60,6 @@ echo -en "Installing Auto-Xorg... "
         echo -e "It is NOT necessary to run '$str_inFile1'.\n\t'$str_inFile2' will run automatically at boot, to grab the first non-VFIO VGA device.\n\tIf no available VGA device is found, an Xorg template will be created.\n\tIt will be assumed the system is running 'headless'."
     fi
 
-echo -e "\n Exiting."
+echo -e "\nExiting."
 IFS=$SAVEIFS   # Restore original IFS
 exit 0
