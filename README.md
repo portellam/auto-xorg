@@ -45,7 +45,8 @@ Note, I don't believe the Linux team or VFIO community has made a script for a p
 ## DISCLAIMER
 Tested on Debian Linux, personal laptop (Thinkpad T500-series, with NVIDIA Optimus) and desktop (Intel Core 9th Gen. and Z390 motherboard).
 
-Given desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. however laptop has some.
-On given Laptop, the lspci parses Intel VGA driver "i915" (which is blacklisted and superseded by "modesetting"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+The given desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. however laptop has some.
 
-In the future, I would like to create a specific, disro-independent function to check if the more recent ("modesetting") driver is present, and use that.
+On the given Laptop, *lspci* parses Intel VGA driver "i915" (which is blacklisted and superseded by "modesetting"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+
+In the future, I would like to create a specific, distro-independent function to check for if the more recent ("modesetting") driver is present, or not, and apply an Xorg file accordingly.
