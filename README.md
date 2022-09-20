@@ -5,7 +5,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 * To install, execute:
 
         sudo bash installer.bash
-* To run stand-alone, execute: (add/remove input variable **'y'** to find first/last video device)
+* To run stand-alone, execute: (add input variable **'y'** or **'n'** (or none) to find first or last VGA device)
 
         sudo bash auto-xorg.bash y
 
@@ -18,12 +18,14 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 * Runs once at boot.
 * Parses list of PCI devices:
 
-        lspci -k
+        lspci -m | grep -Ev "VGA|Graphics"
 * Saves valid and available VGA device.
   * Valid example:
 
-        04:00.0 VGA compatible controller: ...
-        Kernel driver in use: nvidia
+        *04:00.0 VGA compatible controller: ...*
+
+        lspci -ks 04:00.0 | grep driver | cut -d ':' -f2 | cut -d ' ' -f2
+        *Kernel driver in use: nvidia*
   * Invalid example:
 
         01:00.0 VGA compatible controller: ...
@@ -41,7 +43,9 @@ For whatever the reason, this script has you covered:
 Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script and enjoyed learning something new!
 
 ## DISCLAIMER
-Tested on Debian Linux, personal laptop (Thinkpad T500-series) and desktop (Intel Core 9th Gen. and Z390 motherboard).
+Tested on Debian Linux, personal laptop (Thinkpad T500-series, with NVIDIA Optimus) and desktop (Intel Core 9th Gen. and Z390 motherboard).
 
 Given desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. however laptop has some.
-Using Auto-Xorg on given Laptop (with NVIDIA Optimus; active GPUs are Intel and NVIDIA) will output to terminal and NOT display manager.
+On given Laptop, the lspci parses Intel VGA driver "i915" (which is blacklisted and superseded by "modesetting"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+
+In the future, I would like to create a specific, disro-independent function to check if the more recent ("modesetting") driver is present, and use that. In the meantime, keep this in mind.
