@@ -26,34 +26,25 @@
     str_outFile1=${str_outDir1}'10-auto-xorg.conf'
 
 # match input vars
-    case $str_input1:
-        "y":
-            bool_parseFirstVGA=true
-            break;;
+    case $str_input1 in
+        "y")
+            bool_parseFirstVGA=true;;
 
-        "n":
+        "n")
             bool_parseFirstVGA=false
-            echo -e "NOTE: Parsing VGA devices in reverse order."
-            break;;
+            echo -e "NOTE: Parsing VGA devices in reverse order.";;
 
-        *:
+        *)
             echo -e "FAILURE: Invalid input. Missing input variable [Y/n]. Exiting."
             exit 1;;
-    case;
-
-    if [[ $str_input1 == "y"* && $str_input1 != "" ]]; then
-        bool_parseFirstVGA=true
-
-    else
-        bool_parseFirstVGA=false
-    fi
+    esac
 
 # parse PCI #
     if [[ $bool_parseFirstVGA == true ]]; then
-        declare -a arr_busID=$(lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f1)
+        declare -a arr_PCI_ID=$(lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f1)
 
     else
-        declare -a arr_busID=$(lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f1 | sort -r)
+        declare -a arr_PCI_ID=$(lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f1 | sort -r)
     fi
 
 # clear existing file #
@@ -82,7 +73,7 @@
 #     esac
 
 # parse for and note problematic intel driver #
-    for str_thisBusID in ${arr_busID}; do
+    for str_thisPCI_ID in ${arr_PCI_ID}; do
 
         # match valid VGA device and driver #
         if [[ $str_thisType == *"vga"* && $str_thisVendor == *"intel" && -e $str_thisDriver && $str_thisDriver != "" && $str_thisDriver != *"vfio-pci"* ]]; then
@@ -138,27 +129,32 @@
 #     fi
 
 # find first/last valid VGA driver #
-    for str_thisBusID in ${arr_busID}; do
+    for str_thisPCI_ID in ${arr_PCI_ID}; do
 
         # parameters #
-        str_thisDriver=$(lspci -ks $str_thisBusID | grep -E 'driver')
-        str_thisType=$(lspci -ms $str_thisBusID | cut -d '"' -f2 | tr '[:upper:]' '[:lower:]')
-        str_thisVendor=$(lspci -ms $str_thisBusID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
-        str_thisSlotID=$(echo $str_thisBusID | cut -d '.' -f1 )
-        str_thisFuncID$(echo $str_thisBusID | cut -d '.' -f2 )
+        str_thisDriver=$(lspci -ks $str_thisPCI_ID | grep -E 'driver' | cut -d ':' -f2 | cut -d ' ' -f2)
+        str_thisType=$(lspci -ms $str_thisPCI_ID | cut -d '"' -f2 | tr '[:upper:]' '[:lower:]')
+        str_thisVendor=$(lspci -ms $str_thisPCI_ID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
+        str_thisBusID=$(echo $str_thisPCI_ID | cut -d ':' -f1 )
+        str_thisSlotID=$(echo $str_thisPCI_ID | cut -d ':' -f2 | cut -d '.' -f1 )
+        str_thisFuncID$(echo $str_thisPCI_ID | cut -d '.' -f2 )
 
         # truncate zero digit of string #
+        if [[ ${str_thisBusID::1} == "0" ]]; then
+            str_thisBusID${str_thisBusID::2}
+        fi
+
         if [[ ${str_thisSlotID::1} == "0" ]]; then
             str_thisSlotID${str_thisSlotID::2}
         fi
 
         # rearrange string for Xorg output #
-        str_thisBusID=$(echo ${str_thisBusID} | cut -d ':' -f1 )":"${str_thisSlotID}"."${str_thisFuncID}
+        str_thisPCI_ID=${str_thisBusID}":"${str_thisSlotID}"."${str_thisFuncID}
 
-        echo -e "Found Bus ID: '$str_thisBusID'"
+        echo -e "Found Bus ID: '$str_thisPCI_ID'"
 
         # match valid VGA device and driver #
-        if [[ ($str_thisVendor == *"vga"* || $str_thisVendor == *"graphics" ) && ( -e $str_thisDriver || $str_thisDriver != "" ) && $str_thisDriver != *"vfio-pci"* ]]; then
+        if [[ ($str_thisType == *"vga"* || $str_thisType == *"graphics" ) && ( -e $str_thisDriver || $str_thisDriver != "" ) && $str_thisDriver != *"vfio-pci"* ]]; then
 
             echo -e "Found Driver: '$str_thisDriver'"
 
@@ -170,7 +166,7 @@
             #     str_thisDriver="modesetting"
             # fi
 
-            readonly str_thisBusID
+            readonly str_thisPCI_ID
             readonly str_thisDriver
             break
 
@@ -196,10 +192,10 @@
 #
 # Execute \"lspci -k\" for Bus ID and Driver.
 #
-\nSection \"Device\"
-Identifier     \"Device0\"
-Driver         \"$str_thisDriver\"
-BusID          \"PCI:$str_thisBusID\"
+\nSection\t\"Device\"
+Identifier\t\"Device0\"
+Driver\t\t\"$str_thisDriver\"
+BusID\t\t\"PCI:$str_thisPCI_ID\"
 EndSection")
 
             # append file #
@@ -235,10 +231,10 @@ EndSection")
 #
 # Execute 'lspci -k' for Bus ID and Driver.
 #
-\n#Section \"Device\"
-#Identifier     \"Device0\"
-#Driver         \"driver_name\"
-#BusID          \"PCI:x:x:x\"
+\n#Section\t\"Device\"
+#Identifier\t\"Device0\"
+#Driver\t\t\"driver_name\"
+#BusID\t\t\"PCI:x:x:x\"
 #EndSection")
 
             # append file #

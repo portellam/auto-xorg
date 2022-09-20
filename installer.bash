@@ -4,16 +4,19 @@
 # Author:       Alex Portell <https://github.com/portellam>
 #
 
-# check if sudo #
+# check if sudo/root #
     if [[ `whoami` != "root" ]]; then
-        echo "WARNING: Script must be run as Sudo or Root! Exiting."
-        exit 0
+        str_file1=`echo ${0##/*}`
+        str_file1=`echo $str_file1 | cut -d '/' -f2`
+        echo -e "WARNING: Script must execute as root. In terminal, run:\n\t'sudo bash $str_file1'\n\tor\n\t'su' and 'bash $str_file1'.\nExiting."
+        exit 1
     fi
 
-SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
-IFS=$'\n'      # Change IFS to newline char
+# set IFS #
+    SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
+    IFS=$'\n'      # Change IFS to newline char
 
-echo -en "$0: Installing Auto-Xorg... "
+echo -en "Installing Auto-Xorg... "
 
 # parameters #
     bool_missingFiles=false
@@ -54,9 +57,9 @@ echo -en "$0: Installing Auto-Xorg... "
         systemctl enable $str_inFile2
         systemctl restart $str_inFile2
         systemctl daemon-reload
-        echo -e "$0: It is NOT necessary to run '$str_inFile1'.\n\t'$str_inFile2' will run automatically at boot, to grab the first non-VFIO VGA device.\n\tIf no available VGA device is found, an Xorg template will be created.\n\tIt will be assumed the system is running 'headless'."
+        echo -e "It is NOT necessary to run '$str_inFile1'.\n\t'$str_inFile2' will run automatically at boot, to grab the first non-VFIO VGA device.\n\tIf no available VGA device is found, an Xorg template will be created.\n\tIt will be assumed the system is running 'headless'."
     fi
 
-echo -e "\n$0: Exiting."
+echo -e "\n Exiting."
 IFS=$SAVEIFS   # Restore original IFS
 exit 0
