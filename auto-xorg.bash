@@ -6,9 +6,9 @@
 #
 
 # check if sudo/root #
-    if [[ `whoami` != "root" ]]; then
-        str_file1=`echo ${0##/*}`
-        str_file1=`echo $str_file1 | cut -d '/' -f2`
+    if [[ $(whoami) != *"root"* ]]; then
+        str_file1=$(echo ${0##/*})
+        str_file1=$(echo $str_file1 | cut -d '/' -f2)
         echo -e "WARNING: Script must execute as root. In terminal, run:\n\t'sudo bash $str_file1'\n\tor\n\t'su' and 'bash $str_file1'.\nExiting."
         exit 1
     fi
@@ -18,9 +18,16 @@
     IFS=$'\n'      # Change IFS to newline char
 
 # parameters #
-    declare -a arr_driver=()
     bool_matchGivenIntelDriver=false                     # check to ignore 'i915' driver and prioritize 'modesetting'
     bool_parseFirstVGA=true
+    bool_packageManagerIsNotApt=false
+    bool_packageManagerIsNotDnf=false
+    bool_packageManagerIsNotDpkg=false
+    bool_packageManagerIsNotPacman=false
+    bool_packageManagerIsNotPortage=false
+    bool_packageManagerIsNotRpm=false
+    bool_packageManagerIsNotYum=false
+    bool_packageManagerIsNotZypper=false
     str_input1=$(echo $1 | tr '[:upper:]' '[:lower:]')
     str_outDir1='/etc/X11/xorg.conf.d/'
     str_outFile1=${str_outDir1}'10-auto-xorg.conf'
@@ -52,81 +59,147 @@
         rm $str_outFile1
     fi
 
-# NOTE: incomplete
-# find distro name, parse installed packages for updated intel driver #
-#     case $(lsb_release -is | tr '[:upper:]' '[:lower:]'):
-#         *"debian"*|*"ubuntu"*:
-#             bool_matchDistroDebian=true
-#             break;;
+# check for package manager or distribution, then check for intel graphics driver, and set boolean #
+# NOTE: this is a work in progress
+    # find active package manager #
+        case *"command not found"* in
+            $(apt))
+                bool_packageManagerIsNotApt=true;;
 
-#         *"red"*|*"hat"*|*"fedora"*:
-#             bool_matchDistroRedhat=true
-#             break;;
+            $(dnf))
+                bool_packageManagerIsNotDnf=true;;
 
-#         *"arch"*:
-#             bool_matchDistroArch=true
-#             break;;
+            $(dpkg))
+                bool_packageManagerIsNotDpkg=true;;
 
-#         *:
-#             echo -e "WARNING: Unrecognized Linux distribution. Continuing with minimum function."
-#             break;;
-#     esac
+            $(pacman))
+                bool_packageManagerIsNotPacman=true;;
 
-# parse for and note problematic intel driver #
-    for str_thisPCI_ID in ${arr_PCI_ID}; do
+            $(portage))
+                bool_packageManagerIsNotPortage=true;;
 
-        # match valid VGA device and driver #
-        if [[ $str_thisType == *"vga"* && $str_thisVendor == *"intel" && -e $str_thisDriver && $str_thisDriver != "" && $str_thisDriver != *"vfio-pci"* ]]; then
-            if [[ $str_thisDriver == *"i915"* ]]; then
-                bool_matchGivenIntelDriver=true
-                break
+            $(rpm))
+                bool_packageManagerIsNotRpm=true;;
 
-            else
-                bool_matchGivenIntelDriver=false
-            fi
-        fi
-    done
+            $(yum))
+                bool_packageManagerIsNotYum=true;;
 
-# NOTE: incomplete
-# check for newer intel driver #
-#     if [[ $bool_matchGivenIntelDriver == true ]]; then
-#         case [[ true ]]:
+            $(zypper))
+                bool_packageManagerIsNotZypper=true;;
 
-#             # NOTE: I do not believe this is accurate.
-#             #       Commented out for now.
-#             # bool_matchDistroArch:
-#             #     if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting )]]; then
-#             #         bool_matchGivenIntelDriver=true
+            *)
+                echo -e "WARNING: Package manager not found. Continuing";;
+        esac
 
-#             #     else
-#             #         bool_matchGivenIntelDriver=false
-#             #     fi
+    # check for installed package by package manager #
+        # NOTE: package name or availability may not be consistent across package managers/distributions
+        # NOTE: update here!
 
-#             #     break;;
+        case false in
+            $bool_packageManagerIsNotApt)
+                if [[ $(apt list --installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
 
-#             bool_matchDistroDebian:
-#                 if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') || $(apt list --installed xserver-xorg-core server-xorg-video-modesetting )]]; then
-#                     bool_matchGivenIntelDriver=true
+            $bool_packageManagerIsNotDnf)
+                if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting)  ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
 
-#                 else
-#                     bool_matchGivenIntelDriver=false
-#                 fi
+            $bool_packageManagerIsNotDpkg)
+                if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
 
-#                 break;;
+            $bool_packageManagerIsNotPacman)
+                if [[ $(pacman -Qi xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
 
-#             # NOTE: I do not believe this is accurate.
-#             #       Commented out for now.
-#             bool_matchDistroRedhat:
-#                 if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting) || $(yum installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
-#                     bool_matchGivenIntelDriver=true
+            $bool_packageManagerIsNotPortage)
+                if [[ $(portage list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
 
-#                 else
-#                     bool_matchGivenIntelDriver=false
-#                 fi
+            $bool_packageManagerIsNotRpm)
+                if [[ $(rpm list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
 
-#                 break;;
-#         esac
-#     fi
+            $bool_packageManagerIsNotYum)
+                if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
+
+            $bool_packageManagerIsNotZypper)
+                if [[ $(zypper list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+                    bool_matchGivenIntelDriver=true
+                fi;;
+        esac
+
+    # find mainline distro name #
+        # case $(lsb_release -is | tr '[:upper:]' '[:lower:]') in
+        #     *"arch"*)
+        #         bool_distroIsArch=true;;
+
+        #     *"debian"*)
+        #         bool_distroIsDebian=true;;
+
+        #     *"fedora"*)
+        #         bool_distroIsFedora=true;;
+
+        #     *"gentoo"*)
+        #         bool_distroIsGentoo=true;;
+
+        #     *"suse"*)
+        #         bool_distroIsSUSE=true;;
+
+        #     *)
+        #         echo -e "WARNING: Unrecognized Linux distribution. Continuing.";;
+        # esac
+
+    # check for installed package by distro name #
+        # NOTE: package name or availability may not be consistent across package managers/distributions
+        # NOTE: update here!
+
+        # case true in
+        #     $bool_distroIsArch)
+        #         if [[ $(pacman -Qi xserver-xorg-core xserver-xorg-video-modesetting) ]]; then        # distro/package-manager specific   # NOTE: update here at each statement!
+        #             bool_matchGivenIntelDriver=true
+        #         fi;;
+
+        #     $bool_distroIsDebian)
+        #         if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') || $(apt list --installed xserver-xorg-core server-xorg-video-modesetting) ]]; then
+        #             bool_matchGivenIntelDriver=true
+        #         fi;;
+
+        #     $bool_distroIsFedora)
+        #         if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting) || $(rpm installed xserver-xorg-core xserver-xorg-video-modesetting) || $(yum installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+        #             bool_matchGivenIntelDriver=true
+        #         fi;;
+
+        #     $bool_distroIsGentoo)
+        #         if [[ $(portage list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+        #             bool_matchGivenIntelDriver=true
+        #         fi;;
+
+        #     $bool_distroIsSUSE)
+        #         if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+        #             bool_matchGivenIntelDriver=true
+        #         fi;;
+        # esac
+
+    # parse for and note problematic intel driver #
+        # for str_thisPCI_ID in ${arr_PCI_ID}; do
+
+        #     # match valid VGA device and driver #
+        #     if [[ $str_thisType == *"vga"* && $str_thisVendor == *"intel" && -e $str_thisDriver && $str_thisDriver != "" && $str_thisDriver != *"vfio-pci"* ]]; then
+        #         if [[ $str_thisDriver == *"i915"* ]]; then
+        #             bool_matchGivenIntelDriver=true
+        #             break
+        #         fi
+        #     fi
+        # done
 
 # find first/last valid VGA driver #
     for str_thisPCI_ID in ${arr_PCI_ID}; do
