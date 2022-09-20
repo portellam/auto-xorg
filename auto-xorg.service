@@ -1,5 +1,5 @@
 [Unit]
-Description=Generates Xorg for the first or last valid non-VFIO video device
+Description=Auto-Xorg
 
 [Service]
 ExecStart=/bin/bash /usr/sbin/auto-xorg.bash y
