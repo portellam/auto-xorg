@@ -5,36 +5,55 @@
 # Description:  Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
 #
 
+# check if sudo/root #
+    if [[ `whoami` != "root" ]]; then
+        str_file1=`echo ${0##/*}`
+        str_file1=`echo $str_file1 | cut -d '/' -f2`
+        echo -e "WARNING: Script must execute as root. In terminal, run:\n\t'sudo bash $str_file1'\n\tor\n\t'su' and 'bash $str_file1'.\nExiting."
+        exit 1
+    fi
+
 # set IFS #
     SAVEIFS=$IFS   # Save current IFS (Internal Field Separator)
     IFS=$'\n'      # Change IFS to newline char
 
 # parameters #
-    declare -a arr_busID=$(lspci -m | cut -d ' ' -f1)
     declare -a arr_driver=()
-    bool_hasLatestIntelDriver=false
-    bool_forceNVIDIAOptimus=false
+    bool_matchGivenIntelDriver=false                     # check to ignore 'i915' driver and prioritize 'modesetting'
     bool_parseFirstVGA=true
     str_input1=$(echo $1 | tr '[:upper:]' '[:lower:]')
-    str_input2=$(echo $1 | tr '[:upper:]' '[:lower:]')
     str_outDir1='/etc/X11/xorg.conf.d/'
     str_outFile1=${str_outDir1}'10-auto-xorg.conf'
 
 # match input vars
-    if [[ $str_input2 == "y"* && $str_input2 != "" ]]; then
-        bool_forceNVIDIAOptimus=true
-    fi
+    case $str_input1:
+        "y":
+            bool_parseFirstVGA=true
+            break;;
 
-    if [[ $bool_forceNVIDIAOptimus == true ]]; then
-        bool_parseFirstVGA=false
+        "n":
+            bool_parseFirstVGA=false
+            echo -e "NOTE: Parsing VGA devices in reverse order."
+            break;;
+
+        *:
+            echo -e "FAILURE: Invalid input. Missing input variable [Y/n]. Exiting."
+            exit 1;;
+    case;
+
+    if [[ $str_input1 == "y"* && $str_input1 != "" ]]; then
+        bool_parseFirstVGA=true
 
     else
-        if [[ $str_input1 == "y"* && $str_input1 != "" ]]; then
-            bool_parseFirstVGA=true
+        bool_parseFirstVGA=false
+    fi
 
-        else
-            bool_parseFirstVGA=false
-        fi
+# parse PCI #
+    if [[ $bool_parseFirstVGA == true ]]; then
+        declare -a arr_busID=$(lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f1)
+
+    else
+        declare -a arr_busID=$(lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f1 | sort -r)
     fi
 
 # clear existing file #
@@ -42,106 +61,134 @@
         rm $str_outFile1
     fi
 
-# match package (with APT) and match newer Intel driver (should driver not be found or lspci reports the incorrect driver)
-    if [[ $(lsb_release -is | tr '[:upper:]' '[:lower:]') == *"debian"* ]]; then
-        if [[ -e `apt list --installed xserver-xorg-core` || -e $(apt list --installed xserver-xorg-video-modesetting) ]]; then
-            bool_hasLatestIntelDriver=true
+# NOTE: incomplete
+# find distro name, parse installed packages for updated intel driver #
+#     case $(lsb_release -is | tr '[:upper:]' '[:lower:]'):
+#         *"debian"*|*"ubuntu"*:
+#             bool_matchDistroDebian=true
+#             break;;
 
-        else
-            bool_hasLatestIntelDriver=false
-        fi
-    fi
+#         *"red"*|*"hat"*|*"fedora"*:
+#             bool_matchDistroRedhat=true
+#             break;;
 
-# parse PCI Bus IDs #
+#         *"arch"*:
+#             bool_matchDistroArch=true
+#             break;;
+
+#         *:
+#             echo -e "WARNING: Unrecognized Linux distribution. Continuing with minimum function."
+#             break;;
+#     esac
+
+# parse for and note problematic intel driver #
     for str_thisBusID in ${arr_busID}; do
-        str_thisVendor=$(lspci -ms $str_thisBusID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
-        str_thisDriver=$(lspci -ks $str_thisBusID | grep -E 'driver')
 
-        echo -e "$0: Found Bus ID: '$str_thisBusID'"
+        # match valid VGA device and driver #
+        if [[ $str_thisType == *"vga"* && $str_thisVendor == *"intel" && -e $str_thisDriver && $str_thisDriver != "" && $str_thisDriver != *"vfio-pci"* ]]; then
+            if [[ $str_thisDriver == *"i915"* ]]; then
+                bool_matchGivenIntelDriver=true
+                break
 
-        # match valid driver #
-        if [[ -e $str_thisDriver || $str_thisDriver != "" ]]; then
-            if [[ $str_thisDriver != *"vfio-pci"* ]]; then
-
-                # save newer driver, as it lspci may report the wrong driver ('i915') #
-                if [[ $str_thisVendor == "*intel"* && $bool_hasLatestIntelDriver == true ]]; then
-                    arr_driver+=("modesetting");
-
-                # save driver #
-                else
-                    arr_driver+=("$str_thisDriver");
-                fi
-
-                echo -e "$0: Found Driver: '$str_thisDriver'"
-
-            # pad out array with null entry #
             else
-                arr_driver+=("N/A");
+                bool_matchGivenIntelDriver=false
             fi
-
-        # pad out array with null entry #
-        else
-            arr_driver+=("N/A");
         fi
     done
 
-# parse first or last VGA driver
-# i don't have to do this this way
-# i can just pull the first valid driver
-# but I want to...
+# NOTE: incomplete
+# check for newer intel driver #
+#     if [[ $bool_matchGivenIntelDriver == true ]]; then
+#         case [[ true ]]:
 
-# parse forward order #
-    if [[ $bool_parseFirstVGA == true ]]; then
+#             # NOTE: I do not believe this is accurate.
+#             #       Commented out for now.
+#             # bool_matchDistroArch:
+#             #     if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting )]]; then
+#             #         bool_matchGivenIntelDriver=true
+
+#             #     else
+#             #         bool_matchGivenIntelDriver=false
+#             #     fi
+
+#             #     break;;
+
+#             bool_matchDistroDebian:
+#                 if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') || $(apt list --installed xserver-xorg-core server-xorg-video-modesetting )]]; then
+#                     bool_matchGivenIntelDriver=true
+
+#                 else
+#                     bool_matchGivenIntelDriver=false
+#                 fi
+
+#                 break;;
+
+#             # NOTE: I do not believe this is accurate.
+#             #       Commented out for now.
+#             bool_matchDistroRedhat:
+#                 if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting) || $(yum installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
+#                     bool_matchGivenIntelDriver=true
+
+#                 else
+#                     bool_matchGivenIntelDriver=false
+#                 fi
+
+#                 break;;
+#         esac
+#     fi
+
+# find first/last valid VGA driver #
+    for str_thisBusID in ${arr_busID}; do
 
         # parameters #
-        declare -i int_i=0
+        str_thisDriver=$(lspci -ks $str_thisBusID | grep -E 'driver')
+        str_thisType=$(lspci -ms $str_thisBusID | cut -d '"' -f2 | tr '[:upper:]' '[:lower:]')
+        str_thisVendor=$(lspci -ms $str_thisBusID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
+        str_thisSlotID=$(echo $str_thisBusID | cut -d '.' -f1 )
+        str_thisFuncID$(echo $str_thisBusID | cut -d '.' -f2 )
 
-        while [[ $int_i -lt ${#arr_busID[@]} ]]; do
+        # truncate zero digit of string #
+        if [[ ${str_thisSlotID::1} == "0" ]]; then
+            str_thisSlotID${str_thisSlotID::2}
+        fi
 
-            # parameters #
-            str_thisBusID=${arr_busID[$int_i]}
-            str_thisDriver=${arr_driver[$int_i]}
+        # rearrange string for Xorg output #
+        str_thisBusID=$(echo ${str_thisBusID} | cut -d ':' -f1 )":"${str_thisSlotID}"."${str_thisFuncID}
 
-            while [[ $int_i -ge 0 ]]; do
+        echo -e "Found Bus ID: '$str_thisBusID'"
 
-                if [[ $str_thisDriver != "N/A" ]]; then
-                    readonly str_thisBusID
-                    readonly str_thisDriver
-                    break;
-                fi
-            done
+        # match valid VGA device and driver #
+        if [[ ($str_thisVendor == *"vga"* || $str_thisVendor == *"graphics" ) && ( -e $str_thisDriver || $str_thisDriver != "" ) && $str_thisDriver != *"vfio-pci"* ]]; then
 
-            ((int_i++))     # increment counter
-        done
+            echo -e "Found Driver: '$str_thisDriver'"
 
-# parse reverse order #
-    else
-
-        # parameters #
-        declare -i int_i=(({#arr_busID[@]}--))
-
-        while [[ $int_i -ge 0 ]]; do
-
-            # parameters #
-            str_thisBusID=${arr_busID[$int_i]}
-            str_thisDriver=${arr_driver[$int_i]}
-
-            # match valid driver, save and exit #
-            if [[ $str_thisDriver != "N/A" ]]; then
-                readonly str_thisBusID
-                readonly str_thisDriver
-                break;
+            if [[ $str_thisVendor == "*intel"* ]]; then
+                echo -e "WARNING: Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
             fi
 
-            ((int_i--))     # decrement counter
-        done
-    fi
+            # if [[ $str_thisVendor == "*intel"* && $bool_matchGivenIntelDriver == true ]]; then
+            #     str_thisDriver="modesetting"
+            # fi
+
+            readonly str_thisBusID
+            readonly str_thisDriver
+            break
+
+        elif [[ $str_thisDriver == "" ]]; then
+            echo -e "Found Driver: 'N/A'"
+
+        else
+            echo -e "Found Driver: '$str_thisDriver'"
+        fi
+    done
 
 # write to file #
     if [[ -e $str_outDir1 ]]; then
 
         # valid xorg #
         if [[ $str_thisDriver != "" ]]; then
+            echo -e "Valid VGA device found."
+
             declare -a arr_output1=(
 "# Generated by 'portellam/Auto-Xorg'
 #
@@ -179,6 +226,8 @@ EndSection")
 
         # template #
         else
+            echo -e "WARNING: No valid VGA device found. Continuing."
+
             declare -a arr_output1=(
 "# Generated by 'portellam/Auto-Xorg'
 #
@@ -200,10 +249,18 @@ EndSection")
 
 # missing files #
     else
-        echo -e "Failed. Missing directories/files:"
+        echo -e "FAILURE: Missing directories/files:"
 
-        if [[ -z $str_outDir1 ]]; then echo -e "\t$str_outDir1"; fi
-        if [[ -z $str_outDir1$str_outFile1 ]]; then echo -e "\t$str_outDir1$str_outFile1"; fi
+        if [[ -z $str_outDir1 ]]; then
+            echo -e "\t$str_outDir1"
+        fi
+
+        if [[ -z $str_outDir1$str_outFile1 ]]; then
+            echo -e "\t$str_outDir1$str_outFile1"
+        fi
+
+        echo -e "Exiting."
+        exit 1
     fi
 
 IFS=$SAVEIFS   # Restore original IFS
