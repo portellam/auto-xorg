@@ -22,10 +22,10 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 * Saves valid and available VGA device.
   * Valid example:
 
-        04:00.0 VGA compatible controller: ...
+        *04:00.0 VGA compatible controller: ...*
 
-        lspci -ks 04:00.0 | grep driver
-        Kernel driver in use: nvidia
+        lspci -ks 04:00.0 | grep driver | cut -d ':' -f2 | cut -d ' ' -f2
+        *Kernel driver in use: nvidia*
   * Invalid example:
 
         01:00.0 VGA compatible controller: ...
