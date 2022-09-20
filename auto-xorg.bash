@@ -6,9 +6,9 @@
 #
 
 # check if sudo/root #
-    if [[ `whoami` != "root" ]]; then
-        str_file1=`echo ${0##/*}`
-        str_file1=`echo $str_file1 | cut -d '/' -f2`
+    if [[ $(whoami) != *"root"* ]]; then
+        str_file1=$(echo ${0##/*})
+        str_file1=$(echo $str_file1 | cut -d '/' -f2)
         echo -e "WARNING: Script must execute as root. In terminal, run:\n\t'sudo bash $str_file1'\n\tor\n\t'su' and 'bash $str_file1'.\nExiting."
         exit 1
     fi
@@ -18,8 +18,6 @@
     IFS=$'\n'      # Change IFS to newline char
 
 # parameters #
-    declare -a arr_driver=()
-    bool_matchGivenIntelDriver=false                     # check to ignore 'i915' driver and prioritize 'modesetting'
     bool_parseFirstVGA=true
     str_input1=$(echo $1 | tr '[:upper:]' '[:lower:]')
     str_outDir1='/etc/X11/xorg.conf.d/'
@@ -51,82 +49,6 @@
     if [[ -e $str_outFile1 ]]; then
         rm $str_outFile1
     fi
-
-# NOTE: incomplete
-# find distro name, parse installed packages for updated intel driver #
-#     case $(lsb_release -is | tr '[:upper:]' '[:lower:]'):
-#         *"debian"*|*"ubuntu"*:
-#             bool_matchDistroDebian=true
-#             break;;
-
-#         *"red"*|*"hat"*|*"fedora"*:
-#             bool_matchDistroRedhat=true
-#             break;;
-
-#         *"arch"*:
-#             bool_matchDistroArch=true
-#             break;;
-
-#         *:
-#             echo -e "WARNING: Unrecognized Linux distribution. Continuing with minimum function."
-#             break;;
-#     esac
-
-# parse for and note problematic intel driver #
-    for str_thisPCI_ID in ${arr_PCI_ID}; do
-
-        # match valid VGA device and driver #
-        if [[ $str_thisType == *"vga"* && $str_thisVendor == *"intel" && -e $str_thisDriver && $str_thisDriver != "" && $str_thisDriver != *"vfio-pci"* ]]; then
-            if [[ $str_thisDriver == *"i915"* ]]; then
-                bool_matchGivenIntelDriver=true
-                break
-
-            else
-                bool_matchGivenIntelDriver=false
-            fi
-        fi
-    done
-
-# NOTE: incomplete
-# check for newer intel driver #
-#     if [[ $bool_matchGivenIntelDriver == true ]]; then
-#         case [[ true ]]:
-
-#             # NOTE: I do not believe this is accurate.
-#             #       Commented out for now.
-#             # bool_matchDistroArch:
-#             #     if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting )]]; then
-#             #         bool_matchGivenIntelDriver=true
-
-#             #     else
-#             #         bool_matchGivenIntelDriver=false
-#             #     fi
-
-#             #     break;;
-
-#             bool_matchDistroDebian:
-#                 if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') || $(apt list --installed xserver-xorg-core server-xorg-video-modesetting )]]; then
-#                     bool_matchGivenIntelDriver=true
-
-#                 else
-#                     bool_matchGivenIntelDriver=false
-#                 fi
-
-#                 break;;
-
-#             # NOTE: I do not believe this is accurate.
-#             #       Commented out for now.
-#             bool_matchDistroRedhat:
-#                 if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting) || $(yum installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then
-#                     bool_matchGivenIntelDriver=true
-
-#                 else
-#                     bool_matchGivenIntelDriver=false
-#                 fi
-
-#                 break;;
-#         esac
-#     fi
 
 # find first/last valid VGA driver #
     for str_thisPCI_ID in ${arr_PCI_ID}; do
@@ -161,10 +83,6 @@
             if [[ $str_thisVendor == "*intel"* ]]; then
                 echo -e "WARNING: Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
             fi
-
-            # if [[ $str_thisVendor == "*intel"* && $bool_matchGivenIntelDriver == true ]]; then
-            #     str_thisDriver="modesetting"
-            # fi
 
             readonly str_thisPCI_ID
             readonly str_thisDriver
