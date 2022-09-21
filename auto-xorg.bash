@@ -160,21 +160,14 @@
         str_thisDriver=$(lspci -ks $str_thisPCI_ID | grep -E 'driver' | cut -d ':' -f2 | cut -d ' ' -f2)
         str_thisType=$(lspci -ms $str_thisPCI_ID | cut -d '"' -f2 | tr '[:upper:]' '[:lower:]')
         str_thisVendor=$(lspci -ms $str_thisPCI_ID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
-        str_thisBusID=$(echo $str_thisPCI_ID | cut -d ':' -f1 )
-        str_thisSlotID=$(echo $str_thisPCI_ID | cut -d ':' -f2 | cut -d '.' -f1 )
-        str_thisFuncID=$(echo $str_thisPCI_ID | cut -d '.' -f2 )
-
-        # truncate zero digit of string #
-        if [[ ${str_thisBusID::1} == "0" ]]; then
-            str_thisBusID=${str_thisBusID:1:1}
-        fi
-
-        if [[ ${str_thisSlotID::1} == "0" ]]; then
-            str_thisSlotID=${str_thisSlotID:1:1}
-        fi
+        # str_thisBusID=$(echo $str_thisPCI_ID | cut -d ':' -f1)
+        # str_thisSlotID=$(echo $str_thisPCI_ID | cut -d ':' -f2 | cut -d '.' -f1)
+        str_thisFuncID=$(echo $str_thisPCI_ID | cut -d '.' -f1)
+        str_thisPCI_ID=$(echo $str_thisPCI_ID | cut -d '.' -f2)
 
         # rearrange string for Xorg output #
-        str_thisPCI_ID=${str_thisBusID}":"${str_thisSlotID}"."${str_thisFuncID}
+        # str_thisPCI_ID=${str_thisBusID}":"${str_thisSlotID}":"${str_thisFuncID}
+        str_thisPCI_ID+=":"${str_thisFuncID}
 
         echo -e "Found PCI ID: '$str_thisPCI_ID'"
 
@@ -259,7 +252,7 @@ EndSection")
 \n#Section\t\"Device\"
 #\tIdentifier\t\"Device0\"
 #\tDriver\t\t\"driver_name\"
-#\tBusID\t\t\"PCI:x:x:x\"
+#\tBusID\t\t\"PCI:bus_id:slot_id:function_id\"
 #EndSection")
 
             # append file #
