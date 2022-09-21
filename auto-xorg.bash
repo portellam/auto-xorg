@@ -162,8 +162,8 @@
         str_thisVendor=$(lspci -ms $str_thisPCI_ID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
         # str_thisBusID=$(echo $str_thisPCI_ID | cut -d ':' -f1)
         # str_thisSlotID=$(echo $str_thisPCI_ID | cut -d ':' -f2 | cut -d '.' -f1)
-        str_thisFuncID=$(echo $str_thisPCI_ID | cut -d '.' -f1)
-        str_thisPCI_ID=$(echo $str_thisPCI_ID | cut -d '.' -f2)
+        str_thisFuncID=$(echo $str_thisPCI_ID | cut -d '.' -f2)
+        str_thisPCI_ID=$(echo $str_thisPCI_ID | cut -d '.' -f1)
 
         # rearrange string for Xorg output #
         # str_thisPCI_ID=${str_thisBusID}":"${str_thisSlotID}":"${str_thisFuncID}
@@ -235,7 +235,7 @@ EndSection")
             # fi
 
             # if [[ $str_input1 != "dm"* && -e $str_DM ]]; then
-            #     echo -e "$0: You may restart the active display manager ($str_DM).\n$0: Execute 'systemctl restart $str_DM'."
+            #     echo -e "You may restart the active display manager ($str_DM).\nExecute 'systemctl restart $str_DM'."
             # fi
 
         # template #
