@@ -59,8 +59,8 @@
         str_thisVendor=$(lspci -ms $str_thisPCI_ID | cut -d '"' -f4 | tr '[:upper:]' '[:lower:]')
         # str_thisBusID=$(echo $str_thisPCI_ID | cut -d ':' -f1)
         # str_thisSlotID=$(echo $str_thisPCI_ID | cut -d ':' -f2 | cut -d '.' -f1)
-        str_thisFuncID=$(echo $str_thisPCI_ID | cut -d '.' -f1)
-        str_thisPCI_ID=$(echo $str_thisPCI_ID | cut -d '.' -f2)
+        str_thisFuncID=$(echo $str_thisPCI_ID | cut -d '.' -f2)
+        str_thisPCI_ID=$(echo $str_thisPCI_ID | cut -d '.' -f1)
 
         # rearrange string for Xorg output #
         # str_thisPCI_ID=${str_thisBusID}":"${str_thisSlotID}":"${str_thisFuncID}
@@ -113,23 +113,6 @@ EndSection")
             for str_line1 in ${arr_output1[@]}; do
                 echo -e $str_line1 >> $str_outFile1
             done
-
-            # # find display manager #
-            # str_DM=`cat /etc/X11/default-display-manager`
-            # str_DM=${str_DM:9:(${#str_DM}-9)}
-            # str_DM=`echo $str_DM | tr '[:upper:]' '[:lower:]'`
-
-            # # restart service #
-            # str_input1=`echo $1 | tr '[:upper:]' '[:lower:]'`
-
-            # if [[ $str_input1 == "dm"* && -e $str_DM ]]; then
-            #     sudo systemctl enable $str_DM
-            #     sudo systemctl restart $str_DM
-            # fi
-
-            # if [[ $str_input1 != "dm"* && -e $str_DM ]]; then
-            #     echo -e "$0: You may restart the active display manager ($str_DM).\n$0: Execute 'systemctl restart $str_DM'."
-            # fi
 
         # template #
         else
