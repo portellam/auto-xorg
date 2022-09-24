@@ -62,50 +62,32 @@
 # check for package manager or distribution, then check for intel graphics driver, and set boolean #
 # NOTE: this is a work in progress
     # find active package manager #
-        while true; do
-            if [[ $(command -v apt) ]]; then
-                bool_packageManagerIsApt=true
-                break
-            fi
+    if [[ $(command -v apt) != "" ]]; then
+        bool_packageManagerIsApt=true
 
-            if [[ $(command -v dnf) ]]; then
-                bool_packageManagerIsDnf=true
-                break
-            fi
+    elif [[ $(command -v dnf) != "" ]]; then
+        bool_packageManagerIsDnf=true
 
-            if [[ $(command -v dpkg) ]]; then
-                bool_packageManagerIsDpkg=true
-                break
-            fi
+    elif [[ $(command -v dpkg) != "" ]]; then
+        bool_packageManagerIsDpkg=true
 
-            if [[ $(command -v pacman) ]]; then
-                bool_packageManagerIsPacman=true
-                break
-            fi
+    elif [[ $(command -v pacman) != "" ]]; then
+        bool_packageManagerIsPacman=true
 
-            if [[ $(command -v equery) ]]; then
-                bool_packageManagerIsPortage=true
-                break
-            fi
+    elif [[ $(command -v equery) != "" ]]; then
+        bool_packageManagerIsPortage=true
 
-            if [[ $(command -v rpm) ]]; then
-                bool_packageManagerIsRpm=true
-                break
-            fi
+    elif [[ $(command -v rpm) != "" ]]; then
+        bool_packageManagerIsRpm=true
 
-            if [[ $(command -v yum) ]]; then
-                bool_packageManagerIsYum=true
-                break
-            fi
+    elif [[ $(command -v yum) != "" ]]; then
+        bool_packageManagerIsYum=true
 
-            if [[ $(command -v zypper) ]]; then
-                bool_packageManagerIsZypper=true
-                break
-            fi
-
-            echo -e "WARNING: Package manager not found. Continuing."
-            break
-        done
+    elif [[ $(command -v zypper) != "" ]]; then
+        bool_packageManagerIsZypper=true
+    else
+        echo -e "WARNING: Package manager not found. Continuing."
+    fi
 
     # check for installed package by package manager #
         # NOTE: package name or availability may not be consistent across package managers/distributions
