@@ -9,7 +9,7 @@
     if [[ $(whoami) != *"root"* ]]; then
         str_file1=$(echo ${0##/*})
         str_file1=$(echo $str_file1 | cut -d '/' -f2)
-        echo -e "WARNING: Script must execute as root. In terminal, run:\n\t'sudo bash $str_file1'\n\tor\n\t'su' and 'bash $str_file1'.\nExiting."
+        echo -e "WARNING: Script must execute as root. In terminal, run:\n\t'bash $str_file1'\n\tor\n\t'su' and 'bash $str_file1'.\nExiting."
         exit 1
     fi
 
@@ -29,6 +29,7 @@
     bool_packageManagerIsYum=false
     bool_packageManagerIsZypper=false
     str_input1=$(echo $1 | tr '[:upper:]' '[:lower:]')
+    str_input2=$(echo $2 | tr '[:upper:]' '[:lower:]')
     str_outDir1='/etc/X11/xorg.conf.d/'
     str_outFile1=${str_outDir1}'10-auto-xorg.conf'
 
@@ -60,7 +61,7 @@
     fi
 
 # check for package manager or distribution, then check for intel graphics driver, and set boolean #
-# NOTE: this is a work in progress
+    # NOTE: this is a work in progress
     # find active package manager #
     if [[ $(command -v apt) != "" ]]; then
         bool_packageManagerIsApt=true
@@ -95,42 +96,42 @@
 
         case true in
             $bool_packageManagerIsApt)
-                if [[ $(apt list --installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then     # correct package name
+                if [[ $(apt list --installed xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then     # correct package name
                     bool_matchGivenIntelDriver=true
                 fi;;
 
             # $bool_packageManagerIsDnf)
-            #     if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting)  ]]; then           # incorrect package name
+            #     if [[ $(dnf installed xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then           # incorrect package name
             #         bool_matchGivenIntelDriver=true
             #     fi;;
 
             $bool_packageManagerIsDpkg)
-                if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') ]]; then      # correct package name
+                if [[ $(dpkg -l | grep -E 'xserver-xorg-core|xserver-xorg-video-modesetting') != "" ]]; then      # correct package name
                     bool_matchGivenIntelDriver=true
                 fi;;
 
             # $bool_packageManagerIsPacman)
-            #     if [[ $(pacman -Qi xserver-xorg-core xserver-xorg-video-modesetting) ]]; then               # incorrect package name
+            #     if [[ $(pacman -Qi xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then               # incorrect package name
             #         bool_matchGivenIntelDriver=true
             #     fi;;
 
             # $bool_packageManagerIsPortage)
-            #     if [[ $(equery list xserver-xorg-core xserver-xorg-video-modesetting) ]]; then              # incorrect package name
+            #     if [[ $(equery list xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then              # incorrect package name
             #         bool_matchGivenIntelDriver=true
             #     fi;;
 
             # $bool_packageManagerIsRpm)
-            #     if [[ $(rpm -qa xserver-xorg-core xserver-xorg-video-modesetting) ]]; then                  # incorrect package name
+            #     if [[ $(rpm -qa xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then                  # incorrect package name
             #         bool_matchGivenIntelDriver=true
             #     fi;;
 
             # $bool_packageManagerIsYum)
-            #     if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting) ]]; then       # incorrect package name
+            #     if [[ $(yum list installed xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then       # incorrect package name
             #         bool_matchGivenIntelDriver=true
             #     fi;;
 
             # $bool_packageManagerIsZypper)
-            #     if [[ $(zypper search -i xserver-xorg-core xserver-xorg-video-modesetting) ]]; then         # incorrect package name
+            #     if [[ $(zypper search -i xserver-xorg-core xserver-xorg-video-modesetting) != "" ]]; then         # incorrect package name
             #         bool_matchGivenIntelDriver=true
             #     fi;;
         esac
@@ -156,16 +157,18 @@
         # match valid VGA device and driver #
         if [[ ($str_thisType == *"vga"* || $str_thisType == *"graphics" ) && ( -e $str_thisDriver || $str_thisDriver != "" ) && $str_thisDriver != *"vfio-pci"* ]]; then
 
-            echo -e "Found Driver: '$str_thisDriver'"
+            # match intel VGA #
+            # NOTE: update here!
+            if [[ $str_thisVendor == *"intel"* ]]; then
+                if [[ $bool_matchGivenIntelDriver == true ]]; then
+                    str_thisDriver="modesetting"
 
-            if [[ $str_thisVendor == "*intel"* ]]; then
-                echo -e "WARNING: Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
+                else
+                    echo -e "WARNING: Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
+                fi
             fi
 
-            # if [[ $str_thisVendor == "*intel"* && $bool_matchGivenIntelDriver == true ]]; then
-            #     str_thisDriver="modesetting"
-            # fi
-
+            echo -e "Found Driver: '$str_thisDriver'"
             readonly str_thisPCI_ID
             readonly str_thisDriver
             break
@@ -210,16 +213,13 @@ EndSection")
                 str_DM="${str_DM##*/}"
 
                 # restart service #
-                str_input2=$(echo $2 | tr '[:upper:]' '[:lower:]')
-
-                if [[ $str_input2 == "dm"* ]]; then
-                    sudo systemctl enable $str_DM
-                    sudo systemctl restart $str_DM
-                fi
-
-                if [[ $str_input2 != "dm"* ]]; then
-                    echo -e "You may restart the active display manager ($str_DM).\nExecute 'systemctl restart $str_DM'."
-                fi
+                case "dm" in
+                    $str_input1|$str_input2)
+                        systemctl enable $str_DM
+                        systemctl restart $str_DM;;
+                    *)
+                        echo -e "You may restart the active display manager ($str_DM).\nExecute 'systemctl restart $str_DM'.";;
+                esac
             else
                 echo -e "WARNING: No default display manager found. Continuing."
             fi
