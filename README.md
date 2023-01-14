@@ -6,7 +6,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash installer.bash
 #### To run stand-alone, execute:
         sudo bash auto-xorg.bash y
-#### Add input variable **[Y/n]** to find first or last VGA device. (null == 'n')
+Add input variable **[Y/n]** to find first or last VGA device. (null == 'n')
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -41,14 +41,16 @@ For whatever the reason, this script has you covered:
 * switching the boot VGA (**https://github.com/portellam/deploy-VFIO-setup/**)
 * deploying multiple setups
 
-Note, I don't believe the Linux team or VFIO community has made a script for a purpose like this before. In response, I made this script and enjoyed learning something new!
+As of when I started this project, I fail to find another similar script such as this. I am proud for this to be my first foray into Bash programming, and happy to share with the VFIO community.
 
 ## Disclaimer
-Tested on Debian Linux, personal laptop (Thinkpad T500-series, with NVIDIA Optimus) and desktop (Intel Core 9th Gen. and Z390 motherboard).
+Tested on Debian Linux, on my personal laptop PC (Thinkpad T500-series, with NVIDIA Optimus) and desktop PC (Intel Core 9th Gen. and Z390 motherboard).
 
-The given desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. however laptop has some.
+My desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. I daily drive this Desktop, and Auto-Xorg is a bonus for swapping boot VGA devices.
 
-On the given Laptop, **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+However my laptop has some issues:
+        * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+        * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
 
 ## To-do
 In the future, I would like to create a specific, distro-independent function. The function will check for if the more recent Intel driver (**"modesetting"**) is present or not, and apply an Xorg file accordingly.
