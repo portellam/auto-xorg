@@ -219,13 +219,13 @@
     readonly str_inFile2="auto-xorg.service"
     # </params>
 
-    if ! CheckIfFileExists ${str_outDir1}; then
+    if ! CheckIfFileExists ${str_outDir1} &> /dev/null; then
         echo -e $var_suffix_fail
         echo -e "${var_prefix_warn} Could not find directory '${str_outDir1}'."
         exit 1
     fi
 
-    if ! CheckIfFileExists $str_inFile1; then
+    if ! CheckIfFileExists $str_inFile1 &> /dev/null; then
         echo -e $var_suffix_fail
         echo -e "${var_prefix_warn} Missing project file '${str_inFile1}'."
         exit 1
