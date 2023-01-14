@@ -2,12 +2,11 @@
 Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
 
 ## How-to
-* To install, execute:
-
+### To install, execute:
         sudo bash installer.bash
-* To run stand-alone, execute: (add input variable **'y'** or **'n'** (or none) to find first or last VGA device)
-
+### To run stand-alone, execute:
         sudo bash auto-xorg.bash y
+#### (add input variable **'y'** or **'n'** (or none) to find first or last VGA device)
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -16,7 +15,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 
 ## Auto-Xorg
 * Runs once at boot.
-* Parses list of PCI devices:
+* *Parses list of PCI devices:
 
         lspci -m | grep -Ev "VGA|Graphics"
 * Saves valid and available VGA device.
