@@ -8,6 +8,9 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash auto-xorg.bash y
 Add input variable to find first or last VGA device. **[Y/n]** You may omit input to prefer the latter.
 
+#### If the Auto-Xorg service fails, to diagnose execute:
+        sudo journalctl -u auto-xorg
+
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
 * community:        https://old.reddit.com/r/VFIO
