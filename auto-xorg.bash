@@ -392,14 +392,14 @@
     fi
 
     # <summary> Exit early if system directory does not exist and cannot be created. </summary>
-    if ( ! CheckIfDirExists $str_outDir1 && ! CreateDir $str_outDir1 ) &> /dev/null; then
-        exit "$?"
-    fi
+    # if ( ! CheckIfDirExists $str_outDir1 && ! CreateDir $str_outDir1 ) &> /dev/null; then
+    #     exit "$?"
+    # fi
 
     # <summary> Exit early if existing system file cannot be overwritten. </summary>
-    if ( CheckIfFileExists $str_outFile1 &> /dev/ null ) && ! DeleteFile $str_outFile1; then
-        exit "$?"
-    fi
+    # if ( CheckIfDirExists $str_outFile1 &> /dev/ null ) && ! DeleteFile $str_outFile1; then
+    #     exit "$?"
+    # fi
 
     # <summary> Find first or last valid VGA driver, given if parsing in forward or reverse order. </summary>
     # <returns> exit code </returns>
@@ -410,11 +410,7 @@
             return 1
         fi
 
-        if [[
-            ( $str_thisType == *"vga"* || $str_thisType == *"graphics" )
-            && ( ! CheckIfVarIsValid $str_thisDriver &> /dev/null )
-            && $str_thisDriver != *"vfio-pci"*
-            ]]; then
+        if [[ ( $str_thisType == *"vga"* || $str_thisType == *"graphics"* ) && $str_thisDriver != *"vfio-pci"* ]] && ( ! CheckIfVarIsValid $str_thisDriver &> /dev/null ); then
 
             # <summary> Match Intel VGA </summary>
             if [[ $str_thisVendor == *"intel"* ]]; then
