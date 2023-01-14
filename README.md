@@ -2,11 +2,11 @@
 Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
 
 ## How-to
-### To install, execute:
+#### To install, execute:
         sudo bash installer.bash
-### To run stand-alone, execute:
+#### To run stand-alone, execute:
         sudo bash auto-xorg.bash y
-#### (add input variable **'y'** or **'n'** (or none) to find first or last VGA device)
+#### Add input variable **'y'** to find first or ( **'n'** or none) last VGA device.
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -14,16 +14,17 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 * a useful guide:   https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF
 
 ## Auto-Xorg
-#### Runs once at boot.
+* Runs once at boot.
 * Parses list of PCI devices:
-        lspci -m | grep -Ev "VGA|Graphics"
 
+        lspci -m | grep -Ev "VGA|Graphics"
 * Saves valid and available VGA device:
+
         04:00.0 VGA compatible controller: ...
         lspci -ks 04:00.0 | grep driver
         Kernel driver in use: nvidia
-
 * Invalid example:
+
         01:00.0 VGA compatible controller: ...
         lspci -ks 01:00.0 | grep driver
         Kernel driver in use: vfio-pci
