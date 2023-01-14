@@ -19,14 +19,14 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 
         lspci -m | grep -Ev "VGA|Graphics"
 * Saves valid and available VGA device:
+        lspci -ks 04:00.0 | grep -Ei 'driver|VGA'
 
         04:00.0 VGA compatible controller: ...
-        lspci -ks 04:00.0 | grep driver
         Kernel driver in use: nvidia
 * Invalid example:
+        lspci -ks 04:00.0 | grep -Ei 'driver|VGA'
 
         01:00.0 VGA compatible controller: ...
-        lspci -ks 01:00.0 | grep driver
         Kernel driver in use: vfio-pci
 
 * Appends to Xorg file (**'/etc/X11/xorg.conf.d/10-auto-xorg.conf'**).
