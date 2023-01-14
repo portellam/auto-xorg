@@ -391,7 +391,12 @@
         declare -ar arr_PCI_ID=$( lspci -m | grep -E 'VGA|Graphics' | cut -d ' ' -f 1 | sort -r )
     fi
 
-    # <summary> exit early if existing config file cannot be overwritten </summary>
+    # <summary> Exit early if system directory does not exist and cannot be created. </summary>
+    if ( ! CheckIfDirExists $str_outDir1 && ! CreateDir $str_outDir1 ) &> /dev/null; then
+        exit "$?"
+    fi
+
+    # <summary> Exit early if existing system file cannot be overwritten. </summary>
     if ( CheckIfFileExists $str_outFile1 &> /dev/ null ) && ! DeleteFile $str_outFile1; then
         exit "$?"
     fi
