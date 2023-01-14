@@ -48,7 +48,7 @@ I am happy to share this with the VFIO community.
 ## Disclaimer
 Tested on Debian Linux, on my personal Laptop PC (Thinkpad T500-series, with NVIDIA Optimus) and Desktop PC (Intel Core 9th Gen. and Z390 motherboard).
 
-My Desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively.
+My Desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively. Given such a setup, I am able to successfully alternate between Windows 10 and Windows XP virtual machines.
 
 **I daily drive this Desktop, and Auto-Xorg works as expected.** Whenever I choose to boot either VGA device, it does the job.
 
