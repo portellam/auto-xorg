@@ -49,7 +49,9 @@ Tested on Debian Linux, on my personal laptop PC (Thinkpad T500-series, with NVI
 My desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. I daily drive this Desktop, and Auto-Xorg is a bonus for swapping boot VGA devices.
 
 However my laptop has some issues:
+
         * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+
         * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
 
 ## To-do
