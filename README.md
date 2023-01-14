@@ -6,7 +6,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash installer.bash
 #### To run stand-alone, execute:
         sudo bash auto-xorg.bash y
-#### Add input variable **'y'** to find first or ( **'n'** or none) last VGA device.
+#### Add input variable **[Y/n]** to find first or last VGA device. (null == 'n')
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
