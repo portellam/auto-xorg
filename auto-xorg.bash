@@ -38,33 +38,6 @@
     declare -gr str_output_var_is_not_valid="${var_prefix_error} Invalid input."
 # </params>
 
-# <summary> #1 - Exit codes </summary>
-# <code>
-    # <summary> Append Pass or Fail given exit code. If Fail, call SaveExitCode. </summary>
-    # <returns> output statement </returns>
-    function AppendPassOrFail
-    {
-        case "$?" in
-            0)
-                echo -e $var_suffix_pass
-                return 0;;
-            *)
-                SaveExitCode
-                echo -e $var_suffix_fail
-                return $int_exit_code;;
-        esac
-    }
-
-    # <summary> Save last exit code. </summary>
-    # <param name="$int_exit_code"> the exit code </param>
-    # <returns> void </returns>
-    function SaveExitCode
-    {
-        int_exit_code="$?"
-    }
-
-# </code>
-
 # <summary> #2 - Data-type and variable validation </summary>
 # <code>
     # <summary> Check if the command is installed. </summary>
@@ -271,29 +244,6 @@
         return 0
     }
 
-    # <summary> Read input from a file. Declare '$var_file' before calling this function. </summary>
-    # <param name="$1"> the file </param>
-    # <param name="$var_file"> the file contents </param>
-    # <returns> exit code </returns>
-    #
-    function ReadFromFile
-    {
-        # <params>
-        local readonly str_output_fail="${var_prefix_fail} Could not read from file '$1'."
-        var_file=$( cat $1 )
-        # </params>
-
-        if ! CheckIfFileExists $1; then
-            return "$?"
-        fi
-
-        if ! CheckIfVarIsValid ${var_file[@]}; then
-            return "$?"
-        fi
-
-        return 0
-    }
-
     # <summary> Write output to a file. Declare '$var_file' before calling this function. </summary>
     # <param name="$1"> the file </param>
     # <param name="$var_file"> the file contents </param>
@@ -400,26 +350,6 @@
         fi
 
         return 0
-    }
-
-    # <summary> Test network connection to Internet. Ping DNS servers by address and name. </summary>
-    # <returns> exit code </returns>
-    function TestNetwork
-    {
-        echo -en "Testing Internet connection...\t"
-        ( ping -q -c 1 8.8.8.8 || ping -q -c 1 1.1.1.1 ) &> /dev/null || false
-        AppendPassOrFail
-
-        echo -en "Testing connection to DNS...\t"
-        ( ping -q -c 1 www.google.com && ping -q -c 1 www.yandex.com ) &> /dev/null || false
-        AppendPassOrFail
-
-        if [[ $int_exit_code -ne 0 ]]; then
-            echo -e "Failed to ping Internet/DNS servers. Check network settings or firewall, and try again."
-            return $int_exit_code
-        fi
-
-        SaveExitCode; return 0
     }
 # </code>
 
