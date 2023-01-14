@@ -50,7 +50,7 @@ Tested on Debian Linux, on my personal Laptop PC (Thinkpad T500-series, with NVI
 
 My Desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively.
 
-**I daily drive this Desktop, and Auto-Xorg works as expected.** It such a help for whenever I choose to boot either VGA device.
+**I daily drive this Desktop, and Auto-Xorg works as expected.** Whenever I choose to boot either VGA device, it does the job.
 
 However my Laptop has some issues:
 * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
