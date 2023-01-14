@@ -46,13 +46,13 @@ I am proud for this to be my first foray into Bash programming.
 I am happy to share this with the VFIO community.
 
 ## Disclaimer
-Tested on Debian Linux, on my personal laptop PC (Thinkpad T500-series, with NVIDIA Optimus) and desktop PC (Intel Core 9th Gen. and Z390 motherboard).
+Tested on Debian Linux, on my personal Laptop PC (Thinkpad T500-series, with NVIDIA Optimus) and Desktop PC (Intel Core 9th Gen. and Z390 motherboard).
 
-My desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively.
-**I daily drive this Desktop, and Auto-Xorg works as expected. It such a help for whenever I choose boot either VGA device.**
+My Desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively.
 
-However my laptop has some issues:
+**I daily drive this Desktop, and Auto-Xorg works as expected.** It such a help for whenever I choose to boot either VGA device.
 
+However my Laptop has some issues:
 * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
 * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
 
