@@ -6,7 +6,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash installer.bash
 #### To run stand-alone, execute:
         sudo bash auto-xorg.bash y
-Add input variable to find first or last VGA device. **[Y/n]** You may omit input to do the latter.
+Add input variable to find first or last VGA device. **[Y/n]** You may omit input to prefer the latter.
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -48,13 +48,13 @@ I am happy to share this with the VFIO community.
 ## Disclaimer
 Tested on Debian Linux, on my personal laptop PC (Thinkpad T500-series, with NVIDIA Optimus) and desktop PC (Intel Core 9th Gen. and Z390 motherboard).
 
-My desktop (active GPUs are NVIDIA and AMD) has no issues and works as expected. I daily drive this Desktop, and Auto-Xorg is a bonus for swapping boot VGA devices.
+My desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively.
+**I daily drive this Desktop, and Auto-Xorg works as expected. It such a help for whenever I choose boot either VGA device.**
 
 However my laptop has some issues:
 
-        * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
-
-        * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
+* **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+* the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
 
 ## To-do
 In the future, I would like to create a specific, distro-independent function. The function will check for if the more recent Intel driver (**"modesetting"**) is present or not, and apply an Xorg file accordingly.
