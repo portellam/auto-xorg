@@ -393,13 +393,15 @@
     fi
 
     # <summary> Exit early if system directory does not exist and cannot be created. </summary>
-    if ( ! CheckIfDirExists $str_outDir1 && ! CreateDir $str_outDir1 ) &> /dev/null; then
-    	exit "$?"
+    if ! CheckIfDirExists $str_outDir1 &> /dev/null; then
+    	CreateDir $str_outDir1 || exit "$?"
     fi
 
+    DeleteFile $str_outFile1 &> /dev/null || exit "$?"
+
     # <summary> Exit early if existing system file cannot be overwritten. </summary>
-    if ( CheckIfDirExists $str_outFile1 &> /dev/ null ) && ! DeleteFile $str_outFile1; then
-        exit "$?"
+    if ! CheckIfFileExists $str_outFile1 &> /dev/null; then
+	CreateFile $str_outFile1 || exit "$?"
     fi
 
     # <summary> Find first or last valid VGA driver, given if parsing in forward or reverse order. </summary>
