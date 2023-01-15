@@ -270,10 +270,10 @@
         # )
 
 	for var_element in ${var_file[@]}; do
-	    echo -e $var_element >> $1 || (
-		echo -e $str_output_fail
-		return 1
-	    )
+        echo -e $var_element >> $1 || (
+            echo -e $str_output_fail
+            return 1
+        )
 	done
 
         return 0
@@ -401,14 +401,14 @@
 
     # <summary> Exit early if system directory does not exist and cannot be created. </summary>
     if ! CheckIfDirExists $str_outDir1 &> /dev/null; then
-    	CreateDir $str_outDir1 || exit "$?"
+        CreateDir $str_outDir1 || exit "$?"
     fi
 
     DeleteFile $str_outFile1 &> /dev/null || exit "$?"
 
     # <summary> Exit early if existing system file cannot be overwritten. </summary>
     if ! CheckIfFileExists $str_outFile1 &> /dev/null; then
-	CreateFile $str_outFile1 || exit "$?"
+        CreateFile $str_outFile1 || exit "$?"
     fi
 
     # <summary> Find first or last valid VGA driver, given if parsing in forward or reverse order. </summary>
@@ -416,8 +416,8 @@
     function MatchValidVGADeviceWithDriver
     {
 	if ! CheckIfVarIsValid $str_thisDriver &> /dev/null; then
-            echo -e "Found Driver: 'N/A'"
-	    return 1
+        echo -e "Found Driver: 'N/A'"
+        return 1
 	fi
 
         if [[ ( $str_thisType == *"vga"* || $str_thisType == *"graphics"* ) && $str_thisDriver != *"vfio-pci"* ]] && ( ! CheckIfVarIsValid $str_thisDriver &> /dev/null ); then
@@ -457,7 +457,7 @@
             echo -e "Found PCI ID: '$str_thisPCI_ID'"
 
             if MatchValidVGADeviceWithDriver; then
-		return 0
+                return 0
             fi
         done
 
