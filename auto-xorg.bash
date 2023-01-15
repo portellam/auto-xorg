@@ -269,93 +269,12 @@
             # return 1
         # )
 
-	for var_element in ${var_file[@]}; do
-        echo -e $var_element >> $1 || (
-            echo -e $str_output_fail
-            return 1
-        )
-	done
-
-        return 0
-    }
-# </code>
-
-# <summary> #5 - Device validation </summary>
-# <code>
-    # <summary> Check if current kernel and distro are supported, and if the expected Package Manager is installed. </summary>
-    # <returns> exit code </returns>
-    function CheckLinuxDistro
-    {
-        # <params>
-        local readonly str_kernel="$( uname -o | tr '[:upper:]' '[:lower:]' )"
-        local readonly str_operating_system="$( lsb_release -is | tr '[:upper:]' '[:lower:]' )"
-        local str_package_manager=""
-        local readonly str_output_distro_is_not_valid="${var_prefix_error} Distribution '$( lsb_release -is )' is not supported."
-        local readonly str_output_kernel_is_not_valid="${var_prefix_error} Kernel '$( uname -o )' is not supported."
-        local readonly str_OS_with_apt="debian bodhi deepin knoppix mint peppermint pop ubuntu kubuntu lubuntu xubuntu "
-        local readonly str_OS_with_dnf_yum="redhat berry centos cern clearos elastix fedora fermi frameos mageia opensuse oracle scientific suse"
-        local readonly str_OS_with_pacman="arch manjaro"
-        local readonly str_OS_with_portage="gentoo"
-        local readonly str_OS_with_urpmi="opensuse"
-        local readonly str_OS_with_zypper="mandriva mageia"
-        # </params>
-
-        if ! CheckIfVarIsValid $str_kernel &> /dev/null; then
-            return $?
-        fi
-
-        if ! CheckIfVarIsValid $str_operating_system &> /dev/null; then
-            return $?
-        fi
-
-        if [[ "${str_kernel}" != *"linux"* ]]; then
-            echo -e $str_output_kernel_is_not_valid
-            return 1
-        fi
-
-        # <summary> Check if current Operating System matches Package Manager, and Check if PM is installed. </summary>
-        # <returns> exit code </returns>
-        function CheckLinuxDistro_GetPackageManagerByOS
-        {
-            if [[ ${str_OS_with_apt} =~ .*"${str_operating_system}".* ]]; then
-                str_package_manager="apt"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-            elif [[ ${str_OS_with_dnf_yum} =~ .*"${str_operating_system}".* ]]; then
-                str_package_manager="dnf"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-                str_package_manager="yum"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-            elif [[ ${str_OS_with_pacman} =~ .*"${str_operating_system}".* ]]; then
-                str_package_manager="pacman"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-            elif [[ ${str_OS_with_portage} =~ .*"${str_operating_system}".* ]]; then
-                str_package_manager="portage"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-            elif [[ ${str_OS_with_urpmi} =~ .*"${str_operating_system}".* ]]; then
-                str_package_manager="urpmi"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-            elif [[ ${str_OS_with_zypper} =~ .*"${str_operating_system}".* ]]; then
-                str_package_manager="zypper"
-                CheckIfCommandIsInstalled $str_package_manager &> /dev/null && return 0
-
-            else
-                str_package_manager=""
+        for var_element in ${var_file[@]}; do
+            echo -e $var_element >> $1 || (
+                echo -e $str_output_fail
                 return 1
-            fi
-
-            return 1
-        }
-
-        if ! CheckLinuxDistro_GetPackageManagerByOS; then
-            echo -e $str_output_distro_is_not_valid
-            return 1
-        fi
+            )
+        done
 
         return 0
     }
