@@ -264,10 +264,17 @@
             return "$?"
         fi
 
-        ( printf "%s\n" "${var_file[@]}" >> $1 ) || (
-            echo -e $str_output_fail
-            return 1
-        )
+        # ( printf "%s\n" "${var_file[@]}" >> $1 ) || (
+            # echo -e $str_output_fail
+            # return 1
+        # )
+
+	for var_element in ${var_file[@]}; do
+	    echo -e $var_element >> $1 || (
+		echo -e $str_output_fail
+		return 1
+	    )
+	done
 
         return 0
     }
