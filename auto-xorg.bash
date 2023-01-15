@@ -56,7 +56,8 @@
             return $?
         fi
 
-        if $( ! CheckIfVarIsValid $var_actual_install_path ) &> /dev/null || [[ "${var_actual_install_path}" != "${var_expected_install_path}" ]]; then
+        # if $( ! CheckIfVarIsValid $var_actual_install_path ) &> /dev/null || [[ "${var_actual_install_path}" != "${var_expected_install_path}" ]]; then
+        if $( ! CheckIfVarIsValid $var_actual_install_path ) &> /dev/null; then
             echo -e $str_output_cmd_is_null
             return $int_code_cmd_is_null
         fi
@@ -263,10 +264,17 @@
             return "$?"
         fi
 
-        ( printf "%s\n" "${var_file[@]}" >> $1 ) || (
+        # ( printf "%s\n" "${var_file[@]}" >> $1 ) || (
+            # echo -e $str_output_fail
+            # return 1
+        # )
+
+	for var_element in ${var_file[@]}; do
+        echo -e $var_element >> $1 || (
             echo -e $str_output_fail
             return 1
         )
+	done
 
         return 0
     }
@@ -374,15 +382,15 @@
             readonly bool_parse_PCI_in_order_by_Bus_ID=true
             ;;
 
-        "n" )
+        "n" | "" )
             readonly bool_parse_PCI_in_order_by_Bus_ID=false
             echo -e "${var_prefix_warn} Parsing VGA devices in reverse order."
             ;;
 
-        * )
-            echo -e "${var_prefix_fail} Invalid input. Missing argument [Y/n]."
-            exit 1
-            ;;
+        # * )
+            # echo -e "${var_prefix_fail} Invalid input. Missing argument [Y/n]."
+            # exit 1
+            # ;;
     esac
 
     if $bool_parse_PCI_in_order_by_Bus_ID; then
@@ -392,23 +400,25 @@
     fi
 
     # <summary> Exit early if system directory does not exist and cannot be created. </summary>
-    # if ( ! CheckIfDirExists $str_outDir1 && ! CreateDir $str_outDir1 ) &> /dev/null; then
-    #     exit "$?"
-    # fi
+    if ! CheckIfDirExists $str_outDir1 &> /dev/null; then
+        CreateDir $str_outDir1 || exit "$?"
+    fi
+
+    DeleteFile $str_outFile1 &> /dev/null || exit "$?"
 
     # <summary> Exit early if existing system file cannot be overwritten. </summary>
-    # if ( CheckIfDirExists $str_outFile1 &> /dev/ null ) && ! DeleteFile $str_outFile1; then
-    #     exit "$?"
-    # fi
+    if ! CheckIfFileExists $str_outFile1 &> /dev/null; then
+        CreateFile $str_outFile1 || exit "$?"
+    fi
 
     # <summary> Find first or last valid VGA driver, given if parsing in forward or reverse order. </summary>
     # <returns> exit code </returns>
     function MatchValidVGADeviceWithDriver
     {
-        if ! CheckIfVarIsValid $str_thisDriver; then
-            echo -e "Found Driver: 'N/A'"
-            return 1
-        fi
+	if ! CheckIfVarIsValid $str_thisDriver &> /dev/null; then
+        echo -e "Found Driver: 'N/A'"
+        return 1
+	fi
 
         if [[ ( $str_thisType == *"vga"* || $str_thisType == *"graphics"* ) && $str_thisDriver != *"vfio-pci"* ]] && ( ! CheckIfVarIsValid $str_thisDriver &> /dev/null ); then
 
@@ -447,7 +457,7 @@
             echo -e "Found PCI ID: '$str_thisPCI_ID'"
 
             if MatchValidVGADeviceWithDriver; then
-                break
+                return 0
             fi
         done
 
@@ -459,13 +469,13 @@
         exit 1
     fi
 
-    if ! CheckIfFileExists ${str_outDir1} &> /dev/null; then
+    if ! CheckIfFileExists $str_outDir1 &> /dev/null; then
         echo -e "${var_prefix_warn} Could not find directory '${str_outDir1}'."
         exit 1
     fi
 
-    if ! CheckIfFileExists "${str_outDir1}${str_outFile1}" &> /dev/null; then
-        echo -e "${var_prefix_warn} Missing project file '${str_outDir1}${str_outFile1}'."
+    if ! CheckIfFileExists $str_outFile1 &> /dev/null; then
+        echo -e "${var_prefix_warn} Missing project file '${str_outFile1}'."
         exit 1
     fi
 
@@ -536,7 +546,7 @@
             ;;
 
         *)
-            echo -e "You may restart the active display manager ($str_DM).\nExecute 'systemctl restart $str_DM'."
+            echo -e "You may restart the active display manager '$str_DM'.\nTo restart, execute ${var_yellow}'sudo systemctl restart $str_DM'${var_reset}."
             ;;
     esac
 
