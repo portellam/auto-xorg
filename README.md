@@ -11,7 +11,7 @@ Add input variable to find first or last VGA device. **[Y/n]** You may omit inpu
 #### If the Auto-Xorg service fails, to diagnose review the log. Execute:
         sudo journalctl -u auto-xorg
 
-Failure may mean an absent VGA device, or an exception. Review the log to find and caught errors.
+Failure may mean an absent VGA device, or an exception. Review the log to debug.
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
