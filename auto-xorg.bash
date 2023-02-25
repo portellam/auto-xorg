@@ -7,11 +7,6 @@
 # Maintainer(s):    Alex Portell <github.com/portellam>
 #
 
-# <remarks> Using </remarks>
-# <code>
-    source bashlib-all
-# </code>
-
 # <remarks> Functions </remarks>
 # <code>
     # <summary> Copied from 'portellam/bashlib' </summary>
@@ -52,6 +47,31 @@
             if ! eval "${var_command}"; then
                 echo -e "${str_fail}"
                 return 1
+            fi
+
+            return 0
+        }
+
+        # <summary> Check if the array is empty. </summary>
+        # <paramref name=$1> string: name of the array </paramref>
+        # <returns> exit code </returns>
+        function IsArray
+        {
+            IsString $1 || return $?
+
+            # <params>
+            local readonly str_fail="${var_prefix_error} Empty array."
+            local readonly var_get_array='echo "${'$1'[@]}"'
+            local readonly var_get_array_len='echo "${#'$1'[@]}"'
+            # </params>
+
+            for var_element in $( eval "${var_get_array}" ); do
+                IsString "${var_element}" && return $?
+            done
+
+            if [[ $( eval "${var_get_array_len}" ) -eq 0 ]]; then
+                echo -e "${str_fail}"
+                return "${int_code_var_is_empty}"
             fi
 
             return 0
@@ -99,31 +119,6 @@
             return 0
         }
 
-        # <summary> Check if the array is empty. </summary>
-        # <paramref name=$1> string: name of the array </paramref>
-        # <returns> exit code </returns>
-        function IsArray
-        {
-            IsString $1 || return $?
-
-            # <params>
-            local readonly str_fail="${var_prefix_error} Empty array."
-            local readonly var_get_array='echo "${'$1'[@]}"'
-            local readonly var_get_array_len='echo "${#'$1'[@]}"'
-            # </params>
-
-            for var_element in $( eval "${var_get_array}" ); do
-                IsString "${var_element}" && return $?
-            done
-
-            if [[ $( eval "${var_get_array_len}" ) -eq 0 ]]; then
-                echo -e "${str_fail}"
-                return "${int_code_var_is_empty}"
-            fi
-
-            return 0
-        }
-
         # <summary> Check if the variable is not empty. If true, pass. </summary>
         # <param name=$1> var: the variable </param>
         # <returns> exit code </returns>
@@ -158,7 +153,7 @@
                 # </params>
 
                 echo -e "Found PCI ID: '${str_PCI_ID}'"
-                MatchValidVGADeviceWithDriver && return 0
+                MatchValidVGADeviceWithDriver && return $?
             done
 
             return 1
@@ -252,20 +247,40 @@
             fi
 
             if [[ ( $str_type == *"vga"* || $str_type == *"graphics"* ) && $str_driver != *"vfio-pci"* ]] && ( ! IsString $str_driver &> /dev/null ); then
+                local var_set_preferred_vendor=""
+
                 # <remarks> Match Intel VGA </remarks>
-                if IsString $var_preferred_vendor &> /dev/null && $( echo "${str_vendor}" | eval "${var_preferred_vendor}" ); then
-                    if [[ $str_vendor == *"intel"* ]]; then
-                        if [[ $bool_toggle_match_given_Intel_driver == true ]]; then
-                            str_driver="modesetting"
-                        else
-                            echo -e "${var_prefix_warn} Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
-                        fi
+                if [[ $str_vendor == *"intel"* ]]; then
+                    if [[ $bool_toggle_match_given_Intel_driver == true ]]; then
+                        str_driver="modesetting"
+                    else
+                        echo -e "${var_prefix_warn} Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
                     fi
                 fi
+
+                # <remarks> Print </remarks>
+                echo -e "Found Driver: '$str_driver'"
+
+                # <remarks> Set evaluation if a preferred driver is given. </remarks>
+                if IsString $var_get_preferred_vendor &> /dev/null; then
+                    var_set_preferred_vendor='echo "${str_vendor}" |'$( echo "${var_get_preferred_vendor}" )
+                fi
+
+                # <summary> Exit early if a preferred driver is not found. </summary>
+                    # <remarks> Expected successful execution of on-brand evaluation will return a zero value </remarks>
+                    if $bool_prefer_off_brand && IsString $var_set_preferred_vendor &> /dev/null && ! eval $var_set_preferred_vendor; then
+                        return 1
+                    fi
+
+                    # <remarks> Expected successful execution of off-brand evaluation will return a non-zero value </remarks>
+                    if ! $bool_prefer_off_brand && IsString $var_set_preferred_vendor &> /dev/null && eval $var_set_preferred_vendor; then
+                        return 1
+                    fi
+
+                return 0
             fi
 
-            echo -e "Found Driver: '$str_driver'"
-            return 0
+            return 1
         }
 
         # <summary> Set global parameters </summary>
@@ -362,19 +377,19 @@
         {
             case true in
                 $bool_prefer_AMD )
-                    readonly var_preferred_vendor="grep -iv 'amd|ati'"
+                    readonly var_get_preferred_vendor="grep -iv 'amd|ati'"
                     ;;
 
                 $bool_prefer_Intel )
-                    readonly var_preferred_vendor="grep -i 'intel'"
+                    readonly var_get_preferred_vendor="grep -i 'intel'"
                     ;;
 
                 $bool_prefer_NVIDIA )
-                    readonly var_preferred_vendor="grep -i 'nvidia'"
+                    readonly var_get_preferred_vendor="grep -i 'nvidia'"
                     ;;
 
                 $bool_prefer_off_brand )
-                    readonly var_preferred_vendor="grep -Eiv 'amd|ati|intel|nvidia'"
+                    readonly var_get_preferred_vendor="grep -Eiv 'amd|ati|intel|nvidia'"
                     ;;
             esac
 
@@ -415,7 +430,16 @@
             fi
 
             # <remarks> Find first valid VGA driver. </remarks>
-            if ! FindFirstVGADriver; then
+            FindFirstVGADriver
+            declare -i int_exit_code=$?
+
+            if [[ $int_exit_code -ne 0 ]] && IsString $var_get_preferred_vendor &> /dev/null; then
+                var_get_preferred_vendor=""
+                FindFirstVGADriver
+                int_exit_code=$?
+            fi
+
+            if [[ $int_exit_code -ne 0 ]]; then
                 echo -e "${var_prefix_fail} No VGA devices found."
                 return 1
             fi
@@ -440,6 +464,7 @@
 
 # <remarks> Main </remarks>
 # <code>
-    Main
+    GetUsage
+    # Main
     exit $?
 # </code>
