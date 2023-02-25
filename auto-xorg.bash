@@ -235,19 +235,19 @@
                     ;;
 
                 "-a" | "--amd" )
-                    if ! $bool_prefer_any_brand; then bool_prefer_AMD=true; fi
+                    if $bool_prefer_any_brand; then bool_prefer_AMD=true; fi
                     ;;
 
                 "-i" | "--intel" )
-                    if ! $bool_prefer_any_brand; then bool_prefer_Intel=true; fi
+                    if $bool_prefer_any_brand; then bool_prefer_Intel=true; fi
                     ;;
 
                 "-n" | "--nvidia" )
-                    if ! $bool_prefer_any_brand; then bool_prefer_NVIDIA=true; fi
+                    if $bool_prefer_any_brand; then bool_prefer_NVIDIA=true; fi
                     ;;
 
                 "-o" | "--other" )
-                    if ! $bool_prefer_any_brand; then bool_prefer_off_brand=true; fi
+                    if $bool_prefer_any_brand; then bool_prefer_off_brand=true; fi
                     ;;
 
                 "" )
@@ -264,7 +264,7 @@
             esac; shift; done
 
             if [[ "$1" == '--' ]]; then shift; fi
-
+            IsString "${var_get_preferred_vendor}" &> /dev/null || SetPreferredBrand
             return 0
         }
 
@@ -372,7 +372,7 @@
                 # <remarks> Toggles </remarks>
                 bool_do_restart_display_manager=false
                 bool_parse_PCI_order_by_Bus_ID=false
-                bool_prefer_any_brand=false
+                bool_prefer_any_brand=true
                 bool_prefer_AMD=false
                 bool_prefer_Intel=false
                 bool_prefer_NVIDIA=false
@@ -456,6 +456,7 @@
                     ;;
             esac
 
+            IsString "${var_get_preferred_vendor}" &> /dev/null && bool_prefer_any_brand=false
             return 0
         }
 
