@@ -7,9 +7,70 @@
 # Maintainer(s):    Alex Portell <github.com/portellam>
 #
 
+# <remarks> Exit codes, Evaluations, Statements </remarks>
+    # <params>
+        # <summary> Exit codes </summary>
+        declare -i int_code_partial_completion=255
+        declare -i int_code_skipped_operation=254
+        declare -i int_code_var_is_null=253
+        declare -i int_code_var_is_empty=252
+        declare -i int_code_var_is_not_bool=251
+        declare -i int_code_var_is_NAN=250
+        declare -i int_code_pointer_is_var=249
+        declare -i int_code_dir_is_null=248
+        declare -i int_code_file_is_null=247
+        declare -i int_code_file_is_not_executable=246
+        declare -i int_code_file_is_not_writable=245
+        declare -i int_code_file_is_not_readable=244
+        declare -i int_code_cmd_is_null=243
+        declare -i int_exit_code=$?
+
+        # <summary>
+        # Color coding
+        # Reference URL: 'https://www.shellhacks.com/bash-colors'
+        # </summary>
+        var_blinking_red='\033[0;31;5m'
+        var_blinking_yellow='\033[0;33;5m'
+        var_green='\033[0;32m'
+        var_red='\033[0;31m'
+        var_yellow='\033[0;33m'
+        var_reset_color='\033[0m'
+
+        # <summary> Append output </summary>
+        var_prefix_error="${var_yellow}Error:${var_reset_color}"
+        var_prefix_fail="${var_red}Failure:${var_reset_color}"
+        var_prefix_pass="${var_green}Success:${var_reset_color}"
+        var_prefix_warn="${var_blinking_red}Warning:${var_reset_color}"
+        var_suffix_fail="${var_red}Failure${var_reset_color}"
+        var_suffix_maybe="${var_yellow}Incomplete${var_reset_color}"
+        var_suffix_pass="${var_green}Success${var_reset_color}"
+        var_suffix_skip="${var_yellow}Skipped${var_reset_color}"
+
+        # <summary> Output statement </summary>
+        str_output_partial_completion="${var_prefix_warn} One or more operations failed."
+        str_output_please_wait="The following operation may take a moment. ${var_blinking_yellow}Please wait.${var_reset_color}"
+        str_output_var_is_not_valid="${var_prefix_error} Invalid input."
+    # </params>
+
 # <remarks> Functions </remarks>
 # <code>
     # <summary> Copied from 'portellam/bashlib' </summary>
+        # <summary> Check if current user is sudo or root. </summary>
+        # <returns> exit code </returns>
+        function IsSudoUser
+        {
+            # <params>
+            local readonly str_fail="${var_prefix_warn} User is not sudo/root."
+            # </params>
+
+            if [[ $( whoami ) != "root" ]]; then
+                echo -e "${str_fail}"
+                return 1
+            fi
+
+            return 0
+        }
+
         # <summary> Create a file. </summary>
         # <param name=$1> string: the file </param>
         # <returns> exit code </returns>
@@ -164,32 +225,32 @@
         function GetOption
         {
             while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-                "-f" || "--first" )
+                "-f" | "--first" )
                     bool_parse_PCI_in_order_Bus_ID=true
                     ;;
 
-                "-l" || "--last" )
+                "-l" | "--last" )
                     bool_parse_PCI_in_order_Bus_ID=false
                     echo -e "${var_prefix_warn} Parsing VGA devices in reverse order."
                     ;;
 
-                "-r" || "--restart-display" )
+                "-r" | "--restart-display" )
                     bool_do_restart_display_manager=true
                     ;;
 
-                "-a" || "--amd" )
+                "-a" | "--amd" )
                     if ! $bool_prefer_any_brand; then bool_prefer_AMD=true; fi
                     ;;
 
-                "-i" || "--intel" )
+                "-i" | "--intel" )
                     if ! $bool_prefer_any_brand; then bool_prefer_Intel=true; fi
                     ;;
 
-                "-n" || "--nvidia" )
+                "-n" | "--nvidia" )
                     if ! $bool_prefer_any_brand; then bool_prefer_NVIDIA=true; fi
                     ;;
 
-                "-o" || "--other" )
+                "-o" | "--other" )
                     if ! $bool_prefer_any_brand; then bool_prefer_off_brand=true; fi
                     ;;
 
@@ -200,8 +261,6 @@
                 * )
                     return 1
                     ;;
-
-                ;;
             esac; shift; done
 
             if [[ "$1" == '--' ]]; then shift; fi
@@ -213,26 +272,24 @@
         # <returns> exit code </returns>
         function GetUsage
         {
-            local readonly str_output=$( cat <<<
+            IFS=$'\n'
+
+            local readonly arr_output=(
                 "Usage: bash auto-xorg [OPTION]"
-                "Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device."
-                "\newline"
-                "\t-f, --first\t\tfind first valid VGA device"
-                "\t-l, --last\t\tfind last valid VGA device"
-                "\newline"
-                "\t-r, --restart-display\trestart display manager now"
-                "\newline"
-                "\t-a, --amd\t\tprefer AMD/ATI VGA device"
-                "\t-i, --intel\t\tprefer Intel VGA device"
-                "\t-n, --nvidia\t\tprefer NVIDIA VGA device"
-                "\t-o, --other\t\tprefer off-brand VGA device"
-                "\newline"
-                "Examples:"
-                "\tbash auto-xorg -l -n -r\tFind last valid NVIDIA VGA device and restart display manager immediately."
+                "Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.\n"
+                "\t-f, --first\t\tfind the first valid VGA device"
+                "\t-l, --last\t\tfind the last valid VGA device"
+                "\t-r, --restart-display\trestart the display manager immediately"
+                "\n\tPrefer a vendor:\n"
+                "\t-a, --amd\t\tAMD or ATI"
+                "\t-i, --intel\t\tIntel"
+                "\t-n, --nvidia\t\tNVIDIA"
+                "\t-o, --other\t\tany other brand (past or future)"
+                "\nExample:"
+                "\tbash auto-xorg -l -n -r\tFind last valid NVIDIA VGA device, then restart the display manager immediately."
             )
 
-            echo -e "${str_output}"
-
+            echo -e "${arr_output[*]}"
             return 0
         }
 
@@ -401,8 +458,11 @@
         function Main
         {
             IsSudoUser || return $?
+            echo A
             SetGlobals || return $?
+            echo B
             SetOptions $@ || GetUsage || return $?
+            echo C
 
             # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
             if $bool_parse_PCI_order_by_Bus_ID; then
@@ -417,17 +477,23 @@
                 return 1
             fi
 
+            echo D
+
             # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
             if ! IsDir $str_dir1 &> /dev/null; then
                 CreateDir $str_dir1 || return $?
             fi
 
+            echo E
             DeleteFile $str_file1 &> /dev/null || return $?
+            echo F
 
             # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
             if ! IsFile $str_file1 &> /dev/null; then
                 CreateFile $str_file1 || return $?
             fi
+
+            echo G
 
             # <remarks> Find first valid VGA driver. </remarks>
             FindFirstVGADriver
@@ -464,7 +530,6 @@
 
 # <remarks> Main </remarks>
 # <code>
-    GetUsage
-    # Main
+    Main
     exit $?
 # </code>
