@@ -430,6 +430,8 @@
             return 0
         }
 
+        # <summary> Sets evaluation given a preferred brand. </summary>
+        # <returns> exit code </returns>
         function SetPreferredBrand
         {
             case true in
