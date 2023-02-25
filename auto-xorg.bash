@@ -37,6 +37,7 @@
         var_reset_color='\033[0m'
 
         # <summary> Append output </summary>
+        var_prefix_caution="${var_yellow}Caution:${var_reset_color}"
         var_prefix_error="${var_yellow}Error:${var_reset_color}"
         var_prefix_fail="${var_red}Failure:${var_reset_color}"
         var_prefix_pass="${var_green}Success:${var_reset_color}"
@@ -98,7 +99,7 @@
         function DeleteFile
         {
             IsString $1 || return $?
-            IsFile $1 &> /dev/null || return 1
+            IsFile $1 || return 1
 
             # <params>
             local readonly str_fail="${var_prefix_fail} Could not delete file '${1}'."
@@ -166,11 +167,7 @@
 
             # <params>
             local readonly str_fail="${var_prefix_error} '${1}' is not a file."
-            local readonly str_dir=$( dirname $1 )
-            local readonly str_file=$( basename $1 )
             # </params>
-
-            IsString "${str_dir}" && cd "${str_dir}"
 
             if [[ ! -e "${str_file}" ]]; then
                 echo -e "${str_fail}"
@@ -213,8 +210,7 @@
                 str_PCI_ID+=":${str_function_ID}"
                 # </params>
 
-                echo -e "Found PCI ID: '${str_PCI_ID}'"
-                MatchValidVGADeviceWithDriver && return $?
+                MatchValidVGADeviceWithDriver && return 0
             done
 
             return 1
@@ -231,7 +227,7 @@
 
                 "-l" | "--last" )
                     bool_parse_PCI_in_order_Bus_ID=false
-                    echo -e "${var_prefix_warn} Parsing VGA devices in reverse order."
+                    echo -e "${var_prefix_caution} Parsing VGA devices in reverse order."
                     ;;
 
                 "-r" | "--restart-display" )
@@ -254,11 +250,15 @@
                     if ! $bool_prefer_any_brand; then bool_prefer_off_brand=true; fi
                     ;;
 
-                # "" )
-                #     return 0
-                #     ;;
+                "" )
+                    ;;
+
+                "-h" | "--help" )
+                    return 1
+                    ;;
 
                 * )
+                    echo -e "${var_prefix_warn} Invalid input."
                     return 1
                     ;;
             esac; shift; done
@@ -278,6 +278,7 @@
                 "Usage: bash auto-xorg [OPTION]"
                 "Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.\n"
                 "\t-f, --first\t\tfind the first valid VGA device"
+                "\t-h, --help\t\tPrint this usage statement"
                 "\t-l, --last\t\tfind the last valid VGA device"
                 "\t-r, --restart-display\trestart the display manager immediately"
                 "\n\tPrefer a vendor:\n"
@@ -303,7 +304,7 @@
                 return 1
             fi
 
-            if [[ ( $str_type == *"vga"* || $str_type == *"graphics"* ) && $str_driver != *"vfio-pci"* ]] && ( ! IsString $str_driver &> /dev/null ); then
+            if ( [[ $str_type =~ ^"vga" ]] || [[ $str_type =~ ^"graphics" ]] ) && ! [[ $str_driver =~ ^"vfio-pci" ]]; then
                 local var_set_preferred_vendor=""
 
                 # <remarks> Match Intel VGA </remarks>
@@ -311,7 +312,7 @@
                     if [[ $bool_toggle_match_given_Intel_driver == true ]]; then
                         str_driver="modesetting"
                     else
-                        echo -e "${var_prefix_warn} Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
+                        echo -e "${var_prefix_caution} Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
                     fi
                 fi
 
@@ -322,6 +323,9 @@
                 if IsString $var_get_preferred_vendor &> /dev/null; then
                     var_set_preferred_vendor='echo "${str_vendor}" |'$( echo "${var_get_preferred_vendor}" )
                 fi
+
+                # DEBUG
+                echo '$var_set_preferred_vendor == '"'$var_set_preferred_vendor'"
 
                 # <summary> Exit early if a preferred driver is not found. </summary>
                     # <remarks> Expected successful execution of on-brand evaluation will return a zero value </remarks>
@@ -348,7 +352,7 @@
             str_display_manager=$( cat /etc/X11/default-display-manager )
             str_display_manager="${str_display_manager##*/}"
             readonly str_dir1="/etc/X11/xorg.conf.d/"
-            readonly str_file1="10-auto-xorg.conf"
+            readonly str_file1="${str_dir1}10-auto-xorg.conf"
 
                 # <remarks> Permanent Toggles </remarks>
                 readonly bool_toggle_match_given_Intel_driver=true
@@ -423,7 +427,7 @@
         function SetOptions
         {
             for var_option in $@; do
-                IsString $var_option &> /dev/null || return $?
+                IsString $var_option || return $?
                 GetOption $var_option || return $?
             done
 
@@ -460,11 +464,8 @@
         function Main
         {
             IsSudoUser || return $?
-            echo A
-            SetGlobals || return $?
-            echo B
-            SetOptions $@ || GetUsage || return $?
-            echo C
+            SetGlobals
+            if ! SetOptions $@; then GetUsage; return $?; fi
 
             # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
             if $bool_parse_PCI_order_by_Bus_ID; then
@@ -487,15 +488,11 @@
             fi
 
             echo E
-            DeleteFile $str_file1 &> /dev/null || return $?
-            echo F
 
             # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
-            if ! IsFile $str_file1 &> /dev/null; then
-                CreateFile $str_file1 || return $?
-            fi
-
-            echo G
+            # TODO: fix IsFile
+            DeleteFile $str_file1 &> /dev/null || CreateFile $str_file1 || return $?
+            echo F
 
             # <remarks> Find first valid VGA driver. </remarks>
             FindFirstVGADriver
@@ -532,6 +529,6 @@
 
 # <remarks> Main </remarks>
 # <code>
-    Main
+    Main $@
     exit $?
 # </code>
