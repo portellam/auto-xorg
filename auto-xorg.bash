@@ -321,22 +321,16 @@
 
                 # <remarks> Set evaluation if a preferred driver is given. </remarks>
                 if IsString $var_get_preferred_vendor &> /dev/null; then
-                    var_set_preferred_vendor='echo "${str_vendor}" |'$( echo "${var_get_preferred_vendor}" )
+                    var_set_preferred_vendor='echo "${str_vendor}" | '$( echo "${var_get_preferred_vendor}" | grep -iv 'corporation' )
+                    local str_preferred_vendor=$( eval $var_set_preferred_vendor )
+                else
+                    local str_preferred_vendor=""
                 fi
 
-                # DEBUG
-                echo '$var_set_preferred_vendor == '"'$var_set_preferred_vendor'"
-
                 # <summary> Exit early if a preferred driver is not found. </summary>
-                    # <remarks> Expected successful execution of on-brand evaluation will return a zero value </remarks>
-                    if $bool_prefer_off_brand && IsString $var_set_preferred_vendor &> /dev/null && ! eval $var_set_preferred_vendor; then
-                        return 1
-                    fi
-
-                    # <remarks> Expected successful execution of off-brand evaluation will return a non-zero value </remarks>
-                    if ! $bool_prefer_off_brand && IsString $var_set_preferred_vendor &> /dev/null && eval $var_set_preferred_vendor; then
-                        return 1
-                    fi
+                if IsString $var_get_preferred_vendor &> /dev/null && ! IsString $str_preferred_vendor &> /dev/null; then
+                    return 1
+                fi
 
                 return 0
             fi
@@ -351,11 +345,11 @@
             # <params>
             str_display_manager=$( cat /etc/X11/default-display-manager )
             str_display_manager="${str_display_manager##*/}"
-            readonly str_dir1="/etc/X11/xorg.conf.d/"
-            readonly str_file1="${str_dir1}10-auto-xorg.conf"
+            str_dir1="/etc/X11/xorg.conf.d/"
+            str_file1="${str_dir1}10-auto-xorg.conf"
 
                 # <remarks> Permanent Toggles </remarks>
-                readonly bool_toggle_match_given_Intel_driver=true
+                bool_toggle_match_given_Intel_driver=true
 
                 # <remarks> File contents </remarks>
                 declare -ar arr_file_disclaimer=(
@@ -440,19 +434,19 @@
         {
             case true in
                 $bool_prefer_AMD )
-                    readonly var_get_preferred_vendor="grep -iv 'amd|ati'"
+                    var_get_preferred_vendor="grep -iv 'amd|ati'"
                     ;;
 
                 $bool_prefer_Intel )
-                    readonly var_get_preferred_vendor="grep -i 'intel'"
+                    var_get_preferred_vendor="grep -i 'intel'"
                     ;;
 
                 $bool_prefer_NVIDIA )
-                    readonly var_get_preferred_vendor="grep -i 'nvidia'"
+                    var_get_preferred_vendor="grep -i 'nvidia'"
                     ;;
 
                 $bool_prefer_off_brand )
-                    readonly var_get_preferred_vendor="grep -Eiv 'amd|ati|intel|nvidia'"
+                    var_get_preferred_vendor="grep -Eiv 'amd|ati|intel|nvidia'"
                     ;;
             esac
 
@@ -481,19 +475,14 @@
                 return 1
             fi
 
-            echo D
-
             # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
             if ! IsDir $str_dir1 &> /dev/null; then
                 CreateDir $str_dir1 || return $?
             fi
 
-            echo E
-
             # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
             # TODO: fix IsFile
             DeleteFile $str_file1 &> /dev/null || CreateFile $str_file1 || return $?
-            echo F
 
             # <remarks> Find first valid VGA driver. </remarks>
             FindFirstVGADriver
