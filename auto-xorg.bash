@@ -298,7 +298,6 @@
 
                 # <remarks> Print </remarks>
                 echo -e "Found Driver: '$str_driver'"
-                echo -e "var_get_preferred_vendor == '"$var_get_preferred_vendor"'"
 
                 # <remarks> Set evaluation if a preferred driver is given. </remarks>
                 if IsString $var_get_preferred_vendor &> /dev/null; then
@@ -309,9 +308,8 @@
                 fi
 
                 # <summary> Exit early if a preferred driver is not found. </summary>
-                if IsString $var_set_preferred_vendor &> /dev/null; then
-                    IsString $str_preferred_vendor &> /dev/null
-                    return $?
+                if IsString $var_get_preferred_vendor &> /dev/null && ! IsString $str_preferred_vendor &> /dev/null; then
+                    return 1
                 fi
 
                 return 0
@@ -325,10 +323,10 @@
         function SetGlobals
         {
             # <params>
-            declare -g str_display_manager=$( cat /etc/X11/default-display-manager )
-            declare -g str_display_manager="${str_display_manager##*/}"
-            declare -g str_dir1="/etc/X11/xorg.conf.d/"
-            declare -g str_file1="${str_dir1}10-auto-xorg.conf"
+            str_display_manager=$( cat /etc/X11/default-display-manager )
+            str_display_manager="${str_display_manager##*/}"
+            str_dir1="/etc/X11/xorg.conf.d/"
+            str_file1="${str_dir1}10-auto-xorg.conf"
 
                 # <remarks> Permanent Toggles </remarks>
                 bool_toggle_match_given_Intel_driver=true
@@ -346,16 +344,16 @@
                 )
 
                 # <remarks> Toggles </remarks>
-                declare -g bool_do_restart_display_manager=false
-                declare -g bool_parse_PCI_order_by_Bus_ID=true
-                declare -g bool_prefer_any_brand=true
-                declare -g bool_prefer_AMD=false
-                declare -g bool_prefer_Intel=false
-                declare -g bool_prefer_NVIDIA=false
-                declare -g bool_prefer_off_brand=false
+                bool_do_restart_display_manager=false
+                bool_parse_PCI_order_by_Bus_ID=false
+                bool_prefer_any_brand=true
+                bool_prefer_AMD=false
+                bool_prefer_Intel=false
+                bool_prefer_NVIDIA=false
+                bool_prefer_off_brand=false
 
                 # <remarks> Evaluations </remarks>
-                declare -g var_get_preferred_vendor=""
+                var_get_preferred_vendor=""
                 readonly var_get_PCI_ID='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1'
                 readonly var_get_PCI_ID_reverse_sort='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1 | sort -r'
             # </params>
@@ -405,7 +403,7 @@
         function SetOptions
         {
             for var_option in $@; do
-                IsString $var_option &> /dev/null || return 0
+                IsString $var_option || return $?
                 GetOption $var_option || return $?
             done
 
@@ -448,9 +446,9 @@
 
             # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
             if $bool_parse_PCI_order_by_Bus_ID; then
-                declare -ga arr_PCI_ID=( $( eval $var_get_PCI_ID ) )
+                declare -a arr_PCI_ID=( $( eval $var_get_PCI_ID ) )
             else
-                declare -ga arr_PCI_ID=( $( eval $var_get_PCI_ID_reverse_sort ) )
+                declare -a arr_PCI_ID=( $( eval $var_get_PCI_ID_reverse_sort ) )
             fi
 
             # <remarks> Exit early if no PCI devices are found (NOTE: more likely that the command fails, than no PCI devices exist). </remarks>
