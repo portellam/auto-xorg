@@ -203,7 +203,9 @@
             fi
 
             echo -e "${var_suffix_pass}"
-            systemctl enable --now $str_file2 && systemctl daemon-reload || return 1
+            systemctl enable $str_file2 || return 1
+            systemctl restart $str_file2 || return 1
+            systemctl daemon-reload || return 1
             echo
 
             echo -e "${var_prefix_caution} It is NOT necessary to run ${var_yellow}'${str_file1}'${var_reset_color}.\n${var_yellow}'${str_file2}'${var_reset_color} will run automatically at boot, to grab the first non-VFIO VGA device.\nIf no available VGA device is found, an Xorg template will be created.\nTherefore, it will be assumed the system is running 'headless'."
