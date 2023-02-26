@@ -124,7 +124,7 @@
             local readonly str_fail="${var_prefix_error} '${1}' is not a file."
             # </params>
 
-            if [[ ! -e "${str_file}" ]]; then
+            if [[ ! -e $1 ]]; then
                 echo -e "${str_fail}"
                 return "${int_code_dir_is_null}"
             fi
@@ -185,29 +185,28 @@
             chown root "${str_dir1}${str_file1}" || return 1
             chmod +x "${str_dir1}${str_file1}" || return 1
 
-            if ! IsFile $str_dir2; then
+            if ! IsFile $str_dir2 &> /dev/null; then
                 echo -e "${var_suffix_fail}"
                 echo -e "${var_prefix_warn} Could not find directory '${str_dir2}'."
                 return 1
             fi
 
-            if ! IsFile $str_file2; then
+            if ! IsFile $str_file2 &> /dev/null; then
                 echo -e "${var_suffix_fail}"
                 echo -e "${var_prefix_warn} Missing project file '${str_file2}'."
                 return 1
             fi
 
-            cp $str_file2 "${str_dir2}${str_file2}" || return 1
-            chown root "${str_dir2}${str_file2}" || return 1
-            chmod +x "${str_dir2}${str_file2}" || return 1
+            if ! cp $str_file2 "${str_dir2}${str_file2}" || ! chown root "${str_dir2}${str_file2}" || ! chmod +x "${str_dir2}${str_file2}"; then
+                echo -e "${var_suffix_fail}"
+                return 1
+            fi
 
             echo -e "${var_suffix_pass}"
-            systemctl enable $str_file2 || return 1
-            systemctl restart $str_file2 || return 1
-            systemctl daemon-reload || return 1
+            systemctl enable --now $str_file2 && systemctl daemon-reload || return 1
             echo
 
-            echo -e "Disclaimer: It is NOT necessary to run ${var_yellow}'${str_file1}'${var_reset}.\n${var_yellow}'${str_file2}'${var_reset} will run automatically at boot, to grab the first non-VFIO VGA device.\nIf no available VGA device is found, an Xorg template will be created.\nTherefore, it will be assumed the system is running 'headless'."
+            echo -e "${var_prefix_caution} It is NOT necessary to run ${var_yellow}'${str_file1}'${var_reset_color}.\n${var_yellow}'${str_file2}'${var_reset_color} will run automatically at boot, to grab the first non-VFIO VGA device.\nIf no available VGA device is found, an Xorg template will be created.\nTherefore, it will be assumed the system is running 'headless'."
             return 0
         }
 # </code>
