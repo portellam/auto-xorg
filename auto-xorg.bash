@@ -267,6 +267,7 @@
                 "\t-n, --nvidia\t\tNVIDIA"
                 "\t-o, --other\t\tany other brand (past or future)"
                 "\nExample:"
+                "\tbash auto-xorg -f -a\tFind first valid AMD/ATI VGA device."
                 "\tbash auto-xorg -l -n -r\tFind last valid NVIDIA VGA device, then restart the display manager immediately."
             )
 
