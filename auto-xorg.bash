@@ -298,14 +298,11 @@
 
                 # <remarks> Print </remarks>
                 echo -e "Found Driver: '$str_driver'"
-                echo -e "var_get_preferred_vendor == '"$var_get_preferred_vendor"'"
 
                 # <remarks> Set evaluation if a preferred driver is given. </remarks>
                 if IsString $var_get_preferred_vendor &> /dev/null; then
-                    var_set_preferred_vendor='echo "${str_vendor}" | '$( echo "${var_get_preferred_vendor}" | grep -iv 'corporation' )
+                    var_set_preferred_vendor='echo "${str_vendor}" | '$( echo "${var_get_preferred_vendor}" )
                     local str_preferred_vendor=$( eval $var_set_preferred_vendor )
-                else
-                    local str_preferred_vendor=""
                 fi
 
                 # <summary> Exit early if a preferred driver is not found. </summary>
@@ -418,7 +415,7 @@
         {
             case true in
                 $bool_prefer_AMD )
-                    var_get_preferred_vendor="grep -iv 'amd|ati'"
+                    var_get_preferred_vendor="grep -iv 'amd|ati' | grep -iv 'corporation'"
                     ;;
 
                 $bool_prefer_Intel )
