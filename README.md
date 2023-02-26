@@ -4,9 +4,26 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 ## How-to
 #### To install, execute:
         sudo bash installer.bash
+
 #### To run stand-alone, execute:
-        sudo bash auto-xorg.bash y
-Add input variable to find first or last VGA device. **[Y/n]** You may omit input to prefer the latter.
+        sudo bash auto-xorg.bash
+
+#### Usage
+        -f, --first             find the first valid VGA device
+        -h, --help              Print this usage statement
+        -l, --last              find the last valid VGA device
+        -r, --restart-display   restart the display manager immediately
+
+        Prefer a vendor:
+
+        -a, --amd               AMD or ATI
+        -i, --intel             Intel
+        -n, --nvidia            NVIDIA
+        -o, --other             any other brand (past or future)
+
+#### Examples
+        bash auto-xorg -f -a    Find first valid AMD/ATI VGA device.
+        bash auto-xorg -l -n -r Find last valid NVIDIA VGA device, then restart the display manager immediately.
 
 #### If the Auto-Xorg service fails, to diagnose review the log. Execute:
         sudo journalctl -u auto-xorg
