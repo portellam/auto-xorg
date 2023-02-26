@@ -72,48 +72,6 @@
             return 0
         }
 
-        # <summary> Create a file. </summary>
-        # <param name=$1> string: the file </param>
-        # <returns> exit code </returns>
-        function CreateFile
-        {
-            IsString $1 || return $?
-            IsFile $1 &> /dev/null && return 0
-
-            # <params>
-            local readonly str_fail="${var_prefix_fail} Could not create file '${1}'."
-            local readonly var_command='touch '"$1"' &> /dev/null'
-            # </params>
-
-            if ! eval "${var_command}"; then
-                echo -e "${str_fail}"
-                return 1
-            fi
-
-            return 0
-        }
-
-        # <summary> Delete a file. </summary>
-        # <param name=$1> string: the file </param>
-        # <returns> exit code </returns>
-        function DeleteFile
-        {
-            IsString $1 || return $?
-            IsFile $1 || return 1
-
-            # <params>
-            local readonly str_fail="${var_prefix_fail} Could not delete file '${1}'."
-            local readonly var_command='rm '"$1"' &> /dev/null'
-            # </params>
-
-            if ! eval "${var_command}"; then
-                echo -e "${str_fail}"
-                return 1
-            fi
-
-            return 0
-        }
-
         # <summary> Check if the array is empty. </summary>
         # <paramref name=$1> string: name of the array </paramref>
         # <returns> exit code </returns>
@@ -195,6 +153,28 @@
             return 0
         }
 
+        # <summary> Write output to a file. Declare inherited params before calling this function. </summary>
+        # <paramref name=$1> string: the name of the array </paramref>
+        # <param name=$2> string: the name of the file </param>
+        # <returns> exit code </returns>
+        function WriteFile
+        {
+            IsFile $2 &> /dev/null && return 1
+            IsArray $1 || return $?
+
+            # <params>
+            local readonly str_fail="${var_prefix_fail} Could not write to file '${1}'."
+            local readonly var_set_param='printf "%s\n" "${'$1'[@]}" >> $2'
+            # </params>
+
+            if ! eval "${var_set_param}"; then
+                echo -e "${str_fail}"
+                return 1
+            fi
+
+            return 0
+        }
+
     # <summary> Program code </summary>
         # <summary> Find first valid VGA driver. </summary>
         # <returns> exit code </returns>
@@ -222,11 +202,11 @@
         {
             while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
                 "-f" | "--first" )
-                    bool_parse_PCI_in_order_Bus_ID=true
+                    bool_parse_PCI_order_by_Bus_ID=true
                     ;;
 
                 "-l" | "--last" )
-                    bool_parse_PCI_in_order_Bus_ID=false
+                    bool_parse_PCI_order_by_Bus_ID=false
                     echo -e "${var_prefix_caution} Parsing VGA devices in reverse order."
                     ;;
 
@@ -359,7 +339,7 @@
                     "#"
                 )
 
-                declare -a arr_file1=(
+                declare -ga arr_file1=(
                     "${arr_file_disclaimer[@]}"
                 )
 
@@ -387,11 +367,12 @@
         {
             case $? in
                 0 )
-                    readonly arr_file1+=(
-                        "\nSection\t\"Device\""
-                        "\tIdentifier\t\"Device0\""
-                        "\tDriver\t\t\"$str_driver\""
-                        "\tBusID\t\t\"PCI:$str_PCI_ID\""
+                    arr_file1+=(
+                        ""
+                        "Section        \"Device\""
+                        "   Identifier  \"Device0\""
+                        "   Driver      \"$str_driver\""
+                        "   BusID       \"PCI:$str_PCI_ID\""
                         "EndSection"
                     )
 
@@ -399,11 +380,12 @@
                     ;;
 
                 * )
-                    readonly arr_file1+=(
-                        "\nSection\t\"Device\""
-                        "\tIdentifier\t\"Device0\""
-                        "\tDriver\t\t\"driver_name\""
-                        "\tBusID\t\t\"PCI:bus_id:slot_id:function_id\""
+                    arr_file1+=(
+                        ""
+                        "Section        \"Device\""
+                        "   Identifier  \"Device0\""
+                        "   Driver      \"driver_name\""
+                        "   BusID       \"PCI:bus_id:slot_id:function_id\""
                         "EndSection"
                     )
 
@@ -411,7 +393,7 @@
                     ;;
             esac
 
-            WriteToFile "arr_file1" $str_file1
+            WriteFile "arr_file1" $str_file1
             return $?
         }
 
@@ -481,8 +463,7 @@
             fi
 
             # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
-            # TODO: fix IsFile
-            DeleteFile $str_file1 &> /dev/null || CreateFile $str_file1 || return $?
+            rm $str_file1 || return $?
 
             # <remarks> Find first valid VGA driver. </remarks>
             FindFirstVGADriver
@@ -499,9 +480,8 @@
                 return 1
             fi
 
-            # <remarks> ??? </remarks>
+            # <remarks> Write to file if directory exists and driver is valid. </remarks>
             IsDir $str_dir1 || return 1
-            IsFile $str_file1 || return 1
             IsString $str_driver &> /dev/null
             SetFile || return $?
 
