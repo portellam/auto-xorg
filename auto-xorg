@@ -35,7 +35,6 @@
         declare -g _PREFER_OFF_BRAND=false
 
     # <remarks> Evaluations </remarks>
-        declare -g _GET_PREFERRED_VENDOR=""
         declare -gr _GET_PCI_ID='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1'
         declare -gr _GET_PCI_ID_REVERSE_SORT='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1 | sort -r'
 # </params>
@@ -66,22 +65,26 @@
 
             "-l" | "--last" )
                 _PARSE_PCI_ORDER_BY_BUS_ID=false
-                echo -e "Parsing VGA devices in reverse order." ;;
+                echo -e "Caution: Parsing VGA devices in reverse order." ;;
 
             "-r" | "--restart-display" )
                 _DO_RESTART_DISPLAY_MANAGER=true ;;
 
             "-a" | "--amd" )
-                [ "$_PREFER_ANY_BRAND" ] && _PREFER_AMD=true ;;
+                [ "$_PREFER_ANY_BRAND" ] && _PREFER_AMD=true
+                _PREFER_ANY_BRAND=false ;;
 
             "-i" | "--intel" )
-                [ "$_PREFER_ANY_BRAND" ] && _PREFER_INTEL=true ;;
+                [ "$_PREFER_ANY_BRAND" ] && _PREFER_INTEL=true
+                _PREFER_ANY_BRAND=false ;;
 
             "-n" | "--nvidia" )
-                [ "$_PREFER_ANY_BRAND" ] && _PREFER_NVIDIA=true ;;
+                [ "$_PREFER_ANY_BRAND" ] && _PREFER_NVIDIA=true
+                _PREFER_ANY_BRAND=false ;;
 
             "-o" | "--other" )
-                [ "$_PREFER_ANY_BRAND" ] && _PREFER_OFF_BRAND=true ;;
+                [ "$_PREFER_ANY_BRAND" ] && _PREFER_OFF_BRAND=true
+                _PREFER_ANY_BRAND=false ;;
 
             "" )
                 ;;
@@ -98,8 +101,28 @@
             shift
         fi
 
-        if "$_PREFER_ANY_BRAND"; then
-            SetPreferredBrand
+        return 0
+    }
+
+    # <summary> Sets evaluation given a preferred brand. </summary>
+    function GetPreferredVendor
+    {
+        case true in
+            "$_PREFER_AMD" )
+                _PREFERRED_VENDOR=$( echo -e "$_VENDOR" | grep -iv 'amd|ati' | grep -iv 'corporation' ) ;;
+
+            "$_PREFER_INTEL" )
+                _PREFERRED_VENDOR=$( echo -e "$_VENDOR" | grep -i 'intel' ) ;;
+
+            "$_PREFER_NVIDIA" )
+                _PREFERRED_VENDOR=$( echo -e "$_VENDOR" | grep -i 'nvidia' ) ;;
+
+            "$_PREFER_OFF_BRAND" )
+                _PREFERRED_VENDOR=$( echo -e "$_VENDOR" | grep -Eiv 'amd|ati|intel|nvidia' ) ;;
+        esac
+
+        if [[ "$_PREFERRED_VENDOR" == "" ]]; then
+            return 1
         fi
 
         return 0
@@ -135,7 +158,7 @@
     # <summary> Find first or last valid VGA driver, given if parsing in forward or reverse order. </summary>
     function MatchValidVGADeviceWithDriver
     {
-        if [[ "$_DRIVER" == "" ]]; then
+        if [[ "$_DRIVER" == "" || "$_TYPE" == "" || "$_VENDOR" == "" ]]; then
             echo -e "Found Driver: 'N/A'"
             return 1
         fi
@@ -158,13 +181,9 @@
             echo -e "Found Driver: '$_DRIVER'"
 
             # <remarks> Set evaluation if a preferred driver is given. </remarks>
-            if [[ ! "$_PREFER_ANY_BRAND" && "$_GET_PREFERRED_VENDOR" != "" ]]; then
-                _PREFERRED_VENDOR=$( echo -e "$_VENDOR" | eval "$_SET_PREFERRED_VENDOR" )
-            fi
-
-            # <summary> Exit early if a preferred driver is not found. </summary>
-            if [[ ! "$_PREFER_ANY_BRAND" && "$_GET_PREFERRED_VENDOR" != "" && "$_PREFERRED_VENDOR" == "" ]]; then
-                return 1
+            if ! "$_PREFER_ANY_BRAND"; then
+                GetPreferredVendor
+                return "$?"
             fi
 
             return 0
@@ -187,7 +206,7 @@
                     "EndSection"
                 )
 
-                echo -e "Valid VGA device found."
+                echo -e "Success: Valid VGA device found."
                 ;;
 
             * )
@@ -200,7 +219,7 @@
                     "EndSection"
                 )
 
-                echo -e "$PREFIX_ERROR No valid VGA device found."
+                echo -e "Failure: No valid VGA device found."
                 ;;
         esac
 
@@ -223,34 +242,6 @@
             [ "$VAR_OPTION" == "" ] && return 0
             GetOption "$VAR_OPTION" || return "$?"
         done
-
-        return 0
-    }
-
-    # <summary> Sets evaluation given a preferred brand. </summary>
-    function SetPreferredBrand
-    {
-        case true in
-            "$_PREFER_AMD" )
-                _GET_PREFERRED_VENDOR="grep -iv 'amd|ati' | grep -iv 'corporation'"
-                ;;
-
-            "$_PREFER_INTEL" )
-                _GET_PREFERRED_VENDOR="grep -i 'intel'"
-                ;;
-
-            "$_PREFER_NVIDIA" )
-                _GET_PREFERRED_VENDOR="grep -i 'nvidia'"
-                ;;
-
-            "$_PREFER_OFF_BRAND" )
-                _GET_PREFERRED_VENDOR="grep -Eiv 'amd|ati|intel|nvidia'"
-                ;;
-        esac
-
-        if [[ "$_GET_PREFERRED_VENDOR" != "" ]]; then
-            _PREFER_ANY_BRAND=false
-        fi
 
         return 0
     }
@@ -296,9 +287,8 @@
         FindFirstVGADriver
         declare -i _EXIT_CODE="$?"
 
-        if [[ "$_EXIT_CODE" -ne 0 ]] \
-            && [[ "$_GET_PREFERRED_VENDOR" != "" ]]; then
-            _GET_PREFERRED_VENDOR=""
+        if [[ "$_EXIT_CODE" -ne 0 ]]; then
+            _PREFER_ANY_BRAND=true
             FindFirstVGADriver
             _EXIT_CODE="$?"
         fi
@@ -325,7 +315,7 @@
         fi
 
         if ! "$_DO_RESTART_DISPLAY_MANAGER"; then
-            echo -e "You may restart the active display manager '${_DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${_DISPLAY_MANAGER}'."
+            echo -e "Note: You may restart the active display manager '$_DISPLAY_MANAGER'. To restart, execute 'sudo systemctl restart $_DISPLAY_MANAGER'."
         fi
 
         return 0
