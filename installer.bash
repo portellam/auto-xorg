@@ -232,9 +232,9 @@
             return 1
         fi
 
-        if ! sudo systemctl enable "$_FILE_2" &> /dev/null \
-            || ! sudo systemctl restart "$_FILE_2" &> /dev/null \
-            || ! sudo systemctl daemon-reload &> /dev/null; then
+        if || ! sudo systemctl daemon-reload &> /dev/null \
+            || ! sudo systemctl enable "$_FILE_2" &> /dev/null \
+            || ! sudo systemctl restart "$_FILE_2" &> /dev/null; then
             echo -e "$_PREFIX_ERROR Failed to update systemd with new daemon/service."
             return 1
         fi
