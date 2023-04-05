@@ -31,7 +31,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash installer.bash -f -a  Set options to find first valid AMD/ATI VGA device, then install.
         sudo bash auto-xorg -l -n -r    Find last valid NVIDIA VGA device, then restart the display manager immediately.
 
-#### If the Auto-Xorg service fails, to diagnose review the log. Execute:
+#### If the Auto-Xorg service fails, diagnose review the log. Execute:
         sudo journalctl -u auto-xorg
 
 Failure may be the result of absent VGA device(s), or an exception. Review the log to debug.
