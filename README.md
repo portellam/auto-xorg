@@ -6,7 +6,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash installer.bash [OPTION]...
 
 #### To run stand-alone, execute:
-        sudo bash auto-xorg.bash  [OPTION]...
+        sudo bash auto-xorg.bash [OPTION]...
 
 #### Usage (install or stand-alone)
           -h, --help              Print this help and exit.
@@ -31,7 +31,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 #### If the Auto-Xorg service fails, to diagnose review the log. Execute:
         sudo journalctl -u auto-xorg
 
-Failure may mean an absent VGA device, or an exception. Review the log to debug.
+Failure may be the result of absent VGA device(s), or an exception. Review the log to debug.
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -80,6 +80,3 @@ My Desktop has no issues and works as expected. Primary and secondary GPUs are N
 However my Laptop has some issues:
 * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
 * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
-
-## To-do
-In the future, I would like to create a specific, distro-independent function. The function will check for if the more recent Intel driver (**"modesetting"**) is present or not, and apply an Xorg file accordingly.
