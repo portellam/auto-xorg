@@ -148,20 +148,22 @@
         IFS=$'\n'
 
         local readonly _OUTPUT=(
-            "Usage: bash auto-xorg [OPTION]"
+            "Usage: sudo bash auto-xorg [OPTION]..."
             "Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.\n"
-            "\t-f, --first\t\tfind the first valid VGA device"
-            "\t-h, --help\t\tPrint this usage statement"
-            "\t-l, --last\t\tfind the last valid VGA device"
-            "\t-r, --restart-display\trestart the display manager immediately"
-            "\n\tPrefer a vendor:\n"
-            "\t-a, --amd\t\tAMD or ATI"
-            "\t-i, --intel\t\tIntel"
-            "\t-n, --nvidia\t\tNVIDIA"
-            "\t-o, --other\t\tany other brand (past or future)"
+            "\n  -h, --help\tPrint this help and exit."
+            "\nUpdate Xorg:"
+            "  -r, --restart-display\tRestart the display manager immediately."
+            "\nSet device order:"
+            "  -f, --first\tFind the first valid VGA device."
+            "  -l, --last\tFind the last valid VGA device."
+            "\nPrefer a vendor:"
+            "  -a, --amd\tAMD or ATI"
+            "  -i, --intel\tIntel"
+            "  -n, --nvidia\tNVIDIA"
+            "  -o, --other\tAny other brand (past or future)."
             "\nExample:"
-            "\tbash auto-xorg -f -a\tFind first valid AMD/ATI VGA device."
-            "\tbash auto-xorg -l -n -r\tFind last valid NVIDIA VGA device, then restart the display manager immediately."
+            "\tsudo bash auto-xorg -f -a\tFind first valid AMD/ATI VGA device."
+            "\tsudo bash auto-xorg -l -n -r\tFind last valid NVIDIA VGA device, then restart the display manager immediately."
         )
 
         echo -e "${_OUTPUT[*]}"
@@ -177,19 +179,12 @@
             return 1
         fi
 
+
         if ( [[ "$_TYPE" =~ ^"vga" ]] \
             || [[ "$_TYPE" =~ ^"graphics" ]] ) \
             && ! [[ "$_DRIVER" =~ ^"vfio-pci" ]]; then
             local _PREFERRED_VENDOR=""
-
-            # <remarks> Match Intel VGA </remarks>
-            if [[ "$_VENDOR" == *"intel"* ]]; then
-                if [[ "$_HAS_MATCHED_INTEL_DRIVER" == true ]]; then
-                    _DRIVER="modesetting"
-                else
-                    echo -e "$_PREFIX_NOTE Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
-                fi
-            fi
+            MatchVendorAndOverrideDriver
 
             # <remarks> Print </remarks>
             echo -e "Found Driver: '$_DRIVER'"
@@ -204,6 +199,23 @@
         fi
 
         return 1
+    }
+
+    function MatchVendorAndOverrideDriver
+    {
+        case "$_VENDOR" in
+            "intel" )
+                if [[ "$_HAS_MATCHED_INTEL_DRIVER" == true ]]; then
+                    _DRIVER="modesetting"
+                else
+                    echo -e "$_PREFIX_NOTE Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: 'modesetting')."
+                fi ;;
+
+            * )
+                ;;
+        esac
+
+        return 0
     }
 
     # <summary> Save contents to file. If no device is found, leave comments in place of details. </summary>
@@ -264,73 +276,73 @@
 # <remarks> Main </remarks>
 # <code>
     if [[ $( whoami ) != "root" ]]; then
-            echo -e "$_PREFIX_ERROR User is not sudo/root."
-            exit 1
-        fi
+        echo -e "$_PREFIX_ERROR User is not sudo/root."
+        exit 1
+    fi
 
-        if ! SetOptions "$@"; then GetUsage; exit "$?"; fi
+    if ! SetOptions "$@"; then GetUsage; exit "$?"; fi
 
-        # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
-        if "$_PARSE_PCI_ORDER_BY_BUS_ID"; then
-            declare -ga _HWID_LIST=( $( eval $_GET_PCI_ID ) )
-        else
-            declare -ga _HWID_LIST=( $( eval $_GET_PCI_ID_REVERSE_SORT ) )
-        fi
+    # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
+    if "$_PARSE_PCI_ORDER_BY_BUS_ID"; then
+        declare -ga _HWID_LIST=( $( eval $_GET_PCI_ID ) )
+    else
+        declare -ga _HWID_LIST=( $( eval $_GET_PCI_ID_REVERSE_SORT ) )
+    fi
 
-        # <remarks> Exit early if no PCI devices are found ($_PREFIX_NOTE more likely that the command fails, than no PCI devices exist). </remarks>
-        if [[ "${#_HWID_LIST[@]}" -eq 0 ]]; then
-            echo -e "$_PREFIX_ERROR No PCI devices found."
-            exit 1
-        fi
+    # <remarks> Exit early if no PCI devices are found ($_PREFIX_NOTE more likely that the command fails, than no PCI devices exist). </remarks>
+    if [[ "${#_HWID_LIST[@]}" -eq 0 ]]; then
+        echo -e "$_PREFIX_ERROR No PCI devices found."
+        exit 1
+    fi
 
-        # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
-        if [[ ! -d "$_PATH_1" ]] \
-            && [ sudo mkdir -p "$_PATH_1" ]; then
-            echo -e "$_PREFIX_ERROR Failed to create directory '$_PATH_1'."
-            exit 1
-        fi
+    # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
+    if [[ ! -d "$_PATH_1" ]] \
+        && [ sudo mkdir -p "$_PATH_1" ]; then
+        echo -e "$_PREFIX_ERROR Failed to create directory '$_PATH_1'."
+        exit 1
+    fi
 
-        # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
-        if [[ -e "$_PATH_1" ]] \
-            && ! sudo rm -f "$_FILE_1" &> /dev/null; then
-            echo -e "$_PREFIX_ERROR Failed to delete file '$_FILE_1'."
-            exit 1
-        fi
+    # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
+    if [[ -e "$_PATH_1" ]] \
+        && ! sudo rm -f "$_FILE_1" &> /dev/null; then
+        echo -e "$_PREFIX_ERROR Failed to delete file '$_FILE_1'."
+        exit 1
+    fi
 
-        # <remarks> Find first valid VGA driver. </remarks>
+    # <remarks> Find first valid VGA driver. </remarks>
+    FindFirstVGADriver
+    declare -i _EXIT_CODE="$?"
+
+    if [[ "$_EXIT_CODE" -ne 0 ]]; then
+        _PREFER_ANY_BRAND=true
         FindFirstVGADriver
-        declare -i _EXIT_CODE="$?"
+        _EXIT_CODE="$?"
+    fi
 
-        if [[ "$_EXIT_CODE" -ne 0 ]]; then
-            _PREFER_ANY_BRAND=true
-            FindFirstVGADriver
-            _EXIT_CODE="$?"
-        fi
+    if [[ "$_EXIT_CODE" -ne 0 ]]; then
+        echo -e "$_PREFIX_ERROR No VGA devices found."
+        exit 1
+    fi
 
-        if [[ "$_EXIT_CODE" -ne 0 ]]; then
-            echo -e "$_PREFIX_ERROR No VGA devices found."
-            exit 1
-        fi
+    # <remarks> Write to file if directory exists and driver is valid. </remarks>
+    if [[ ! -d "$_PATH_1" ]]; then
+        echo -e "$_PREFIX_ERROR Failed to create directory '$_PATH_1'."
+        exit 1
+    fi
 
-        # <remarks> Write to file if directory exists and driver is valid. </remarks>
-        if [[ ! -d "$_PATH_1" ]]; then
-            echo -e "$_PREFIX_ERROR Failed to create directory '$_PATH_1'."
-            exit 1
-        fi
+    SetFile || exit "$?"
 
-        SetFile || exit "$?"
+    # <remarks> Restart system service automatically or manually. </remarks>
+    if "$_DO_RESTART_DISPLAY_MANAGER" \
+        && ( ! [ sudo systemctl enable "$_FILE_2" ] \
+        || ! [ sudo systemctl restart "$_FILE_2" ] ); then
+        echo -e "$_PREFIX_ERROR Failed to restart system service."
+        exit 1
+    fi
 
-        # <remarks> Restart system service automatically or manually. </remarks>
-        if "$_DO_RESTART_DISPLAY_MANAGER" \
-            && ( ! [ sudo systemctl enable "$_FILE_2" ] \
-            || ! [ sudo systemctl restart "$_FILE_2" ] ); then
-            echo -e "$_PREFIX_ERROR Failed to restart system service."
-            exit 1
-        fi
+    if ! "$_DO_RESTART_DISPLAY_MANAGER"; then
+        echo -e "$_PREFIX_NOTE You may restart the active display manager '$_DISPLAY_MANAGER'.\nTo restart, execute 'sudo systemctl restart $_DISPLAY_MANAGER'."
+    fi
 
-        if ! "$_DO_RESTART_DISPLAY_MANAGER"; then
-            echo -e "$_PREFIX_NOTE You may restart the active display manager '$_DISPLAY_MANAGER'.\nTo restart, execute 'sudo systemctl restart $_DISPLAY_MANAGER'."
-        fi
-
-        exit 0
+    exit 0
 # </code>

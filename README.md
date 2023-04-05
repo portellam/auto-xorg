@@ -3,32 +3,35 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 
 ## How-to
 #### To install, execute:
-        sudo bash installer.bash
+        sudo bash installer.bash [OPTION]...
 
 #### To run stand-alone, execute:
-        sudo bash auto-xorg.bash
+        sudo bash auto-xorg.bash [OPTION]...
 
-#### Usage
-        -f, --first             find the first valid VGA device
-        -h, --help              Print this usage statement
-        -l, --last              find the last valid VGA device
-        -r, --restart-display   restart the display manager immediately
+#### Usage (install or stand-alone)
+          -h, --help              Print this help and exit.
+
+        Update Xorg:
+          -r, --restart-display   Restart the display manager immediately.
+
+        Set device order:
+          -f, --first             Find the first valid VGA device.
+          -l, --last              Find the last valid VGA device.
 
         Prefer a vendor:
-
-        -a, --amd               AMD or ATI
-        -i, --intel             Intel
-        -n, --nvidia            NVIDIA
-        -o, --other             any other brand (past or future)
+          -a, --amd               AMD or ATI
+          -i, --intel             Intel
+          -n, --nvidia            NVIDIA
+          -o, --other             Any other brand (past or future).
 
 #### Examples
-        sudo bash auto-xorg -f -a    Find first valid AMD/ATI VGA device.
-        sudo bash auto-xorg -l -n -r Find last valid NVIDIA VGA device, then restart the display manager immediately.
+        sudo bash installer.bash -f -a  Set options to find first valid AMD/ATI VGA device, then install.
+        sudo bash auto-xorg -l -n -r    Find last valid NVIDIA VGA device, then restart the display manager immediately.
 
 #### If the Auto-Xorg service fails, to diagnose review the log. Execute:
         sudo journalctl -u auto-xorg
 
-Failure may mean an absent VGA device, or an exception. Review the log to debug.
+Failure may be the result of absent VGA device(s), or an exception. Review the log to debug.
 
 ## What is VFIO?
 * see hyperlink:    https://www.kernel.org/doc/html/latest/driver-api/vfio.html
@@ -77,6 +80,3 @@ My Desktop has no issues and works as expected. Primary and secondary GPUs are N
 However my Laptop has some issues:
 * **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
 * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
-
-## To-do
-In the future, I would like to create a specific, distro-independent function. The function will check for if the more recent Intel driver (**"modesetting"**) is present or not, and apply an Xorg file accordingly.
