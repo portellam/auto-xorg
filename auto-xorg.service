@@ -1,9 +1,8 @@
 [Unit]
-Description=Auto-Xorg
+Description=auto-Xorg
 
 [Service]
 ExecStart=/bin/bash /usr/local/bin/auto-xorg
-# ExecStart=/bin/bash /usr/local/bin/auto-xorg -l -i
 RemainAfterExit=true
 Type=oneshot
 
