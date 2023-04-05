@@ -2,6 +2,9 @@
 Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
 
 ## How-to
+#### To download, execute:
+        git clone https://github.com/portellam/auto-xorg
+
 #### To install, execute:
         sudo bash installer.bash [OPTION]...
 
