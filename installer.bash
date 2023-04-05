@@ -7,7 +7,12 @@
 # Maintainer(s):    Alex Portell <github.com/portellam>
 #
 
- # <summary>
+# <params>
+    declare -g _OPTIONS=""
+    declare -g __SORT_OPTION=""
+    declare -g _VENDOR_OPTION=""
+
+    # <summary>
     # Color coding
     # Reference URL: 'https://www.shellhacks.com/bash-colors'
     # </summary>
@@ -21,19 +26,140 @@
     declare -gr _PREFIX_ERROR="${_SET_COLOR_YELLOW}An error occurred:${_RESET_COLOR}"
     declare -gr _PREFIX_FAIL="${_SET_COLOR_RED}Failure:${_RESET_COLOR}"
     declare -gr _PREFIX_PASS="${_SET_COLOR_GREEN}Success:${_RESET_COLOR}"
+# </params>
 
 # <code>
-function Main
+    # <summary> Gets the current option </summary>
+    function GetOption
+    {
+        while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+            "-f" | "--first" )
+                SetOptionForSort "$1" || return 1 ;;
+
+            "-l" | "--last" )
+                SetOptionForSort "$1" || return 1 ;;
+
+            "-r" | "--restart-display" )
+                _OPTIONS="$1 " ;;
+
+            "-a" | "--amd" )
+                SetOptionForVendor "$1" || return 1 ;;
+
+            "-i" | "--intel" )
+                SetOptionForVendor "$1" || return 1 ;;
+
+            "-n" | "--nvidia" )
+                SetOptionForVendor "$1" || return 1 ;;
+
+            "-o" | "--other" )
+                SetOptionForVendor "$1" || return 1 ;;
+
+            "" )
+                ;;
+
+            "-h" | "--help" )
+                GetUsage
+                return 1 ;;
+
+            * )
+                echo -e "$_PREFIX_ERROR Invalid input."
+                return 1 ;;
+        esac; shift; done
+
+        if [[ "$1" == '--' ]]; then
+            shift
+        fi
+
+        return 0
+    }
+
+    # <summary> Gets the usage. </summary>
+    function GetUsage
+    {
+        IFS=$'\n'
+
+        local readonly _OUTPUT=(
+            "Usage: sudo bash installer.bash [OPTION]..."
+            "Set options for auto-Xorg in service file."
+            "\n  -h, --help\tPrint this help and exit."
+            "\nUpdate Xorg:"
+            "  -r, --restart-display\tRestart the display manager immediately."
+            "\nSet device order:"
+            "  -f, --first\tFind the first valid VGA device."
+            "  -l, --last\tFind the last valid VGA device."
+            "\nPrefer a vendor:"
+            "  -a, --amd\tAMD or ATI"
+            "  -i, --intel\tIntel"
+            "  -n, --nvidia\tNVIDIA"
+            "  -o, --other\tAny other brand (past or future)."
+            "\nExample:"
+            "  sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
+            "  sudo bash installer.bash -l -n -r\tSet options to find last valid NVIDIA VGA device, and restart the display manager, then install."
+        )
+
+        echo -e "${_OUTPUT[*]}"
+        unset IFS
+        return 0
+    }
+
+    function SetOptionForSort
+    {
+        if [[ "$_SORT_OPTION" != "" ]]; then
+            echo -e "$_PREFIX_ERROR Could not add sort option. Sort option is already set."
+            return 1
+        fi
+
+        readonly _SORT_OPTION="$1"
+        return 0
+    }
+
+    function SetOptionForVendor
+    {
+        if [[ "$_VENDOR_OPTION" != "" ]]; then
+            echo -e "$_PREFIX_ERROR Could not add vendor option. Vendor option is already set."
+            return 1
+        fi
+
+        readonly _VENDOR_OPTION="$1"
+        return 0
+    }
+
+    # <summary> Sets the options. Exit early (Pass) if input is null. Else, exit early (Fail) if input is invalid. </summary>
+    function SetOptions
+    {
+        for VAR_OPTION in "$@"; do
+            [ "$VAR_OPTION" == "" ] && return 0
+            GetOption "$VAR_OPTION" || return "$?"
+        done
+
+        return 0
+    }
+
+    function Main
     {
         if [[ $( whoami ) != "root" ]]; then
             echo -e "$_PREFIX_ERROR User is not sudo/root."
             return 1
         fi
 
+        if [[ "$_SORT_OPTION" != "" ]]; then
+            _OPTIONS+="$_SORT_OPTION "
+        fi
+
+        if [[ "$_VENDOR_OPTION" != "" ]]; then
+            _OPTIONS+="$_VENDOR_OPTION "
+        fi
+
+        if [[ "$_OPTIONS" != "" ]]; then
+            readonly _OPTIONS="${_OPTIONS::-1}"
+        fi
+
         declare -gr _PATH_1="/usr/local/bin/"
         declare -gr _PATH_2="/etc/systemd/system/"
         declare -gr _FILE_1="auto-xorg"
         declare -gr _FILE_2="auto-xorg.service"
+        declare -gr _LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/auto-xorg"
+        declare -gr _LINE_TO_USE="$_LINE_TO_REPLACE $_OPTIONS"
 
         if [[ -z "$_FILE_1" ]]; then
             echo -e "$_PREFIX_ERROR Missing project file '$_FILE_1'."
@@ -44,6 +170,19 @@ function Main
             echo -e "$_PREFIX_ERROR Missing project file '$_FILE_2'."
             return 1
         fi
+
+        IFS=$'\n'
+
+        if [[ "$_OPTIONS" == "" ]]; then
+            cat "$_FILE_2" | sed -e "s:$_LINE_TO_REPLACE*:$_LINE_TO_REPLACE:g" > "$_FILE_2"
+        fi
+
+        if [[ "$_OPTIONS" != "" ]]; then
+            cat "$_FILE_2" | sed -e "s:$_LINE_TO_REPLACE*:$_LINE_TO_USE:g" > "$_FILE_2"
+        fi
+
+        unset IFS
+        exit 1
 
         if [[ ! -d "$_PATH_1" ]]; then
             echo -e "$_PREFIX_ERROR Could not find directory '$_PATH_1'."
@@ -83,6 +222,10 @@ function Main
 
 # <summary> Main </summary>
 # <code>
+    if [[ "$@" != "" ]]; then
+        SetOptions "$@" || exit "$?"
+    fi
+
     Main
 
     if [[ "$?" -ne 0 ]]; then
