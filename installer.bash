@@ -62,13 +62,6 @@
                 return 1 ;;
         esac; shift; done
 
-        while ! [[ "$1" =~ ^- && "$1" == "--" ]]; do case $1 in
-            * )
-                echo -e "$_PREFIX_ERROR Invalid input."
-                GetUsage
-                return 1 ;;
-        esac; shift; done
-
         if [[ "$1" == '--' ]]; then
             shift
         fi
@@ -206,8 +199,6 @@
             return 1
         fi
 
-        exit 1
-
         if [[ ! -d "$_PATH_1" ]]; then
             echo -e "$_PREFIX_ERROR Could not find directory '$_PATH_1'."
             return 1
@@ -232,7 +223,7 @@
             return 1
         fi
 
-        if || ! sudo systemctl daemon-reload &> /dev/null \
+        if ! sudo systemctl daemon-reload &> /dev/null \
             || ! sudo systemctl enable "$_FILE_2" &> /dev/null \
             || ! sudo systemctl restart "$_FILE_2" &> /dev/null; then
             echo -e "$_PREFIX_ERROR Failed to update systemd with new daemon/service."
