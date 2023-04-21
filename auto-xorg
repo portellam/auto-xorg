@@ -204,7 +204,7 @@
     function MatchVendorAndOverrideDriver
     {
         case "$_VENDOR" in
-            "intel" )
+            *"intel"* )
                 if [[ "$_HAS_MATCHED_INTEL_DRIVER" == true ]]; then
                     _DRIVER="modesetting"
                 else
