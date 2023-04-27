@@ -9,7 +9,7 @@
 
 # <params>
     declare -g _OPTIONS=""
-    declare -g __SORT_OPTION=""
+    declare -g _SORT_OPTION=""
     declare -g _VENDOR_OPTION=""
 
     # <summary>
