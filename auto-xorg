@@ -47,6 +47,7 @@
     declare -g _PREFER_INTEL=false
     declare -g _PREFER_NVIDIA=false
     declare -g _PREFER_OFF_BRAND=false
+    declare -g _MATCH_PROBLEM_DRIVER=false
 
     # <summary> Evaluations </summary>
     declare -gr _GET_PCI_ID='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1'
@@ -64,7 +65,11 @@
             _FUNC_ID=$( echo "$_HWID" | cut -d '.' -f 2 )
             _PCI_ID=$( echo "$_HWID" | cut -d '.' -f 1 )
             _PCI_ID+=":$_FUNC_ID"
-            MatchValidVGADeviceWithDriver && return 0
+
+            if MatchValidVGADeviceWithDriver; then
+                MatchDriverAndSetXorgWriteOnly
+                return 0
+            fi
         done
 
         return 1
@@ -201,6 +206,17 @@
         return 1
     }
 
+    function MatchDriverAndSetXorgWriteOnly
+    {
+        case "$_DRIVER" in
+            *"nouveau"* )
+                _MATCH_PROBLEM_DRIVER=true ;;
+        esac
+
+        return 0
+    }
+
+
     function MatchVendorAndOverrideDriver
     {
         case "$_VENDOR" in
@@ -330,7 +346,11 @@
         exit 1
     fi
 
-    SetFile || exit "$?"
+    if ! "${_MATCH_PROBLEM_DRIVER}"; then
+        SetFile || exit "$?"
+    else
+        echo -e "$_PREFIX_NOTE Not writing to file given prescense of problem driver."
+    fi
 
     # <remarks> Restart system service automatically or manually. </remarks>
     if "$_DO_RESTART_DISPLAY_MANAGER" \
