@@ -1,8 +1,8 @@
 #!/bin/bash sh
 
 #
-# Filename:       installer.bash
-# Description:    Installs auto-Xorg.
+# Filename:       auto-xorg.bash
+# Description:    Installs auto-xorg.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
 #
