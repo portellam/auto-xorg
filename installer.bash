@@ -1,253 +1,305 @@
 #!/bin/bash sh
 
 #
-# Filename:         installer.bash
-# Description:      Installs auto-Xorg.
-# Author(s):        Alex Portell <github.com/portellam>
-# Maintainer(s):    Alex Portell <github.com/portellam>
+# Filename:       installer.bash
+# Description:    Installs auto-Xorg.
+# Author(s):      Alex Portell <github.com/portellam>
+# Maintainer(s):  Alex Portell <github.com/portellam>
 #
 
 # <params>
-    declare -g _OPTIONS=""
-    declare -g _SORT_OPTION=""
-    declare -g _VENDOR_OPTION=""
+  OPTION_STRING=""
+  SORT_OPTION=""
+  VENDOR_OPTION=""
 
-    # <summary>
-    # Color coding
-    # Reference URL: 'https://www.shellhacks.com/bash-colors'
-    # </summary>
-    declare -gr _SET_COLOR_GREEN='\033[0;32m'
-    declare -gr _SET_COLOR_RED='\033[0;31m'
-    declare -gr _SET_COLOR_YELLOW='\033[0;33m'
-    declare -gr _RESET_COLOR='\033[0m'
+  # <summary>
+  # Color coding
+  # Reference URL: 'https://www.shellhacks.com/bash-colors'
+  # </summary>
+  readonly SET_COLOR_GREEN='\033[0;32m'
+  readonly SET_COLOR_RED='\033[0;31m'
+  readonly SET_COLOR_YELLOW='\033[0;33m'
+  readonly RESET_COLOR='\033[0m'
 
-    # <summary> Append output </summary>
-    declare -gr _PREFIX_NOTE="${_SET_COLOR_YELLOW}Note:${_RESET_COLOR}"
-    declare -gr _PREFIX_ERROR="${_SET_COLOR_YELLOW}An error occurred:${_RESET_COLOR}"
-    declare -gr _PREFIX_FAIL="${_SET_COLOR_RED}Failure:${_RESET_COLOR}"
-    declare -gr _PREFIX_PASS="${_SET_COLOR_GREEN}Success:${_RESET_COLOR}"
+  # <summary> Append output </summary>
+  readonly PREFIX_NOTE="${SET_COLOR_YELLOW}Note:${RESET_COLOR}"
+  readonly PREFIX_ERROR="${SET_COLOR_YELLOW}An error occurred:${RESET_COLOR}"
+  readonly PREFIX_FAIL="${SET_COLOR_RED}Failure:${RESET_COLOR}"
+  readonly PREFIX_PASS="${SET_COLOR_GREEN}Success:${RESET_COLOR}"
+
+  readonly PATH_1="/usr/local/bin/"
+  readonly PATH_2="/etc/systemd/system/"
+  readonly FILE_1="auto-xorg"
+  readonly FILE_2="auto-xorg.service"
+  readonly LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/auto-xorg"
 # </params>
 
-# <code>
-    # <summary> Gets the current option </summary>
-    function GetOption
-    {
-        while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-            "-f" | "--first" )
-                SetOptionForSort "$1" || return 1 ;;
-
-            "-l" | "--last" )
-                SetOptionForSort "$1" || return 1 ;;
-
-            "-r" | "--restart-display" )
-                _OPTIONS="$1 " ;;
-
-            "-a" | "--amd" )
-                SetOptionForVendor "$1" || return 1 ;;
-
-            "-i" | "--intel" )
-                SetOptionForVendor "$1" || return 1 ;;
-
-            "-n" | "--nvidia" )
-                SetOptionForVendor "$1" || return 1 ;;
-
-            "-o" | "--other" )
-                SetOptionForVendor "$1" || return 1 ;;
-
-            "" )
-                ;;
-
-            "-h" | "--help" )
-                GetUsage
-                return 1 ;;
-        esac; shift; done
-
-        if [[ "$1" == '--' ]]; then
-            shift
-        fi
-
-        return 0
-    }
-
-    # <summary> Gets the usage. </summary>
-    function GetUsage
-    {
-        IFS=$'\n'
-
-        local -ar _OUTPUT=(
-            "Usage: sudo bash installer.bash [OPTION]..."
-            "Set options for auto-Xorg in service file, then install."
-            "\n  -h, --help\t\tPrint this help and exit."
-            "\nUpdate Xorg:"
-            "  -r, --restart-display\tRestart the display manager immediately."
-            "\nSet device order:"
-            "  -f, --first\t\tFind the first valid VGA device."
-            "  -l, --last\t\tFind the last valid VGA device."
-            "\nPrefer a vendor:"
-            "  -a, --amd\t\tAMD or ATI"
-            "  -i, --intel\t\tIntel"
-            "  -n, --nvidia\t\tNVIDIA"
-            "  -o, --other\t\tAny other brand (past or future)."
-            "\nExample:"
-            "  sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
-            "  sudo bash installer.bash -l -n -r\tSet options to find last valid NVIDIA VGA device, and restart the display manager, then install."
-        )
-
-        echo -e "${_OUTPUT[*]}"
-        unset IFS
-        return 0
-    }
-
-    function SetOptionForSort
-    {
-        if [[ "$_SORT_OPTION" != "" ]]; then
-            echo -e "$_PREFIX_ERROR Could not add sort option. Sort option is already set."
-            return 1
-        fi
-
-        readonly _SORT_OPTION="$1"
-        return 0
-    }
-
-    function SetOptionForVendor
-    {
-        if [[ "$_VENDOR_OPTION" != "" ]]; then
-            echo -e "$_PREFIX_ERROR Could not add vendor option. Vendor option is already set."
-            return 1
-        fi
-
-        readonly _VENDOR_OPTION="$1"
-        return 0
-    }
-
-    # <summary> Sets the options. Exit early (Pass) if input is null. Else, exit early (Fail) if input is invalid. </summary>
-    function SetOptions
-    {
-        for VAR_OPTION in "$@"; do
-            [ "$VAR_OPTION" == "" ] && return 0
-            GetOption "$VAR_OPTION" || return "$?"
-        done
-
-        return 0
-    }
-
-    function Main
-    {
-        if [[ $( whoami ) != "root" ]]; then
-            echo -e "$_PREFIX_ERROR User is not sudo/root."
-            return 1
-        fi
-
-        if [[ "$_SORT_OPTION" != "" ]]; then
-            _OPTIONS+="$_SORT_OPTION "
-        fi
-
-        if [[ "$_VENDOR_OPTION" != "" ]]; then
-            _OPTIONS+="$_VENDOR_OPTION "
-        fi
-
-        if [[ "$_OPTIONS" != "" ]]; then
-            readonly _OPTIONS="${_OPTIONS::-1}"
-        fi
-
-        local -r _PATH_1="/usr/local/bin/"
-        local -r _PATH_2="/etc/systemd/system/"
-        local -r _FILE_1="auto-xorg"
-        local -r _FILE_2="auto-xorg.service"
-        local -r _LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/auto-xorg"
-        local _LINE_TO_USE="$_LINE_TO_REPLACE"
-
-        if [[ "$_OPTIONS" != "" ]]; then
-            _LINE_TO_USE+=" $_OPTIONS"
-        fi
-
-        readonly _LINE_TO_USE
-        local -r _FILE_2_CONTENTS=(
-            "[Unit]"
-            "Description=auto-Xorg"
-            ""
-            "[Service]"
-            "$_LINE_TO_USE"
-            "RemainAfterExit=true"
-            "Type=oneshot"
-            ""
-            "[Install]"
-            "WantedBy=multi-user.target"
-        )
-
-        if [[ -z "$_FILE_1" ]]; then
-            echo -e "$_PREFIX_ERROR Missing project file '$_FILE_1'."
-            return 1
-        fi
-
-        if [[ -z "$_FILE_2" ]]; then
-            echo -e "$_PREFIX_ERROR Missing project file '$_FILE_2'."
-            return 1
-        fi
-
-        IFS=$'\n'
-        echo -e "${_FILE_2_CONTENTS[*]}" > "$_FILE_2"
-        unset IFS
-
-        if [[ "$?" -ne 0 ]]; then
-            echo -e "$_PREFIX_ERROR Could not write to file '$_FILE_2'."
-            return 1
-        fi
-
-        if ! chown $SUDO_USER:$SUDO_USER "$_FILE_2" &> /dev/null; then
-            echo -e "$_PREFIX_ERROR Failed to set file permissions."
-            return 1
-        fi
-
-        if [[ ! -d "$_PATH_1" ]]; then
-            echo -e "$_PREFIX_ERROR Could not find directory '$_PATH_1'."
-            return 1
-        fi
-
-        if [[ ! -d "$_PATH_2" ]]; then
-            echo -e "$_PREFIX_ERROR Could not find directory '$_PATH_2'."
-            return 1
-        fi
-
-        if ! cp "$_FILE_1" "$_PATH_1$_FILE_1" &> /dev/null \
-            || ! cp "$_FILE_2" "$_PATH_2$_FILE_2" &> /dev/null; then
-            echo -e "$_PREFIX_ERROR Failed to copy file(s)."
-            return 1
-        fi
-
-        if ! chown root:root "$_PATH_1$_FILE_1" &> /dev/null \
-            || ! chmod +x "$_PATH_1$_FILE_1" &> /dev/null \
-            || ! chown root:root "$_PATH_2$_FILE_2" &> /dev/null \
-            || ! chmod +x "$_PATH_2$_FILE_2" &> /dev/null; then
-            echo -e "$_PREFIX_ERROR Failed to set file permissions."
-            return 1
-        fi
-
-        if ! sudo systemctl daemon-reload &> /dev/null \
-            || ! sudo systemctl enable "$_FILE_2" &> /dev/null \
-            || ! sudo systemctl restart "$_FILE_2" &> /dev/null; then
-            echo -e "$_PREFIX_ERROR Failed to update systemd with new daemon/service."
-            return 1
-        fi
-
-        echo -e "$_PREFIX_NOTE It is NOT necessary to directly execute script '$_FILE_1'\nThe service '$_FILE_2' will execute the script automatically at boot, to grab the first non-VFIO VGA device.\nIf no available VGA device is found, an Xorg template will be created.\nTherefore, it will be assumed the system is running 'headless'."
-        return 0
-    }
-# </code>
-
-# <summary> Main </summary>
-# <code>
-    if [[ "$@" != "" ]]; then
-        SetOptions "$@" || exit "$?"
+# <functions>
+  function Main
+  {
+    if ! IsUserSudo \
+      || ! SetOptions "$@" \
+      || ! SaveOptions \
+      || ! IsSourceFileMissing "${FILE_1}" \
+      || ! IsSourceFileMissing "${FILE_2}" \
+      || ! WriteFile2 \
+      || ! SetPermissionsForSourceFiles \
+      || ! IsDestinationPathMissing "${PATH_1}" \
+      || ! IsDestinationPathMissing "${PATH_2}" \
+      || ! CopyFiles \
+      || ! SetPermissionsForDestinationFiles \
+      || ! UpdateServices; then
+      echo -e "${PREFIX_FAIL} Could not install auto-Xorg."
+      exit 1
     fi
 
-    Main
-
-    if [[ "$?" -ne 0 ]]; then
-        echo -e "$_PREFIX_FAIL Could not install auto-Xorg."
-        exit 1
-    fi
-
-    echo -e "$_PREFIX_PASS Installed auto-Xorg."
+    echo -e "${PREFIX_PASS} Installed auto-xorg."
+    echo -e "${PREFIX_NOTE} It is NOT necessary to directly execute script '${FILE_1}'"
+    echo -e "The service '${FILE_2}' will execute the script automatically at boot, to grab the first non-VFIO VGA device."
+    echo -e "If no available VGA device is found, an Xorg template will be created."
+    echo -e "Therefore, it will be assumed the system is running 'headless'."
     exit 0
+  }
+
+  function GetOption
+  {
+    while [[ "${1}" =~ ^- \
+      && ! "${1}" == "--" ]]; do
+      case "${1}" in
+        "-f" | "--first" )
+          SetOptionForSort "${1}" || return 1 ;;
+
+        "-l" | "--last" )
+          SetOptionForSort "${1}" || return 1 ;;
+
+        "-r" | "--restart-display" )
+          OPTION_STRING="${1} " ;;
+
+        "-a" | "--amd" )
+          SetOptionForVendor "${1}" || return 1 ;;
+
+        "-i" | "--intel" )
+          SetOptionForVendor "${1}" || return 1 ;;
+
+        "-n" | "--nvidia" )
+          SetOptionForVendor "${1}" || return 1 ;;
+
+        "-o" | "--other" )
+          SetOptionForVendor "${1}" || return 1 ;;
+
+        "" )
+          ;;
+
+        "-h" | "--help" )
+          PrintUsage
+          exit 1 ;;
+
+        * )
+          PrintUsage
+          return 1 ;;
+      esac
+
+      shift
+    done
+
+    if [[ "${1}" == '--' ]]; then
+      shift
+    fi
+
+    return 0
+  }
+
+  function PrintUsage
+  {
+    IFS=$'\n'
+
+    local -ar output=(
+      "Usage: sudo bash installer.bash [OPTION]..."
+      "  Set options for auto-Xorg in service file, then install."
+      "\n    -h, --help\t\tPrint this help and exit."
+      "\n  Update Xorg:"
+      "    -r, --restart-display\tRestart the display manager immediately."
+      "\n  Set device order:"
+      "    -f, --first\t\tFind the first valid VGA device."
+      "    -l, --last\t\tFind the last valid VGA device."
+      "\n  Prefer a vendor:"
+      "    -a, --amd\t\tAMD or ATI"
+      "    -i, --intel\t\tIntel"
+      "    -n, --nvidia\t\tNVIDIA"
+      "    -o, --other\t\tAny other brand (past or future)."
+      "\n  Example:"
+      "    sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
+      "    sudo bash installer.bash -l -n -r\tSet options to find last valid NVIDIA VGA device, and restart the display manager, then install."
+    )
+
+    echo -e "${output[*]}"
+    unset IFS
+    return 0
+  }
+
+  function SetOptionForSort
+  {
+    if [[ "${SORT_OPTION}" != "" ]]; then
+      echo -e "${PREFIX_ERROR} Could not add sort option. Sort option is already set."
+      return 1
+    fi
+
+    readonly SORT_OPTION="${1}"
+    return 0
+  }
+
+  function SetOptionForVendor
+  {
+    if [[ "${VENDOR_OPTION}" != "" ]]; then
+      echo -e "${PREFIX_ERROR} Could not add vendor option. Vendor option is already set."
+      return 1
+    fi
+
+    readonly VENDOR_OPTION="${1}"
+    return 0
+  }
+
+  function SetOptions
+  {
+    for option in "$@"; do
+      if [[ "${option}" == "" ]]; then
+        return 0
+      fi
+
+      GetOption "${option}" || return 1
+    done
+
+    return 0
+  }
+
+  function SaveOptions
+  {
+    if [[ "${SORT_OPTION}" != "" ]]; then
+      OPTION_STRING+="${SORT_OPTION} "
+    fi
+
+    if [[ "${VENDOR_OPTION}" != "" ]]; then
+      OPTION_STRING+="${VENDOR_OPTION} "
+    fi
+
+    if [[ "${OPTION_STRING}" != "" ]]; then
+      OPTION_STRING="${OPTION_STRING::-1}"
+    fi
+
+    readonly OPTION_STRING
+    return 0
+  }
+
+  function IsUserSudo
+  {
+    if [[ $( whoami ) != "root" ]]; then
+      echo -e "${PREFIX_ERROR} User is not sudo/root."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function CopyFiles
+  {
+    if ! cp --force "${FILE_1}" "${PATH_1}${FILE_1}" &> /dev/null \
+      || ! cp --force "${FILE_2}" "${PATH_2}${FILE_2}" &> /dev/null; then
+      echo -e "${PREFIX_ERROR} Failed to copy file(s)."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function IsDestinationPathMissing
+  {
+    if [[ ! -d "${1}" ]]; then
+      echo -e "${PREFIX_ERROR} Could not find directory '${1}'."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function IsSourceFileMissing
+  {
+    if [[ -z "${1}" ]]; then
+      echo -e "${PREFIX_ERROR} Missing project file '${1}'."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function SetPermissionsForSourceFiles
+  {
+    if ! chown --silent ${SUDO_USER}:${SUDO_USER} "${FILE_2}"; then
+      echo -e "${PREFIX_ERROR} Failed to set file permissions."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function SetPermissionsForDestinationFiles
+  {
+    if ! chown --quiet root:root "${PATH_1}${FILE_1}" \
+      || ! chmod --quiet +x "${PATH_1}${FILE_1}" \
+      || ! chown --quiet root:root "${PATH_2}${FILE_2}" \
+      || ! chmod --quiet +x "${PATH_2}${FILE_2}"; then
+      echo -e "${PREFIX_ERROR} Failed to set file permissions."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function UpdateServices
+  {
+    if ! sudo systemctl daemon-reload &> /dev/null \
+      || ! sudo systemctl enable "${FILE_2}" &> /dev/null \
+      || ! sudo systemctl restart "${FILE_2}" &> /dev/null; then
+      echo -e "${PREFIX_ERROR} Failed to update systemd with new daemon/service."
+      return 1
+    fi
+
+    return 0
+  }
+
+  function WriteFile2
+  {
+    line_to_use="${LINE_TO_REPLACE}"
+
+    if [[ "${OPTION_STRING}" != "" ]]; then
+      line_to_use+=" ${OPTION_STRING}"
+    fi
+
+    readonly line_to_use
+    local -ar file_2_contents=(
+      "[Unit]"
+      "Description=auto-Xorg"
+      ""
+      "[Service]"
+      "${line_to_use}"
+      "RemainAfterExit=true"
+      "Type=oneshot"
+      ""
+      "[Install]"
+      "WantedBy=multi-user.target"
+    )
+
+    IFS=$'\n'
+
+    if ! echo -e "${file_2_contents[*]}" > "${FILE_2}"; then
+      unset IFS
+      return 1
+    fi
+
+    unset IFS
+    return 0
+  }
+# </functions>
+
+# <code>
+  Main "$@"
 # </code>
