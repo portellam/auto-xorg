@@ -21,7 +21,7 @@
   readonly SET_COLOR_YELLOW='\033[0;33m'
   readonly RESET_COLOR='\033[0m'
 
-  # <summary> Append output </summary>
+  # <summary>Append output</summary>
   readonly PREFIX_NOTE="${SET_COLOR_YELLOW}Note:${RESET_COLOR}"
   readonly PREFIX_ERROR="${SET_COLOR_YELLOW}An error occurred:${RESET_COLOR}"
   readonly PREFIX_FAIL="${SET_COLOR_RED}Failure:${RESET_COLOR}"
