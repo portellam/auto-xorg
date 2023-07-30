@@ -8,6 +8,9 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
 #### To install, execute:
         sudo bash auto-xorg.bash [OPTION]...
 
+#### To run stand-alone, execute:
+        sudo bash auto-xorg [OPTION]...
+
 #### Usage (install or stand-alone)
           -h, --help              Print this help and exit.
 
@@ -25,7 +28,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
           -o, --other             Any other brand (past or future).
 
 #### Examples
-        sudo bash installer.bash -f -a  Set options to find first valid AMD/ATI VGA device, then install.
+        sudo bash auto-xorg.bash -f -a  Set options to find first valid AMD/ATI VGA device, then install.
         sudo bash auto-xorg -l -n -r    Find last valid NVIDIA VGA device, then restart the display manager immediately.
 
 #### If the Auto-Xorg service fails, to diagnose review the log. Execute:
