@@ -6,10 +6,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         git clone https://github.com/portellam/auto-xorg
 
 #### To install, execute:
-        sudo bash *auto-xorg.bash* [OPTION]...
-
-#### To run stand-alone, execute:
-        sudo bash *auto-xorg* [OPTION]...
+        sudo bash auto-xorg.bash [OPTION]...
 
 #### Usage (install or stand-alone)
           -h, --help              Print this help and exit.
