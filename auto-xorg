@@ -57,77 +57,20 @@
 # <functions>
   function Main
   {
-    if [[ $( whoami ) != "root" ]]; then
-      echo -e "${PREFIX_ERROR} User is not sudo/root."
-      exit 1
-    fi
+    IsUserSudo
 
     if ! SetOptions "$@"; then
       PrintUsage
       exit "${?}"
     fi
 
-    # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
-    if "${PARSE_PCI_ORDER_BY_BUS_ID}"; then
-      declare -ga _HWID_LIST=( $( eval ${GET_PCI_ID} ) )
-    else
-      declare -ga _HWID_LIST=( $( eval ${GET_PCI_ID_REVERSE_SORT} ) )
-    fi
-
-    # <remarks> Exit early if no PCI devices are found (${PREFIX_NOTE} more likely that the command fails, than no PCI devices exist). </remarks>
-    if [[ "${#_HWID_LIST[@]}" -eq 0 ]]; then
-      echo -e "${PREFIX_ERROR} No PCI devices found."
-      exit 1
-    fi
-
-    # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
-    if [[ ! -d "${PATH_1}" ]] \
-      && sudo mkdir -p "${PATH_1}"; then
-      echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
-      exit 1
-    fi
-
-    # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
-    if [[ -e "${PATH_1}" ]] \
-      && ! sudo rm -f "${FILE_1}" &> /dev/null; then
-      echo -e "${PREFIX_ERROR} Failed to delete file '${FILE_1}'."
-      exit 1
-    fi
-
-    # <remarks> Find first valid VGA driver. </remarks>
-    FindFirstVGADriver
-    declare -i EXIT_CODE="$?"
-
-    if [[ "${EXIT_CODE}" -ne 0 ]]; then
-      PREFER_ANY_BRAND=true
-      FindFirstVGADriver
-      EXIT_CODE="$?"
-    fi
-
-    if [[ "${EXIT_CODE}" -ne 0 ]]; then
-      echo -e "${PREFIX_ERROR} No VGA devices found."
-      exit 1
-    fi
-
-    # <remarks> Write to file if directory exists and driver is valid. </remarks>
-    if [[ ! -d "${PATH_1}" ]]; then
-      echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
-      exit 1
-    fi
-
-    if ! "${MATCH_PROBLEM_DRIVER}"; then
-      SetFile || exit "$?"
-    else
-      echo -e "${PREFIX_NOTE} Not writing to file given presence of problem driver."
-    fi
-
-    # <remarks> Restart system service automatically or manually. </remarks>
-    if "${DO_RESTART_DISPLAY_MANAGER}" \
-      && ( ! sudo systemctl enable "${FILE_2}" \
-        || ! sudo systemctl restart "${FILE_2}" ); then
-      echo -e "${PREFIX_ERROR} Failed to restart system service."
-      exit 1
-    fi
+    ToggleSortOrderOfDevices
+    ExitIfNoVGADevicesFound
+    ExitIfPathIsMissing
+    ExitIfPathCannotBeOverwritten
+    FindFirstDriver
+    WriteToFile
+    RestartService
 
     if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
       echo -e "${PREFIX_NOTE} You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
@@ -211,6 +154,29 @@
     return 0
   }
 
+  function SetOptions
+  {
+    for option in "$@"; do
+      if [[ "${option}" == "" ]]; then
+        return 0
+      fi
+
+      GetOption "${option}" || return 1
+    done
+
+    return 0
+  }
+
+  function IsUserSudo
+  {
+    if [[ $( whoami ) != "root" ]]; then
+      echo -e "${PREFIX_ERROR} User is not sudo/root."
+      exit 1
+    fi
+
+    return 0
+  }
+
   function GetPreferredVendor
   {
     case true in
@@ -230,19 +196,6 @@
     if [[ "$_PREFERRED_VENDOR" == "" ]]; then
       return 1
     fi
-
-    return 0
-  }
-
-  function SetOptions
-  {
-    for option in "$@"; do
-      if [[ "${option}" == "" ]]; then
-        return 0
-      fi
-
-      GetOption "${option}" || return 1
-    done
 
     return 0
   }
@@ -362,6 +315,103 @@
 
     unset IFS
     return "${EXIT_CODE}"
+  }
+
+  function FindFirstDriver
+  {
+    # <remarks> Find first valid VGA driver. </remarks>
+    FindFirstVGADriver
+    local -i exit_code="$?"
+
+    if [[ "${exit_code}" -ne 0 ]]; then
+      PREFER_ANY_BRAND=true
+      FindFirstVGADriver
+      exit_code="$?"
+    fi
+
+    if [[ "${exit_code}" -ne 0 ]]; then
+      echo -e "${PREFIX_ERROR} No VGA devices found."
+      exit 1
+    fi
+
+    return 0
+  }
+
+  function ExitIfPathCannotBeOverwritten
+  {
+    # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
+    if [[ -e "${PATH_1}" ]] \
+      && ! sudo rm -f "${FILE_1}" &> /dev/null; then
+      echo -e "${PREFIX_ERROR} Failed to delete file '${FILE_1}'."
+      exit 1
+    fi
+
+    return 0
+  }
+
+  function ExitIfPathIsMissing
+  {
+    # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
+    if [[ ! -d "${PATH_1}" ]] \
+      && sudo mkdir -p "${PATH_1}"; then
+      echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
+      exit 1
+    fi
+
+    return 0
+  }
+
+  function ExitIfNoVGADevicesFound
+  {
+    # <remarks> Exit early if no PCI devices are found (Note: more likely that the command fails, than no PCI devices exist). </remarks>
+    if [[ "${#_HWID_LIST[@]}" -eq 0 ]]; then
+      echo -e "${PREFIX_ERROR} No PCI devices found."
+      exit 1
+    fi
+
+    return 0
+  }
+
+  function RestartService
+  {
+    # <remarks> Restart system service automatically or manually. </remarks>
+    if "${DO_RESTART_DISPLAY_MANAGER}" \
+      && ( ! sudo systemctl enable "${FILE_2}" \
+        || ! sudo systemctl restart "${FILE_2}" ); then
+      echo -e "${PREFIX_ERROR} Failed to restart system service."
+      exit 1
+    fi
+
+    return 0
+  }
+
+  function ToggleSortOrderOfDevices
+  {
+    # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
+    if "${PARSE_PCI_ORDER_BY_BUS_ID}"; then
+      declare -ga _HWID_LIST=( $( eval ${GET_PCI_ID} ) )
+    else
+      declare -ga _HWID_LIST=( $( eval ${GET_PCI_ID_REVERSE_SORT} ) )
+    fi
+
+    return 0
+  }
+
+  function WriteToFile
+  {
+    # <remarks> Write to file if directory exists and driver is valid. </remarks>
+    if [[ ! -d "${PATH_1}" ]]; then
+      echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
+      exit 1
+    fi
+
+    if ! "${MATCH_PROBLEM_DRIVER}"; then
+      SetFile || exit "$?"
+    else
+      echo -e "${PREFIX_NOTE} Not writing to file given presence of problem driver."
+    fi
+
+    return 0
   }
 # </functions>
 
