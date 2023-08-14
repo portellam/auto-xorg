@@ -35,8 +35,8 @@
   readonly PATH_1="/usr/local/bin/"
   readonly PATH_2="/etc/systemd/system/"
   readonly FILE_1="auto-xorg"
-  readonly FILE_2="auto-xorg.service"
-  readonly LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/auto-xorg"
+  readonly FILE_2="${FILE_1}.service"
+  readonly LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/${FILE_1}"
 # </params>
 
 # <functions>
@@ -47,20 +47,20 @@
       || ! save_options \
       || ! is_source_file_missing "${FILE_1}" \
       || ! is_source_file_missing "${FILE_2}" \
-      || ! write_file2 \
+      || ! update_source_service_file \
       || ! set_permissions_for_source_files \
       || ! is_destination_path_found "${PATH_1}" \
       || ! is_destination_path_found "${PATH_2}" \
       || ! copy_files \
       || ! set_permissions_for_destination_files \
       || ! update_services; then
-      print_to_error_log "Could not install auto-Xorg."
+      print_to_error_log "Could not install ${FILE_1}."
       exit 1
     fi
 
-    print_to_output_log "${PREFIX_PASS}Installed auto-xorg."
-    echo -e "${PREFIX_NOTE} It is NOT necessary to directly execute script '${FILE_1}'."
-    echo -e "The service '${FILE_2}' will execute the script automatically at boot, to grab the first non-VFIO VGA device."
+    print_to_output_log "${PREFIX_PASS}Installed ${FILE_1}."
+    echo -e "${PREFIX_NOTE}It is NOT necessary to directly execute script '${FILE_1}'."
+    echo -e "The service '${FILE_1}' will execute the script automatically at boot, to grab the first non-VFIO VGA device."
     echo -e "If no available VGA device is found, an Xorg template will be created."
     echo -e "Therefore, it will be assumed the system is running 'headless'."
     exit 0
@@ -159,7 +159,7 @@
     {
       local -ar output=(
         "Usage: bash ${SCRIPT_NAME} [OPTION]..."
-        "  Set options for auto-xorg in service file, then install."
+        "  Set options for ${FILE_1} in service file, then install."
         "\n    -h, --help\t\tPrint this help and exit."
         "\n  Update Xorg:"
         "    -r, --restart-display\tRestart the display manager immediately."
@@ -289,11 +289,11 @@
     print_to_output_log "Updated services."
   }
 
-  function write_file2
+  function update_source_service_file
   {
     line_to_use="${LINE_TO_REPLACE}"
 
-    if [[ "${OPTION_STRING}" != "" ]]; then
+    if is_string "${OPTION_STRING}" &> /dev/null; then
       line_to_use+=" ${OPTION_STRING}"
     fi
 
@@ -301,7 +301,7 @@
 
     local -ar file_2_contents=(
       "[Unit]"
-      "Description=auto-Xorg"
+      "Description=${FILE_1}"
       ""
       "[Service]"
       "${line_to_use}"
