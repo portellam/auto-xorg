@@ -45,16 +45,16 @@ Failure may be the result of absent VGA device(s), or an exception. Review the l
 * Runs once at boot.
 * Parses list of VGA devices:
 
-        lspci -m | grep -Ei 'vga|graphics'
+        lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 * Saves valid and available VGA device:
 
-        lspci -ks 04:00.0 | grep -Ei 'driver|VGA'
+        lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
         04:00.0 VGA compatible controller: ...
         Kernel driver in use: nvidia
 * Invalid example:
 
-        lspci -ks 04:00.0 | grep -Ei 'driver|VGA'
+        lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
         01:00.0 VGA compatible controller: ...
         Kernel driver in use: vfio-pci
