@@ -306,7 +306,7 @@
 
     local -ar file_2_contents=(
       "[Unit]"
-      "Description=${FILE_1}"
+      "Description=Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device."
       ""
       "[Service]"
       "${line_to_use}"
