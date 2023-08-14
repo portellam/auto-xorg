@@ -1,8 +1,8 @@
-#!/bin/bash sh
+#!/bin/bash/env bash
 
 #
 # Filename:       auto-xorg
-# Description:    Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
+# Description:    Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
 #
@@ -60,7 +60,7 @@
     IsUserSudo
 
     if ! SetOptions "$@"; then
-      PrintUsage
+      print_usage
       exit "${?}"
     fi
 
@@ -79,7 +79,7 @@
     exit 0
   }
 
-  function GetOption
+  function get_option
   {
     while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
       "-f" | "--first" )
@@ -126,7 +126,7 @@
     return 0
   }
 
-  function PrintUsage
+  function print_usage
   {
     IFS=$'\n'
 
@@ -161,7 +161,7 @@
         return 0
       fi
 
-      GetOption "${option}" || return 1
+      get_option "${option}" || return 1
     done
 
     return 0
