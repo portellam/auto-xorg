@@ -1,17 +1,17 @@
 ## Description
-Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device.
+Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device.
 
 ## How-to
 #### To download, execute:
         git clone https://github.com/portellam/auto-xorg
 
 #### To install, execute:
-        sudo bash auto-xorg.bash [OPTION]...
+        sudo bash installer.bash [OPTION]...
 
 #### To run stand-alone, execute:
         sudo bash auto-xorg [OPTION]...
 
-#### Usage (install or stand-alone)
+#### Usage (installer or stand-alone)
           -h, --help              Print this help and exit.
 
         Update Xorg:
@@ -31,7 +31,7 @@ Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) d
         sudo bash auto-xorg.bash -f -a  Set options to find first valid AMD/ATI VGA device, then install.
         sudo bash auto-xorg -l -n -r    Find last valid NVIDIA VGA device, then restart the display manager immediately.
 
-#### If the Auto-Xorg service fails, to diagnose review the log. Execute:
+#### If the auto-xorg service fails, to diagnose review the log. Execute:
         sudo journalctl -u auto-xorg
 
 Failure may be the result of absent VGA device(s), or an exception. Review the log to debug.
@@ -41,20 +41,20 @@ Failure may be the result of absent VGA device(s), or an exception. Review the l
 * community:        https://old.reddit.com/r/VFIO
 * a useful guide:   https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF
 
-## Auto-Xorg
+## auto-xorg
 * Runs once at boot.
 * Parses list of VGA devices:
 
-        lspci -m | grep -Ei 'vga|graphics'
+        lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 * Saves valid and available VGA device:
 
-        lspci -ks 04:00.0 | grep -Ei 'driver|VGA'
+        lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
         04:00.0 VGA compatible controller: ...
         Kernel driver in use: nvidia
 * Invalid example:
 
-        lspci -ks 04:00.0 | grep -Ei 'driver|VGA'
+        lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
         01:00.0 VGA compatible controller: ...
         Kernel driver in use: vfio-pci
@@ -66,7 +66,7 @@ Swapping the host/boot video device (VGA) is trivial and tedious.
 
 For whatever the reason, this script has you covered:
 * a fresh VFIO setup
-* switching the boot VGA (**https://github.com/portellam/deploy-VFIO-setup/**)
+* switching the boot video device (**https://github.com/portellam/deploy-VFIO/**)
 * deploying multiple setups
 
 As of when I started this project, I fail to find another similar script such as this.
@@ -76,10 +76,11 @@ I am happy to share this with the VFIO community.
 ## Disclaimer
 Tested on Debian Linux, on my personal Laptop PC (Thinkpad T500-series, with NVIDIA Optimus) and Desktop PC (Intel Core 9th Gen. and Z390 motherboard).
 
-My Desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 10-series and AMD Radeon HD 6900-series, respectively. Given such a setup, I am able to successfully alternate between Windows 10 and Windows XP virtual machines.
+My Desktop has no issues and works as expected. Primary and secondary GPUs are NVIDIA 30-series and AMD Radeon HD 6900-series, respectively. Given such a setup, I am able to successfully alternate between Windows 10 and Windows XP virtual machines.
 
-**I daily drive this Desktop, and Auto-Xorg works as expected.** Whenever I choose to boot either VGA device, it does the job.
-
+**I daily drive this Desktop, and auto-xorg works as expected.** Whenever I choose to boot either VGA device, it does the job. For Debian 12, I had to uninstall
+ Wayland and install the NVIDIA driver.
+ 
 However my Laptop has some issues:
-* **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes Auto-Xorg to write an invalid Xorg configuration file.
+* **lspci** parses Intel VGA driver **"i915"** (which is blacklisted and superseded by **"modesetting**"). This driver mis-match causes auto-xorg to write an invalid Xorg configuration file.
 * the laptop does not support VGA passthrough at all. For this use-case, Auto-Xorg will provide zero benefit.
