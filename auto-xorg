@@ -132,7 +132,7 @@
 
     local -ar output=(
       "Usage: sudo bash auto-xorg [OPTION]..."
-      "  Generates Xorg (video output) for the first or last valid non-VFIO video (VGA) device."
+      "  Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device."
       "    -h, --help\tPrint this help and exit."
       "\n  Update Xorg:"
       "    -r, --restart-display         Restart the display manager immediately."
