@@ -61,8 +61,8 @@
     MATCH_PROBLEM_DRIVER=false
 
   # <summary>Evaluations</summary>
-    readonly GET_PCI_ID='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1'
-    readonly GET_PCI_ID_REVERSE_SORT='lspci -m | grep -Ei "vga|graphics" | cut -d " " -f 1 | sort -r'
+    readonly GET_PCI_ID="lspci -m | grep --extended-regexp --ignore-case 'vga|graphics' | cut --delimiter ' ' --fields 1"
+    readonly GET_PCI_ID_REVERSE_SORT="lspci -m | grep --extended-regexp --ignore-case 'vga|graphics' | cut --delimiter ' ' --fields 1 | sort --reverse"
 
   HWID_LIST=( )
 # </params>
@@ -83,8 +83,6 @@
     find_first_driver
     write_to_file
     restart_service
-
-    print_to_output_log "${PREFIX_PASS}Updated Xorg."
 
     if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
       echo -e "${PREFIX_NOTE}You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
@@ -108,19 +106,31 @@
           DO_RESTART_DISPLAY_MANAGER=true ;;
 
         "-a" | "--amd" )
-          [ "$PREFER_ANY_BRAND" ] && PREFER_AMD=true
+          if "${PREFER_ANY_BRAND}"; then
+            PREFER_AMD=true
+          fi
+
           PREFER_ANY_BRAND=false ;;
 
         "-i" | "--intel" )
-          [ "$PREFER_ANY_BRAND" ] && PREFER_INTEL=true
+          if "${PREFER_ANY_BRAND}"; then
+            PREFER_INTEL=true
+          fi
+
           PREFER_ANY_BRAND=false ;;
 
         "-n" | "--nvidia" )
-          [ "$PREFER_ANY_BRAND" ] && PREFER_NVIDIA=true
+          if "${PREFER_ANY_BRAND}"; then
+            PREFER_NVIDIA=true
+          fi
+
           PREFER_ANY_BRAND=false ;;
 
         "-o" | "--other" )
-          [ "$PREFER_ANY_BRAND" ] && PREFER_OFF_BRAND=true
+          if "${PREFER_ANY_BRAND}"; then
+            PREFER_ANY_BRAND=true
+          fi
+
           PREFER_ANY_BRAND=false ;;
 
         "" )
@@ -161,7 +171,7 @@
       )
 
       echo -e "${output[*]}"
-      exit 0
+      exit 1
     }
 
     function set_options
@@ -192,8 +202,13 @@
     }
 
     function catch_exit {
+      if true; then
+        print_to_output_log "${PREFIX_PASS}Updated Xorg."
+      else
+        print_to_error_log "Failed to update Xorg."
+      fi
+
       reset_ifs
-      print_to_error_log "Failed to update Xorg."
     }
 
     function is_user_superuser
@@ -227,7 +242,7 @@
   {
     find_first_vga_driver && return 0
     PREFER_ANY_BRAND=true
-    find_first_vga_driver && return 0
+    find_any_vga_device && return 0
     print_to_error_log "No VGA devices found."
     exit 1
   }
@@ -235,11 +250,11 @@
   function find_first_vga_driver
   {
     for hwid in "${HWID_LIST[@]}"; do
-      driver=$( lspci -ks "${hwid}" | grep -E 'driver' | cut -d ':' -f 2 | cut -d ' ' -f 2 )
-      type=$( lspci -ms "${hwid}" | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]' )
-      vendor=$( lspci -ms "${hwid}" | cut -d '"' -f 4 | tr '[:upper:]' '[:lower:]' )
-      function_id=$( echo "${hwid}" | cut -d '.' -f 2 )
-      pci_id=$( echo "${hwid}" | cut -d '.' -f 1 )
+      driver=$( lspci -ks "${hwid}" | grep --extended-regexp 'driver' | cut --delimiter ':' --fields 2 | cut --delimiter ' ' --fields 2 )
+      type=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 2 | tr '[:upper:]' '[:lower:]' )
+      vendor=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 4 | tr '[:upper:]' '[:lower:]' )
+      function_id=$( echo "${hwid}" | cut --delimiter '.' --fields 2 )
+      pci_id=$( echo "${hwid}" | cut --delimiter '.' --fields 1 )
       pci_id+=":${function_id}"
 
       if match_valid_vga_device_with_driver; then
@@ -266,7 +281,7 @@
       "${PREFER_NVIDIA}" )
         reference=$( echo -e "${vendor}" | grep --ignore-case 'nvidia' ) ;;
 
-      "${PPREFER_OFF_BRAND}" )
+      "${PREFER_OFF_BRAND}" )
         reference=$( echo -e "${vendor}" | grep --extended-regexp --ignore-case --invert-match 'amd|ati|intel|nvidia' ) ;;
     esac
 
@@ -315,7 +330,8 @@
     fi
 
     if ( ! [[ "${type}" =~ ^"vga" ]] && ! [[ "${type}" =~ ^"graphics" ]] ) \
-      || ! [[ "${driver}" =~ ^"vfio-pci" ]]; then
+      || [[ "${driver}" =~ ^"vfio-pci" ]]; then
+      print_to_output_log "Found Driver: 'N/A'"
       return 1
     fi
 
@@ -359,6 +375,8 @@
       print_to_error_log "Failed to restart system service."
       exit 1
     fi
+
+    print_to_output_log "Restarted system service."
   }
 
   function set_file
@@ -367,10 +385,10 @@
       0 )
         FILE_1_CONTENTS+=(
           ""
-          "Section    \"Device\""
-          "   Identifier  \"Device0\""
-          "   Driver    \"${driver}\""
-          "   BusID     \"PCI:${pci_id}\""
+          "Section       \"Device\""
+          "  Identifier  \"Device0\""
+          "  Driver      \"${driver}\""
+          "  BusID       \"PCI:${pci_id}\""
           "EndSection"
         )
 
@@ -380,11 +398,11 @@
       * )
         FILE_1_CONTENTS+=(
           ""
-          "Section    \"Device\""
-          "   Identifier  \"Device0\""
-          "   Driver    \"driver_name\""
-          "   BusID     \"PCI:bus_id:slot_id:function_id\""
-          "EndSection"
+          "#Section       \"Device\""
+          "#  Identifier  \"Device0\""
+          "#  Driver      \"driver_name\""
+          "#  BusID       \"PCI:bus_id:slot_id:function_id\""
+          "#EndSection"
         )
 
         print_to_error_log "No valid VGA device found."
@@ -392,9 +410,11 @@
     esac
 
     if ! echo -e "${FILE_1_CONTENTS[*]}" >> "${FILE_1}"; then
-     print_to_error_log "Failed to write to file '${FILE_1}'."
+      print_to_error_log "Failed to write to file '${FILE_1}'."
       return 1
     fi
+
+    print_to_output_log "Wrote to file '${FILE_1}'."
   }
 
   function toggle_sort_order_of_devices
