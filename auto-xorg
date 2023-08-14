@@ -55,22 +55,22 @@
 # </params>
 
 # <functions>
-  function Main
+  function main
   {
-    IsUserSudo
+    is_user_super_user
 
-    if ! SetOptions "$@"; then
+    if ! set_options "$@"; then
       print_usage
       exit "${?}"
     fi
 
-    ToggleSortOrderOfDevices
-    ExitIfNoVGADevicesFound
-    ExitIfPathIsMissing
-    ExitIfPathCannotBeOverwritten
-    FindFirstDriver
-    WriteToFile
-    RestartService
+    toggle_sort_order_of_devices
+    find_any_vga_device
+    is_path_found
+    is_file_deletable
+    find_first_driver
+    write_to_file
+    restart_service
 
     if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
       echo -e "${PREFIX_NOTE} You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
@@ -79,105 +79,145 @@
     exit 0
   }
 
-  function get_option
-  {
-    while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-      "-f" | "--first" )
-        PARSE_PCI_ORDER_BY_BUS_ID=true ;;
+  # <summary>Options logic</summary>
+    function get_option
+    {
+      while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+        "-f" | "--first" )
+          PARSE_PCI_ORDER_BY_BUS_ID=true ;;
 
-      "-l" | "--last" )
-        PARSE_PCI_ORDER_BY_BUS_ID=false
-        echo -e "${PREFIX_NOTE} Parsing VGA devices in reverse order." ;;
+        "-l" | "--last" )
+          PARSE_PCI_ORDER_BY_BUS_ID=false
+          echo -e "${PREFIX_NOTE} Parsing VGA devices in reverse order." ;;
 
-      "-r" | "--restart-display" )
-        DO_RESTART_DISPLAY_MANAGER=true ;;
+        "-r" | "--restart-display" )
+          DO_RESTART_DISPLAY_MANAGER=true ;;
 
-      "-a" | "--amd" )
-        [ "$PREFER_ANY_BRAND" ] && PREFER_AMD=true
-        PREFER_ANY_BRAND=false ;;
+        "-a" | "--amd" )
+          [ "$PREFER_ANY_BRAND" ] && PREFER_AMD=true
+          PREFER_ANY_BRAND=false ;;
 
-      "-i" | "--intel" )
-        [ "$PREFER_ANY_BRAND" ] && PREFER_INTEL=true
-        PREFER_ANY_BRAND=false ;;
+        "-i" | "--intel" )
+          [ "$PREFER_ANY_BRAND" ] && PREFER_INTEL=true
+          PREFER_ANY_BRAND=false ;;
 
-      "-n" | "--nvidia" )
-        [ "$PREFER_ANY_BRAND" ] && PREFER_NVIDIA=true
-        PREFER_ANY_BRAND=false ;;
+        "-n" | "--nvidia" )
+          [ "$PREFER_ANY_BRAND" ] && PREFER_NVIDIA=true
+          PREFER_ANY_BRAND=false ;;
 
-      "-o" | "--other" )
-        [ "$PREFER_ANY_BRAND" ] && PREFER_OFF_BRAND=true
-        PREFER_ANY_BRAND=false ;;
+        "-o" | "--other" )
+          [ "$PREFER_ANY_BRAND" ] && PREFER_OFF_BRAND=true
+          PREFER_ANY_BRAND=false ;;
 
-      "" )
-        ;;
+        "" )
+          ;;
 
-      "-h" | "--help" )
-        return 1 ;;
+        "-h" | "--help" )
+          return 1 ;;
 
-      * )
-        echo -e "${PREFIX_ERROR} Invalid input."
-        return 1 ;;
-    esac; shift; done
+        * )
+          echo -e "${PREFIX_ERROR} Invalid input."
+          return 1 ;;
+      esac; shift; done
 
-    if [[ "$1" == '--' ]]; then
-      shift
-    fi
-
-    return 0
-  }
-
-  function print_usage
-  {
-    IFS=$'\n'
-
-    local -ar output=(
-      "Usage: sudo bash auto-xorg [OPTION]..."
-      "  Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device."
-      "    -h, --help\tPrint this help and exit."
-      "\n  Update Xorg:"
-      "    -r, --restart-display         Restart the display manager immediately."
-      "\n  Set device order:"
-      "    -f, --first                   Find the first valid VGA device."
-      "    -l, --last                    Find the last valid VGA device."
-      "\n  Prefer a vendor:"
-      "    -a, --amd                     AMD or ATI"
-      "    -i, --intel                   Intel"
-      "    -n, --nvidia                  NVIDIA"
-      "    -o, --other                   Any other brand (past or future)."
-      "\n  Example:"
-      "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
-      "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
-    )
-
-    echo -e "${output[*]}"
-    unset IFS
-    return 0
-  }
-
-  function SetOptions
-  {
-    for option in "$@"; do
-      if [[ "${option}" == "" ]]; then
-        return 0
+      if [[ "$1" == '--' ]]; then
+        shift
       fi
+    }
 
-      get_option "${option}" || return 1
-    done
+    function print_usage
+    {
+      IFS=$'\n'
 
-    return 0
-  }
+      local -ar output=(
+        "Usage: sudo bash auto-xorg [OPTION]..."
+        "  Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device."
+        "    -h, --help\tPrint this help and exit."
+        "\n  Update Xorg:"
+        "    -r, --restart-display         Restart the display manager immediately."
+        "\n  Set device order:"
+        "    -f, --first                   Find the first valid VGA device."
+        "    -l, --last                    Find the last valid VGA device."
+        "\n  Prefer a vendor:"
+        "    -a, --amd                     AMD or ATI"
+        "    -i, --intel                   Intel"
+        "    -n, --nvidia                  NVIDIA"
+        "    -o, --other                   Any other brand (past or future)."
+        "\n  Example:"
+        "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
+        "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
+      )
 
-  function IsUserSudo
+      echo -e "${output[*]}"
+    }
+
+    function set_options
+    {
+      for option in "$@"; do
+        if [[ "${option}" == "" ]]; then
+          return 0
+        fi
+
+        get_option "${option}" || return 1
+      done
+    }
+
+  # <summary>Handlers</summary>
+    function is_user_super_user
+    {
+      if [[ $( whoami ) != "root" ]]; then
+        echo -e "${PREFIX_ERROR} User is not sudo/root."
+        exit 1
+      fi
+    }
+
+  function find_any_vga_device
   {
-    if [[ $( whoami ) != "root" ]]; then
-      echo -e "${PREFIX_ERROR} User is not sudo/root."
+    # <remarks>Exit early if no PCI devices are found (Note: more likely that the command fails, than no PCI devices exist).</remarks>
+    if [[ "${#_HWID_LIST[@]}" -eq 0 ]]; then
+      echo -e "${PREFIX_ERROR} No PCI devices found."
       exit 1
     fi
-
-    return 0
   }
 
-  function GetPreferredVendor
+  function find_first_driver
+  {
+    # <remarks>Find first valid VGA driver.</remarks>
+    find_first_vga_driver
+    local -i exit_code="$?"
+
+    if [[ "${exit_code}" -ne 0 ]]; then
+      PREFER_ANY_BRAND=true
+      find_first_vga_driver
+      exit_code="$?"
+    fi
+
+    if [[ "${exit_code}" -ne 0 ]]; then
+      echo -e "${PREFIX_ERROR} No VGA devices found."
+      exit 1
+    fi
+  }
+
+  function find_first_vga_driver
+  {
+    for _HWID in ${_HWID_LIST[@]}; do
+      _DRIVER=$( lspci -ks "$_HWID" | grep -E 'driver' | cut -d ':' -f 2 | cut -d ' ' -f 2 )
+      _TYPE=$( lspci -ms "$_HWID" | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]' )
+      _VENDOR=$( lspci -ms "$_HWID" | cut -d '"' -f 4 | tr '[:upper:]' '[:lower:]' )
+      _FUNC_ID=$( echo "$_HWID" | cut -d '.' -f 2 )
+      _PCI_ID=$( echo "$_HWID" | cut -d '.' -f 1 )
+      _PCI_ID+=":$_FUNC_ID"
+
+      if match_valid_vga_device_with_driver; then
+        match_driver_and_set_xorg_write_only
+        return 0
+      fi
+    done
+
+    return 1
+  }
+
+  function get_preferred_vendor
   {
     case true in
       "$PREFER_AMD" )
@@ -196,30 +236,37 @@
     if [[ "$_PREFERRED_VENDOR" == "" ]]; then
       return 1
     fi
-
-    return 0
   }
 
-  function FindFirstVGADriver
+  function is_file_deletable
   {
-    for _HWID in ${_HWID_LIST[@]}; do
-      _DRIVER=$( lspci -ks "$_HWID" | grep -E 'driver' | cut -d ':' -f 2 | cut -d ' ' -f 2 )
-      _TYPE=$( lspci -ms "$_HWID" | cut -d '"' -f 2 | tr '[:upper:]' '[:lower:]' )
-      _VENDOR=$( lspci -ms "$_HWID" | cut -d '"' -f 4 | tr '[:upper:]' '[:lower:]' )
-      _FUNC_ID=$( echo "$_HWID" | cut -d '.' -f 2 )
-      _PCI_ID=$( echo "$_HWID" | cut -d '.' -f 1 )
-      _PCI_ID+=":$_FUNC_ID"
-
-      if MatchValidVGADeviceWithDriver; then
-        MatchDriverAndSetXorgWriteOnly
-        return 0
-      fi
-    done
-
-    return 1
+    # <remarks>Exit early if existing system file cannot be overwritten.</remarks>
+    if [[ -e "${PATH_1}" ]] \
+      && ! sudo rm -f "${FILE_1}" &> /dev/null; then
+      echo -e "${PREFIX_ERROR} Failed to delete file '${FILE_1}'."
+      exit 1
+    fi
   }
 
-  function MatchValidVGADeviceWithDriver
+  function is_path_found
+  {
+    # <remarks>Exit early if system directory does not exist and cannot be created.</remarks>
+    if [[ ! -d "${PATH_1}" ]] \
+      && sudo mkdir -p "${PATH_1}"; then
+      echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
+      exit 1
+    fi
+  }
+
+  function match_driver_and_set_xorg_write_only
+  {
+    case "$_DRIVER" in
+      *"nouveau"* )
+        MATCH_PROBLEM_DRIVER=true ;;
+    esac
+  }
+
+  function match_valid_vga_device_with_driver
   {
     if [[ "$_DRIVER" == "" || "$_TYPE" == "" || "$_VENDOR" == "" ]]; then
       echo -e "Found Driver: 'N/A'"
@@ -231,14 +278,14 @@
       || [[ "$_TYPE" =~ ^"graphics" ]] ) \
       && ! [[ "$_DRIVER" =~ ^"vfio-pci" ]]; then
       local _PREFERRED_VENDOR=""
-      MatchVendorAndOverrideDriver
+      match_vendor_and_override_driver
 
-      # <remarks> Print </remarks>
+      # <remarks>Print</remarks>
       echo -e "Found Driver: '$_DRIVER'"
 
-      # <remarks> Set evaluation if a preferred driver is given. </remarks>
+      # <remarks>Set evaluation if a preferred driver is given.</remarks>
       if ! "$PREFER_ANY_BRAND"; then
-        GetPreferredVendor
+        get_preferred_vendor
         return "$?"
       fi
 
@@ -248,17 +295,7 @@
     return 1
   }
 
-  function MatchDriverAndSetXorgWriteOnly
-  {
-    case "$_DRIVER" in
-      *"nouveau"* )
-        MATCH_PROBLEM_DRIVER=true ;;
-    esac
-
-    return 0
-  }
-
-  function MatchVendorAndOverrideDriver
+  function match_vendor_and_override_driver
   {
     case "$_VENDOR" in
       *"intel"* )
@@ -271,11 +308,20 @@
       * )
         ;;
     esac
-
-    return 0
   }
 
-  function SetFile
+  function restart_service
+  {
+    # <remarks>Restart system service automatically or manually.</remarks>
+    if "${DO_RESTART_DISPLAY_MANAGER}" \
+      && ( ! sudo systemctl enable "${FILE_2}" \
+        || ! sudo systemctl restart "${FILE_2}" ); then
+      echo -e "${PREFIX_ERROR} Failed to restart system service."
+      exit 1
+    fi
+  }
+
+  function set_file
   {
     case "$?" in
       0 )
@@ -313,108 +359,35 @@
       echo -e "${PREFIX_ERROR} Failed to write to file '${FILE_1}'."
     fi
 
-    unset IFS
     return "${EXIT_CODE}"
   }
 
-  function FindFirstDriver
+  function toggle_sort_order_of_devices
   {
-    # <remarks> Find first valid VGA driver. </remarks>
-    FindFirstVGADriver
-    local -i exit_code="$?"
-
-    if [[ "${exit_code}" -ne 0 ]]; then
-      PREFER_ANY_BRAND=true
-      FindFirstVGADriver
-      exit_code="$?"
-    fi
-
-    if [[ "${exit_code}" -ne 0 ]]; then
-      echo -e "${PREFIX_ERROR} No VGA devices found."
-      exit 1
-    fi
-
-    return 0
-  }
-
-  function ExitIfPathCannotBeOverwritten
-  {
-    # <remarks> Exit early if existing system file cannot be overwritten. </remarks>
-    if [[ -e "${PATH_1}" ]] \
-      && ! sudo rm -f "${FILE_1}" &> /dev/null; then
-      echo -e "${PREFIX_ERROR} Failed to delete file '${FILE_1}'."
-      exit 1
-    fi
-
-    return 0
-  }
-
-  function ExitIfPathIsMissing
-  {
-    # <remarks> Exit early if system directory does not exist and cannot be created. </remarks>
-    if [[ ! -d "${PATH_1}" ]] \
-      && sudo mkdir -p "${PATH_1}"; then
-      echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
-      exit 1
-    fi
-
-    return 0
-  }
-
-  function ExitIfNoVGADevicesFound
-  {
-    # <remarks> Exit early if no PCI devices are found (Note: more likely that the command fails, than no PCI devices exist). </remarks>
-    if [[ "${#_HWID_LIST[@]}" -eq 0 ]]; then
-      echo -e "${PREFIX_ERROR} No PCI devices found."
-      exit 1
-    fi
-
-    return 0
-  }
-
-  function RestartService
-  {
-    # <remarks> Restart system service automatically or manually. </remarks>
-    if "${DO_RESTART_DISPLAY_MANAGER}" \
-      && ( ! sudo systemctl enable "${FILE_2}" \
-        || ! sudo systemctl restart "${FILE_2}" ); then
-      echo -e "${PREFIX_ERROR} Failed to restart system service."
-      exit 1
-    fi
-
-    return 0
-  }
-
-  function ToggleSortOrderOfDevices
-  {
-    # <remarks> Toggle the sort order of parse of PCI devices. </remarks>
+    # <remarks>Toggle the sort order of parse of PCI devices.</remarks>
     if "${PARSE_PCI_ORDER_BY_BUS_ID}"; then
       declare -ga _HWID_LIST=( $( eval ${GET_PCI_ID} ) )
     else
       declare -ga _HWID_LIST=( $( eval ${GET_PCI_ID_REVERSE_SORT} ) )
     fi
-
-    return 0
   }
 
-  function WriteToFile
+  function write_to_file
   {
-    # <remarks> Write to file if directory exists and driver is valid. </remarks>
+    # <remarks>Write to file if directory exists and driver is valid.</remarks>
     if [[ ! -d "${PATH_1}" ]]; then
       echo -e "${PREFIX_ERROR} Failed to create directory '${PATH_1}'."
       exit 1
     fi
 
     if ! "${MATCH_PROBLEM_DRIVER}"; then
-      SetFile || exit "$?"
+      set_file || exit "$?"
     else
       echo -e "${PREFIX_NOTE} Not writing to file given presence of problem driver."
     fi
-
-    return 0
   }
 # </functions>
 
 # <code>
-  Main "$@"
+  main "$@"
 # </code>
