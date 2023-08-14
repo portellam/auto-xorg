@@ -6,12 +6,12 @@ Generates Xorg (video output) for the first or last parsed valid non-VFIO video 
         git clone https://github.com/portellam/auto-xorg
 
 #### To install, execute:
-        sudo bash auto-xorg.bash [OPTION]...
+        sudo bash installer.bash [OPTION]...
 
 #### To run stand-alone, execute:
         sudo bash auto-xorg [OPTION]...
 
-#### Usage (install or stand-alone)
+#### Usage (installer or stand-alone)
           -h, --help              Print this help and exit.
 
         Update Xorg:
