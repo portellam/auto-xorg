@@ -7,12 +7,17 @@
 # Maintainer(s):  Alex Portell <github.com/portellam>
 #
 
-# <params>
-  SAVEIFS="${IFS}"
-  IFS=$'\n'
+# <traps>
+  trap 'catch_error' SIGINT SIGTERM ERR
+  trap 'catch_exit' EXIT
+# </traps>
 
+# <params>
   SCRIPT_NAME="$( basename "${0}" )"
   PREFIX_PROMPT="${SCRIPT_NAME}: "
+
+  SAVEIFS="${IFS}"
+  IFS=$'\n'
 
   OPTION_STRING=""
   SORT_OPTION=""
