@@ -61,7 +61,7 @@ The development could not have been possible for the thorough documentation at t
 - `Xorg` or `X11` as the video display environment.
 - `Wayland` is not supported.
   - Wayland causes problems for NVIDIA devices.
-  - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for production environments.
+  - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for use.
 
 ## 5. Usage
 ### 5.1. `installer.bash`
@@ -96,11 +96,15 @@ Prefer a vendor:
 ```
 
 ### 5.3. Usage Examples
-- Set options to find first valid AMD/ATI VGA device, then install: `sudo bash auto-xorg.bash -f -a`
-- Find last valid NVIDIA VGA device, then restart the display manager immediately: `sudo bash auto-xorg -l -n -r`
+- Set options to find first valid AMD/ATI VGA device, then install:
+```sudo bash auto-xorg.bash -f -a```
+
+- Find last valid NVIDIA VGA device, then restart the display manager immediately:
+```sudo bash auto-xorg -l -n -r```
 
 ### 5.4. Troubleshooting
-If the auto-xorg service fails, to diagnose review the log, execute: `sudo journalctl -u auto-xorg`
+If the auto-xorg service fails, to diagnose review the log, execute:
+```sudo journalctl -u auto-xorg```
 
 Failure may be the result of absent VGA device(s), or an exception. Review the log to debug.
 
