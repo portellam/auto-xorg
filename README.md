@@ -15,7 +15,7 @@
 - [7. Contact](#7-contact)
 
 ## 1. About
-Automatically set the proper video output given a video device (VGA) is unavailable due to PCI Passthrough (VFIO) or any other reason, in the Xorg display environment for a Linux machine.
+Automatically set the proper video output given a video device (VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason, in the Xorg display environment for a Linux machine.
 
 ## 2. Why?
 ### 2.1. Why use this?
