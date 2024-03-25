@@ -15,18 +15,16 @@
 - [7. Contact](#7-contact)
 
 ## 1. About
-Automatically set the proper video output, given a video device (VGA) is unavailable due to PCI Passthrough (VFIO).
+Automatically set the proper video output given a video device (VGA) is unavailable due to PCI Passthrough (VFIO) or any other reason, in the Xorg display environment for a Linux machine.
 
 ## 2. Why?
 ### 2.1. Why use this?
+Xorg will specify a VGA device to be the primary video output. When that VGA device is *Passed-through* or restricted to Virtual Machines (VM) only (like in a VFIO setup), the VGA device cannot be used by the Host machine (Linux). Unfortunately, Xorg will not search for the next valid VGA device. *This is where auto-Xorg steps in...*
 
-Natively, Xorg most often does not determine which video device (VGA) is truly available. This is noticeable in Linux machines with an existing VFIO setup: the first found VGA device is *Passed-through* or restricted to Virtual Machines (VM) only.
-
-This script will automatically set the proper video output. Should a VFIO setup change often (even every Host start), this script is flexible enough to still determine the correct video output.
+This script will automatically set the proper video output everytime, as it runs at Host startup. This flexibility is very useful for a new or changing VFIO setup.
 
 ### 2.2. Greater reasoning
-The VFIO community should break down barriers to entry into PCI passthrough on Linux.
-In similar attitude of my other projects, I believe high-quality scripts and tutorials should target the greatest demographic: beginners.
+The VFIO community (and greater Linux community) should break down barriers to entry into PCI passthrough on Linux. In similar attitude of my other projects, I believe high-quality scripts and tutorials should target the greatest demographic: Beginners.
 
 This project is my first foray into Bash programming and Git since 2022. Since 2019, I've wanted to break into VFIO. My younger self would have greatly appreciated the VFIO projects I've developed thus far.
 
