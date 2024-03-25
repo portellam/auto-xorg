@@ -57,11 +57,11 @@ The development could not have been possible for the thorough documentation at t
     - Do **not** make any non-script file executable. This is not necessary and potentially dangerous.
 
 ## 4. Host Requirements
+- `systemd` for system services.
 - `Xorg` or `X11` as the video display environment.
 - `Wayland` is not supported.
-- Wayland causes problems for NVIDIA devices.
-- In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for production environments.
-- `systemd` for system services.
+  - Wayland causes problems for NVIDIA devices.
+  - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for production environments.
 
 ## 5. Usage
 ### 5.1. `installer.bash`
