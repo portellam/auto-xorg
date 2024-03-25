@@ -97,21 +97,29 @@ Prefer a vendor:
 
 ### 5.3. Usage Examples
 - Set options to find first valid AMD/ATI VGA device, then install:
-```sudo bash auto-xorg.bash -f -a```
+```
+sudo bash auto-xorg.bash -f -a
+```
 
 - Find last valid NVIDIA VGA device, then restart the display manager immediately:
-```sudo bash auto-xorg -l -n -r```
+```
+sudo bash auto-xorg -l -n -r
+```
 
 ### 5.4. Troubleshooting
 If the auto-xorg service fails, to diagnose review the log, execute:
-```sudo journalctl -u auto-xorg```
+```
+sudo journalctl -u auto-xorg
+```
 
 Failure may be the result of absent VGA device(s), or an exception. Review the log to debug.
 
 ## 6. How it works
 - Runs once at boot.
 - Parses list of VGA devices:
-  `lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'`
+```
+lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
+```
 
 - Saves valid and available VGA device:
 ```
