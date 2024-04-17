@@ -3,8 +3,8 @@ Automatically set the proper video output given a video device (VGA) is unavaila
 
 ## Table of Contents
 - [Why?](#why)
-  - [1. Why use this?](#1-why-use-this)
-  - [2. Greater reasoning](#2-greater-reasoning)
+  - [1. Why Use This?](#1-why-use-this)
+  - [2. Greater Reasoning](#2-greater-reasoning)
 - [Download](#download)
 - [Host Requirements](#host-requirements)
 - [Usage](#usage)
@@ -12,7 +12,7 @@ Automatically set the proper video output given a video device (VGA) is unavaila
   - [2. `auto-xorg`](#2-auto-xorg)
   - [3. Usage Examples](#3-usage-examples)
   - [4. Troubleshooting](#4-troubleshooting)
-- [How it works](#how-it-works)
+- [How It Works](#how-it-works)
 - [Contact](#contact)
 
 ## Contents
