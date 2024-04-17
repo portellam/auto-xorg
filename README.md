@@ -1,5 +1,5 @@
 # Auto X.Org
-Automatically set the proper video output given a video device (VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason, in the Xorg display environment for a Linux machine.
+Automatically set the proper video output given a video device (VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org display environment for a Linux machine.
 
 **[View develop branch...](https://github.com/portellam/auto-xorg/tree/develop)**
 
@@ -23,7 +23,7 @@ Automatically set the proper video output given a video device (VGA) is unavaila
 ## Contents
 ### Why?
 #### 1. Why Use This?
-Xorg will specify a VGA device to be the primary video output. When that VGA device is *Passed-through* or restricted to Virtual Machines (VM) only (like in a VFIO setup), the VGA device cannot be used by the Host machine (Linux). Unfortunately, Xorg will not search for the next valid VGA device. *This is where auto-Xorg steps in...*
+X.Org will specify a VGA device to be the primary video output. When that VGA device is *Passed-through* or restricted to Virtual Machines (VM) only (like in a VFIO setup), the VGA device cannot be used by the Host machine (Linux). Unfortunately, X.Org will not search for the next valid VGA device. *This is where auto-X.Org steps in...*
 
 This script will automatically set the proper video output everytime, as it runs at Host startup. This flexibility is very useful for a new or changing VFIO setup.
 
@@ -62,7 +62,7 @@ The development could not have been possible for the thorough documentation at t
 
 ### Host Requirements
 - `systemd` for system services.
-- `Xorg` or `X11` as the video display environment.
+- `X.Org` or `X11` as the video display environment.
 - `Wayland` is not supported.
   - Wayland causes problems for NVIDIA devices.
   - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for use.
@@ -85,7 +85,7 @@ The development could not have been possible for the thorough documentation at t
 ```
   -h, --help              Print this help and exit.
 
-Update Xorg:
+Update X.Org:
   -r, --restart-display   Restart the display manager immediately.
 
 Set device order:
@@ -141,7 +141,7 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
   Kernel driver in use: vfio-pci
 ```
 
-- Appends to Xorg file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
+- Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
 ### Contact
 Did you encounter a bug? Do you need help? Notice any dead links? Please contact by [raising an issue](https://github.com/portellam/deploy-VFIO/issues) with the project itself.
