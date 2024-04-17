@@ -1,7 +1,7 @@
 # Auto X.Org
 Automatically set the proper video output given a video device (VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason, in the Xorg display environment for a Linux machine.
 
-**[View master branch...](https://github.com/portellam/auto-xorg/tree/master)**
+**[View develop branch...](https://github.com/portellam/auto-xorg/tree/develop)**
 
 #### Related Projects:
 **[Deploy VFIO](https://github.com/portellam/deploy-vfio) | [Generate Evdev](https://github.com/portellam/generate-evdev) | [Guest Machine Guide](https://github.com/portellam/guest-machine-guide) | [Libvirt Hooks](https://github.com/portellam/libvirt-hooks) | [Power State VirtManager](https://github.com/portellam/powerstate-virtmanager)**
