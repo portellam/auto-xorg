@@ -1,5 +1,5 @@
 [Unit]
-Description=Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device.
+Description=Auto X.Org
 
 [Service]
 ExecStart=/bin/bash /usr/local/bin/auto-xorg
