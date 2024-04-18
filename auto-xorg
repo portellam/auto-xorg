@@ -2,7 +2,8 @@
 
 #
 # Filename:       auto-xorg
-# Description:    Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device.
+# Description:    Generates X.Org (video output) for the first or last parsed
+#                 valid non-VFIO video device (VGA).
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
 #
@@ -156,9 +157,10 @@
     {
       local -ar output=(
         "Usage: sudo bash auto-xorg [OPTION]..."
-        "  Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device."
+        "  Generates X.Org (video output) for the first or last parsed valid " \
+          "non-VFIO video device (VGA)."
         "    -h, --help\tPrint this help and exit."
-        "\n  Update Xorg:"
+        "\n  Update X.Org:"
         "    -r, --restart-display         Restart the display manager immediately."
         "\n  Set device order:"
         "    -f, --first                   Find the first valid VGA device."
@@ -206,9 +208,9 @@
 
     function catch_exit {
       if [[ "${?}" -eq 0 ]]; then
-        print_to_output_log "${PREFIX_PASS}Updated Xorg."
+        print_to_output_log "${PREFIX_PASS}Updated X.Org."
       else
-        print_to_error_log "Failed to update Xorg."
+        print_to_error_log "Failed to update X.Org."
       fi
 
       reset_ifs
