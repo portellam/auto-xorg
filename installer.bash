@@ -5,6 +5,7 @@
 # Description:    Installs Auto X.Org.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
+# Version:        1.0.0
 #
 
 # <traps>
@@ -13,6 +14,7 @@
 # </traps>
 
 # <params>
+  SCRIPT_VERSION="1.0.0"
   SCRIPT_NAME="$( basename "${0}" )"
   PREFIX_PROMPT="${SCRIPT_NAME}: "
 
@@ -173,6 +175,7 @@
         "Usage: bash ${SCRIPT_NAME} [OPTION]..."
         "  Set options for ${FILE_1} in service file, then install."
         "\n    -h, --help\t\t\tPrint this help and exit."
+        "Version ${SCRIPT_VERSION}."
         "\n  Update X.Org:"
         "    -r, --restart-display\tRestart the display manager immediately."
         "\n  Set device order:"
