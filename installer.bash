@@ -2,7 +2,7 @@
 
 #
 # Filename:       installer.bash
-# Description:    Installs auto-xorg.
+# Description:    Installs Auto X.Org.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
 #
@@ -173,7 +173,7 @@
         "Usage: bash ${SCRIPT_NAME} [OPTION]..."
         "  Set options for ${FILE_1} in service file, then install."
         "\n    -h, --help\t\t\tPrint this help and exit."
-        "\n  Update Xorg:"
+        "\n  Update X.Org:"
         "    -r, --restart-display\tRestart the display manager immediately."
         "\n  Set device order:"
         "    -f, --first\t\t\tFind the first valid VGA device."
@@ -315,8 +315,7 @@
 
     local -ar file_2_contents=(
       "[Unit]"
-      "Description=Generates Xorg (video output) for the first or last parsed \
-        valid non-VFIO video (VGA) device."
+      "Description=Auto X.Org"
       ""
       "[Service]"
       "${line_to_use}"
