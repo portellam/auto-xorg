@@ -55,7 +55,7 @@ The development could not have been possible for the thorough documentation at t
 
 - To make this script executable, you must:
   1. Open the CLI (see above).
-  2. Go to the directory of where the cloned/extracted repository folder is: `cd name_of_parent_folder/guto-xorg/`
+  2. Go to the directory of where the cloned/extracted repository folder is: `cd name_of_parent_folder/auto-xorg/`
   3. Make the installer script file executable: `chmod +x installer.bash`
     - Do **not** make any other script files executable. The installer will perform this action.
     - Do **not** make any non-script file executable. This is not necessary and potentially dangerous.
