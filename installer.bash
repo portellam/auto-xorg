@@ -14,9 +14,9 @@
 # </traps>
 
 # <params>
-  SCRIPT_VERSION="1.0.0"
-  SCRIPT_NAME="$( basename "${0}" )"
-  PREFIX_PROMPT="${SCRIPT_NAME}: "
+  declare -r SCRIPT_VERSION="1.0.0"
+  declare -r SCRIPT_NAME="$( basename "${0}" )"
+  declare -r PREFIX_PROMPT="${SCRIPT_NAME}: "
 
   SAVEIFS="${IFS}"
   IFS=$'\n'
@@ -29,21 +29,21 @@
   # Color coding
   # Reference URL: 'https://www.shellhacks.com/bash-colors'
   # </summary>
-  readonly SET_COLOR_GREEN='\033[0;32m'
-  readonly SET_COLOR_RED='\033[0;31m'
-  readonly SET_COLOR_YELLOW='\033[0;33m'
-  readonly RESET_COLOR='\033[0m'
+    declare -r SET_COLOR_GREEN='\033[0;32m'
+    declare -r SET_COLOR_RED='\033[0;31m'
+    declare -r SET_COLOR_YELLOW='\033[0;33m'
+    declare -r RESET_COLOR='\033[0m'
 
   # <summary>Append output</summary>
-  readonly PREFIX_NOTE="${SET_COLOR_YELLOW}Note:${RESET_COLOR} "
-  readonly PREFIX_ERROR="${SET_COLOR_RED}An error occurred:${RESET_COLOR} "
-  readonly PREFIX_PASS="${SET_COLOR_GREEN}Success:${RESET_COLOR} "
+    declare -r PREFIX_ERROR="${SET_COLOR_RED}An error occurred:${RESET_COLOR} "
+    declare -r PREFIX_NOTE="${SET_COLOR_YELLOW}Note:${RESET_COLOR} "
+    declare -r PREFIX_PASS="${SET_COLOR_GREEN}Success:${RESET_COLOR} "
 
-  readonly PATH_1="/usr/local/bin/"
-  readonly PATH_2="/etc/systemd/system/"
-  readonly FILE_1="auto-xorg"
-  readonly FILE_2="${FILE_1}.service"
-  readonly LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/${FILE_1}"
+  declare -r PATH_1="/usr/local/bin/"
+  declare -r PATH_2="/etc/systemd/system/"
+  declare -r FILE_1="auto-xorg"
+  declare -r FILE_2="${FILE_1}.service"
+  declare -r LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/${FILE_1}"
 # </params>
 
 # <functions>
@@ -168,7 +168,7 @@
         "Usage: bash ${SCRIPT_NAME} [OPTION]..."
         "  Set options for ${FILE_1} in service file, then install."
         "\n    -h, --help\t\t\tPrint this help and exit."
-        "Version ${SCRIPT_VERSION}."
+        "Version ${SCRIPT_VERSION}.\n"
         "\n  Update X.Org:"
         "    -r, --restart-display\tRestart the display manager immediately."
         "\n  Set device order:"
