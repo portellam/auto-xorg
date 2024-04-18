@@ -2,7 +2,8 @@
 
 #
 # Filename:       auto-xorg
-# Description:    Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device.
+# Description:    Generates Xorg (video output) for the first or last parsed
+#                 valid non-VFIO video (VGA) device.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
 #
@@ -61,8 +62,12 @@
     MATCH_PROBLEM_DRIVER=false
 
   # <summary>Evaluations</summary>
-    readonly GET_PCI_ID="lspci -m | grep --extended-regexp --ignore-case 'vga|graphics' | cut --delimiter ' ' --fields 1"
-    readonly GET_PCI_ID_REVERSE_SORT="lspci -m | grep --extended-regexp --ignore-case 'vga|graphics' | cut --delimiter ' ' --fields 1 | sort --reverse"
+    readonly GET_PCI_ID="lspci -m | grep --extended-regexp --ignore-case " \
+      "'vga|graphics' | cut --delimiter ' ' --fields 1"
+
+    readonly GET_PCI_ID_REVERSE_SORT="lspci -m | grep --extended-regexp " \
+      "--ignore-case 'vga|graphics' | cut --delimiter ' ' --fields 1 | " \
+      "sort --reverse"
 
   HWID_LIST=( )
 # </params>
@@ -85,7 +90,9 @@
     restart_service
 
     if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
-      echo -e "${PREFIX_NOTE}You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
+      echo -e "${PREFIX_NOTE}You may restart the active display manager " \
+        "'${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart " \
+        "${DISPLAY_MANAGER}'."
     fi
 
     exit 0
@@ -156,7 +163,8 @@
     {
       local -ar output=(
         "Usage: sudo bash auto-xorg [OPTION]..."
-        "  Generates Xorg (video output) for the first or last parsed valid non-VFIO video (VGA) device."
+        "  Generates Xorg (video output) for the first or last parsed valid " \
+          "non-VFIO video (VGA) device."
         "    -h, --help\tPrint this help and exit."
         "\n  Update Xorg:"
         "    -r, --restart-display         Restart the display manager immediately."
@@ -170,7 +178,8 @@
         "    -o, --other                   Any other brand (past or future)."
         "\n  Example:"
         "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
-        "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
+        "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then " \
+          "restart the display manager immediately."
       )
 
       echo -e "${output[*]}"
@@ -254,9 +263,15 @@
   function find_first_vga_driver
   {
     for hwid in "${HWID_LIST[@]}"; do
-      driver=$( lspci -ks "${hwid}" | grep --extended-regexp 'driver' | cut --delimiter ':' --fields 2 | cut --delimiter ' ' --fields 2 )
-      type=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 2 | tr '[:upper:]' '[:lower:]' )
-      vendor=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 4 | tr '[:upper:]' '[:lower:]' )
+      driver=$( lspci -ks "${hwid}" | grep --extended-regexp 'driver' | \
+        cut --delimiter ':' --fields 2 | cut --delimiter ' ' --fields 2 )
+
+      type=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 2 | \
+        tr '[:upper:]' '[:lower:]' )
+
+      vendor=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 4 | \
+        tr '[:upper:]' '[:lower:]' )
+
       function_id=$( echo "${hwid}" | cut --delimiter '.' --fields 2 )
       pci_id=$( echo "${hwid}" | cut --delimiter '.' --fields 1 )
       pci_id+=":${function_id}"
@@ -276,7 +291,8 @@
 
     case true in
       "${PREFER_AMD}" )
-        reference=$( echo -e "${vendor}" | grep --ignore-case --invert-match 'amd|ati' | grep --ignore-case --invert-match 'corporation' ) ;;
+        reference=$( echo -e "${vendor}" | grep --ignore-case --invert-match " \
+          "'amd|ati' | grep --ignore-case --invert-match 'corporation' ) ;;
 
       "${PREFER_INTEL}" )
         reference=$( echo -e "${vendor}" | grep --ignore-case 'intel' ) ;;
@@ -285,7 +301,8 @@
         reference=$( echo -e "${vendor}" | grep --ignore-case 'nvidia' ) ;;
 
       "${PREFER_OFF_BRAND}" )
-        reference=$( echo -e "${vendor}" | grep --extended-regexp --ignore-case --invert-match 'amd|ati|intel|nvidia' ) ;;
+        reference=$( echo -e "${vendor}" | grep --extended-regexp --ignore-case " \
+          "--invert-match 'amd|ati|intel|nvidia' ) ;;
 
       * )
         print_to_error_log "Failed to match preferred vendor."
@@ -299,7 +316,9 @@
 
   function is_file_deletable
   {
-    # <remarks>Exit early if existing system file cannot be overwritten.</remarks>
+    # <remarks>
+    # Exit early if existing system file cannot be overwritten.
+    # </remarks>
     if [[ -e "${PATH_1}" ]] \
       && ! sudo rm --force "${FILE_1}" &> /dev/null; then
       print_to_error_log "Failed to delete file '${FILE_1}'."
@@ -309,7 +328,9 @@
 
   function is_path_found
   {
-    # <remarks>Exit early if system directory does not exist and cannot be created.</remarks>
+    # <remarks>
+    # Exit early if system directory does not exist and cannot be created.
+    # </remarks>
     if [[ ! -d "${PATH_1}" ]] \
       && sudo mkdir --parents "${PATH_1}"; then
       print_to_error_log "Failed to create directory '${PATH_1}'."
@@ -380,14 +401,17 @@
     if "${HAS_MATCHED_INTEL_DRIVER}"; then
       reference="${override_driver}"
     else
-      print_to_output_log "Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: '${override_driver}')."
+      print_to_output_log "Should given parsed Intel VGA driver be invalid, " \
+        "replace xorg.conf with an alternate intel driver "\
+        "(example: '${override_driver}')."
     fi
   }
 
   function restart_service
   {
     if "${DO_RESTART_DISPLAY_MANAGER}" \
-      && ( ! sudo systemctl enable "${FILE_2}" || ! sudo systemctl restart "${FILE_2}" ); then
+      && ( ! sudo systemctl enable "${FILE_2}" \
+        || ! sudo systemctl restart "${FILE_2}" ); then
       print_to_error_log "Failed to restart system service."
       exit 1
     fi
