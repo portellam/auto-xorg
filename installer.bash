@@ -66,16 +66,9 @@
     fi
 
     print_to_output_log "${PREFIX_PASS}Installed ${FILE_1}."
-
-    echo -e "${PREFIX_NOTE}It is NOT necessary to directly execute script \
-      '${FILE_1}'."
-
-    echo -e "The service '${FILE_1}' will execute the script automatically at \
-      boot, to grab the first non-VFIO VGA device."
-
-    echo -e "If no available VGA device is found, an Xorg template will be \
-      created."
-
+    echo -e "${PREFIX_NOTE}It is NOT necessary to directly execute script '${FILE_1}'."
+    echo -e "The service '${FILE_1}' will execute the script automatically at boot, to grab the first non-VFIO VGA device."
+    echo -e "If no available VGA device is found, an Xorg template will be created."
     echo -e "Therefore, it will be assumed the system is running 'headless'."
     exit 0
   }
@@ -179,16 +172,16 @@
         "\n  Update X.Org:"
         "    -r, --restart-display\tRestart the display manager immediately."
         "\n  Set device order:"
-        "    -f, --first\t\t\tFind the first valid VGA device."
-        "    -l, --last\t\t\tFind the last valid VGA device."
+        "    -f, --first\t\tFind the first valid VGA device."
+        "    -l, --last\t\tFind the last valid VGA device."
         "\n  Prefer a vendor:"
-        "    -a, --amd\t\t\tAMD or ATI"
-        "    -i, --intel\t\t\tIntel"
+        "    -a, --amd\t\tAMD or ATI"
+        "    -i, --intel\t\tIntel"
         "    -n, --nvidia\t\tNVIDIA"
-        "    -o, --other\t\t\tAny other brand (past or future)."
+        "    -o, --other\t\tAny other brand (past or future)."
         "\n  Example:"
-        "    bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
-        "    bash installer.bash -l -n\tSet options to find last valid NVIDIA VGA device, then install."
+        "    sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
+        "    sudo bash installer.bash -l -n -r\tSet options to find last valid NVIDIA VGA device, and restart the display manager, then install."
       )
 
       echo -e "${output[*]}"
@@ -197,8 +190,7 @@
     function set_option_for_sort
     {
       if [[ "${SORT_OPTION}" != "" ]]; then
-        print_to_error_log "Could not add sort option. \
-          "Sort option is already set."
+        print_to_error_log "Could not add sort option. Sort option is already set."
         return 1
       fi
 
@@ -208,8 +200,7 @@
     function set_option_for_vendor
     {
       if [[ "${VENDOR_OPTION}" != "" ]]; then
-        print_to_error_log "Could not add vendor option. \
-          "Vendor option is already set."
+        print_to_error_log "Could not add vendor option. Vendor option is already set."
         return 1
       fi
 
