@@ -144,4 +144,4 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 - Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
 ### Contact
-Did you encounter a bug? Do you need help? Notice any dead links? Please contact by [raising an issue](https://github.com/portellam/deploy-VFIO/issues) with the project itself.
+Did you encounter a bug? Do you need help? Notice any dead links? Please contact by [raising an issue](https://github.com/portellam/auto-xorg/issues) with the project itself.
