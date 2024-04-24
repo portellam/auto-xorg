@@ -1,5 +1,5 @@
 # Auto X.Org
-### v1.0.0
+### v1.1.0
 Automatically set the proper video output given a video device (VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org display environment for a Linux machine.
 
 **[Latest release](https://github.com/portellam/auto-xorg/releases/latest) | [View master branch...](https://github.com/portellam/auto-xorg/tree/master)**
@@ -69,20 +69,10 @@ The development could not have been possible for the thorough documentation at t
   - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for use.
 
 ### Usage
-#### 1. `installer.bash`
+#### `installer.bash` or `auto-xorg`
 - From within the project folder, execute: `sudo bash installer.bash`
-
-```
-  -h, --help       Print this help and exit.
-  -i, --install    Install generate-evdev to system.
-  -u, --uninstall  Uninstall generate-evdev from system.
-```
-
-#### 2. `auto-xorg`
-- Execute the installer: `sudo bash installer.bash`
-- Or, from any folder execute: `sudo bash auto-xorg`
+- Or after installation, from any folder execute: `sudo bash auto-xorg`
   - The CLI's shell (bash) should recognize that the script file is located in `/usr/local/bin`.
-
 ```
   -h, --help              Print this help and exit.
 
