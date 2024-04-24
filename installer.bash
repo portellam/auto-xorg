@@ -177,7 +177,7 @@
         "\n  Prefer a vendor:"
         "    -a, --amd\t\tAMD or ATI"
         "    -i, --intel\t\tIntel"
-        "    -n, --nvidia\t\tNVIDIA"
+        "    -n, --nvidia\tNVIDIA"
         "    -o, --other\t\tAny other brand (past or future)."
         "\n  Example:"
         "    sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
