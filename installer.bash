@@ -167,8 +167,8 @@
       local -ar output=(
         "Usage: bash ${SCRIPT_NAME} [OPTION]..."
         "  Set options for ${FILE_1} in service file, then install."
+        "  Version ${SCRIPT_VERSION}."
         "\n    -h, --help\t\t\tPrint this help and exit."
-        "Version ${SCRIPT_VERSION}.\n"
         "\n  Update X.Org:"
         "    -r, --restart-display\tRestart the display manager immediately."
         "\n  Set device order:"
@@ -177,7 +177,7 @@
         "\n  Prefer a vendor:"
         "    -a, --amd\t\tAMD or ATI"
         "    -i, --intel\t\tIntel"
-        "    -n, --nvidia\t\tNVIDIA"
+        "    -n, --nvidia\tNVIDIA"
         "    -o, --other\t\tAny other brand (past or future)."
         "\n  Example:"
         "    sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
