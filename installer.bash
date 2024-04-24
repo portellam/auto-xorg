@@ -167,8 +167,8 @@
       local -ar output=(
         "Usage: bash ${SCRIPT_NAME} [OPTION]..."
         "  Set options for ${FILE_1} in service file, then install."
+        "  Version ${SCRIPT_VERSION}."
         "\n    -h, --help\t\t\tPrint this help and exit."
-        "Version ${SCRIPT_VERSION}.\n"
         "\n  Update X.Org:"
         "    -r, --restart-display\tRestart the display manager immediately."
         "\n  Set device order:"
