@@ -14,10 +14,9 @@ Automatically set the proper video output given a video device (VGA) is unavaila
 - [Download](#download)
 - [Host Requirements](#host-requirements)
 - [Usage](#usage)
-  - [1. `installer.bash`](#1-installerbash)
-  - [2. `auto-xorg`](#2-auto-xorg)
-  - [3. Usage Examples](#3-usage-examples)
-  - [4. Troubleshooting](#4-troubleshooting)
+  - [1. `installer.bash` or `auto-xorg`](#1-installerbash-or-auto-xorg)
+  - [2. Usage Examples](#2-usage-examples)
+  - [3. Troubleshooting](#3-troubleshooting)
 - [How It Works](#how-it-works)
 - [Contact](#contact)
 
@@ -69,7 +68,7 @@ The development could not have been possible for the thorough documentation at t
   - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for use.
 
 ### Usage
-#### `installer.bash` or `auto-xorg`
+#### 1. `installer.bash` or `auto-xorg`
 - From within the project folder, execute: `sudo bash installer.bash`
 - Or after installation, from any folder execute: `sudo bash auto-xorg`
   - The CLI's shell (bash) should recognize that the script file is located in `/usr/local/bin`.
@@ -90,7 +89,7 @@ Prefer a vendor:
   -o, --other             Any other brand (past or future).
 ```
 
-#### 3. Usage Examples
+#### 2. Usage Examples
 - Set options to find first valid AMD/ATI VGA device, then install:
 ```
 sudo bash auto-xorg.bash -f -a
@@ -101,7 +100,7 @@ sudo bash auto-xorg.bash -f -a
 sudo bash auto-xorg -l -n -r
 ```
 
-#### 4. Troubleshooting
+#### 3. Troubleshooting
 If the auto-xorg service fails, to diagnose review the log, execute:
 ```
 sudo journalctl -u auto-xorg
