@@ -2,10 +2,15 @@
 ### v1.1.0
 Automatically set the proper video output given a video device (VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org display environment for a Linux machine.
 
-**[Latest release](https://github.com/portellam/auto-xorg/releases/latest) | [View master branch...](https://github.com/portellam/auto-xorg/tree/master)**
+**[Latest release](/../../../releases/latest) | [View master branch...](/../../../tree/master)**
 
-#### Related Projects:
-**[Deploy VFIO](https://github.com/portellam/deploy-vfio) | [Generate Evdev](https://github.com/portellam/generate-evdev) | [Guest Machine Guide](https://github.com/portellam/guest-machine-guide) | [Libvirt Hooks](https://github.com/portellam/libvirt-hooks) | [Power State Virtual Machine Manager](https://github.com/portellam/powerstate-virtmanager)**
+### Related Projects
+**[Deploy VFIO](/../../../../deploy-VFIO)** | [Auto X.Org](/../../../../auto-xorg) | **[Generate Evdev](/../../../../generate-evdev)**
+
+**[Guest Machine Guide](/../../../../guest-machine-guide)** | **[Libvirt Hooks](/../../../../libvirt-hooks)** | **[Power State Virtual Machine Manager](/../../../../powerstate-virtmanager)**
+
+### Other Links:
+**What is [VFIO?](#VFIO) | [VFIO Article](https://www.kernel.org/doc/html/latest/driver-api/vfio.html) | [VFIO Forum](https://old.reddit.com/r/VFIO) | [PCI Passthrough Guide](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF)**
 
 ## Table of Contents
 - [Why?](#why)
@@ -32,7 +37,7 @@ The VFIO community (and greater Linux community) should break down barriers to e
 
 This project is my first foray into Bash programming and Git since 2022. Since 2019, I've wanted to break into VFIO. My younger self would have greatly appreciated the VFIO projects I've developed thus far.
 
-The development could not have been possible for the thorough documentation at the [ArchLinux Wiki](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF), the helpful users at the [VFIO Reddit community](https://old.reddit.com/r/VFIO), and various other projects available here on GitHub. Please, check them out should you have any broader questions, or would like to learn more.
+The development could not have been possible for the thorough documentation at the [ArchLinux Wiki](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF), the helpful users at the [VFIO Reddit community](https://old.reddit.com/r/VFIO), and various other projects available here on codeberg. Please, check them out should you have any broader questions, or would like to learn more.
 
 ### Download
 - To download this script, you may:
@@ -51,7 +56,7 @@ The development could not have been possible for the thorough documentation at t
         - `F8` and above are unused.
 
     2. Change your directory to your home folder or anywhere safe: `cd ~`
-    3. Clone the repository: `git clone https://www.github.com/portellam/auto-xorg`
+    3. Clone the repository: `git clone https://www.codeberg.org/portellam/auto-xorg`
 
 - To make this script executable, you must:
   1. Open the CLI (see above).
@@ -65,7 +70,7 @@ The development could not have been possible for the thorough documentation at t
 - `X.Org` or `X11` as the video display environment.
 - `Wayland` is not supported.
   - Wayland causes problems for NVIDIA devices.
-  - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for use.
+  - In general, it is [a buggy mess](https://web.archive.org/web/20240306152042/https://gist.codeberg.org/probonopd/9feb7c20257af5dd915e3a9f2d1f2277) not ready for use.
 
 ### Usage
 #### 1. `installer.bash` or `auto-xorg`
@@ -134,4 +139,4 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 - Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
 ### Contact
-Did you encounter a bug? Do you need help? Notice any dead links? Please contact by [raising an issue](https://github.com/portellam/auto-xorg/issues) with the project itself.
+Did you encounter a bug? Do you need help? Notice any dead links? Please contact by [raising an issue](https://codeberg.org/portellam/auto-xorg/issues) with the project itself.
