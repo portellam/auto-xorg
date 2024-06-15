@@ -63,6 +63,9 @@ setup.
 
 ### Download
 - To download this script, you may:
+  - Download the Latest Release:&ensp;[Codeberg][codeberg-releases],
+[GitHub][github-releases]
+
   - Download the ZIP file:
     1. Viewing from the top of the repository's (current) webpage, click the
        drop-down icon:
@@ -76,6 +79,7 @@ setup.
   - Clone the repository:
     1. Open a Command Line Interface (CLI).
       - Open a console emulator (for Debian systems: Konsole).
+
       - Open a existing console: press `CTRL` + `ALT` + `F2`, `F3`, `F4`, `F5`,
       or `F6`.
         - **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
