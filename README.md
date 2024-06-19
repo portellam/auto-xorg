@@ -59,7 +59,8 @@ setup.
 ### Documentation
 - [What is VFIO?](#3)
 - [VFIO Forum](#2)
-- [PCI Passthrough Guide](#1)
+- [Hardware-Passthrough Guide](#1)
+- [Virtual Machine XML Format Guide](#4)
 
 ### Download
 - To download this script, you may:
@@ -202,3 +203,7 @@ Did you encounter a bug? Do you need help? Please visit the
 **VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
 The linux kernel. Accessed June 14, 2024.
 <sup>https://www.kernel.org/doc/html/latest/driver-api/vfio.html.</sup>
+
+#### 4.
+**libvirt/libvirt - XML Design Format** GitHub. Accessed June 18, 2024.
+<sup>https://github.com/libvirt/libvirt/blob/master/docs/formatdomain.rst.</sup>
