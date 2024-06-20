@@ -57,8 +57,8 @@ setup.
 [github6]:   https://github.com/portellam/powerstate-virtmanager
 
 ### Documentation
-- [What is VFIO?](#3)
-- [VFIO Forum](#2)
+- [What is VFIO?](#2)
+- [VFIO Discussion and Support](#3)
 - [Hardware-Passthrough Guide](#1)
 - [Virtual Machine XML Format Guide](#4)
 
@@ -196,13 +196,13 @@ Did you encounter a bug? Do you need help? Please visit the
 <sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
 
 #### 2.
-**r/VFIO**. Accessed June 14, 2024.
-<sup>https://www.reddit.com/r/VFIO/.</sup>
-
-#### 3.
 **VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
 The linux kernel. Accessed June 14, 2024.
 <sup>https://www.kernel.org/doc/html/latest/driver-api/vfio.html.</sup>
+
+#### 3.
+**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
+<sup>https://www.reddit.com/r/VFIO/.</sup>
 
 #### 4.
 **libvirt/libvirt - XML Design Format** GitHub. Accessed June 18, 2024.
