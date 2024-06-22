@@ -76,10 +76,7 @@ Linux.
 - `systemd` for system services.
 - `X.Org` or `X11` as the video display environment.
 - `Wayland` is not supported.
-  - Wayland causes problems for NVIDIA devices.
-  - In general, it is [a buggy mess] not ready for production.
-
-[a buggy mess]: https://web.archive.org/web/20240306152042/https://gist.github.com/probonopd/9feb7c20257af5dd915e3a9f2d1f2277
+    - Wayland causes problems for NVIDIA devices (as of 2024).
 
 #### 4.3. Hardware
 Two (2) or more video devices. This script is not necessary for machines with
