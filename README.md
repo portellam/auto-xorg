@@ -176,13 +176,13 @@ Failure may be the result of absent VGA device(s), or an exception. Review the
 log to debug.
 
 ### 7. How Auto X.Org Works
-- Runs once at boot.
-- Parses list of VGA devices:
+1. Runs once at boot (as a service) or run at user discretion.
+2. Parses list of VGA devices:
 ```
 lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 ```
 
-- Saves valid and available VGA device:
+3. Saves valid and available VGA device:
 ```
   lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
@@ -190,15 +190,15 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
   Kernel driver in use: nvidia
 ```
 
-- Invalid example:
-```
-  lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
+    - Invalid example:
+    ```
+      lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
-  01:00.0 VGA compatible controller: ...
-  Kernel driver in use: vfio-pci
-```
+      01:00.0 VGA compatible controller: ...
+      Kernel driver in use: vfio-pci
+    ```
 
-- Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
+4. Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
 ### 8. Filenames and Pathnames Modified by Auto X.Org
 #### 8.1. System Files
@@ -230,5 +230,5 @@ The linux kernel. Accessed June 14, 2024.
 <sup>https://www.reddit.com/r/VFIO/.</sup>
 
 #### 4.
-**XML Design Format** GitHub - libvirt/libvirt. Accessed June 18, 2024.
+**XML Design Format**. GitHub - libvirt/libvirt. Accessed June 18, 2024.
 <sup>https://github.com/libvirt/libvirt/blob/master/docs/formatdomain.rst.</sup>
