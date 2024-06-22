@@ -89,35 +89,31 @@ one video device, as X.Org will find it.
 - Download the Latest Release:&ensp;[Codeberg][codeberg-releases],
 [GitHub][github-releases]
 
-[codeberg-releases]: https://codeberg.org/portellam/auto-xorg/releases/latest
-[github-releases]:   https://github.com/portellam/auto-xorg/releases/latest
-
-- Download the ZIP file:
-  1. Viewing from the top of the repository's (current) webpage, click the
-      drop-down icon:
-  - `···` on Codeberg.
-  - `<> Code ` on GitHub.
-
-  2. Click `Download ZIP`. Save this file.
-
-  3. Open the `.zip` file, then extract its contents.
+- Download the `.zip` file:
+    1. Viewing from the top of the repository's (current) webpage, click the
+        drop-down icon:
+        - `···` on Codeberg.
+        - `<> Code ` on GitHub.
+    2. Click `Download ZIP` and save.
+    3. Open the `.zip` file, then extract its contents.
 
 - Clone the repository:
-  1. Open a Command Line Interface (CLI).
-- Open a console emulator (for Debian systems: Konsole).
+    1. Open a Command Line Interface (CLI).
+        - Open a console emulator (for Debian systems: Konsole).
+        - Open a existing console: press `CTRL` + `ALT` + `F2`, `F3`, `F4`, `F5`,  or
+        `F6`.
+            - **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
+            - `F1` is reserved for debug output of the Linux kernel.
+            - `F7` is reserved for video output of the desktop environment.
+            - `F8` and above are unused.
+    2. Change your directory to your home folder or anywhere safe:
+        - `cd ~`
+    3. Clone the repository:
+        - `git clone https://www.codeberg.org/portellam/auto-xorg`
+        - `git clone https://www.github.com/portellam/auto-xorg`
 
-- Open a existing console: press `CTRL` + `ALT` + `F2`, `F3`, `F4`, `F5`,  or
-`F6`.
-  - **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
-  - `F1` is reserved for debug output of the Linux kernel.
-  - `F7` is reserved for video output of the desktop environment.
-  - `F8` and above are unused.
-
-  2. Change your directory to your home folder or anywhere safe: `cd ~`
-
-  3. Clone the repository:
-- `git clone https://www.codeberg.org/portellam/auto-xorg`
-- `git clone https://www.github.com/portellam/auto-xorg`
+[codeberg-releases]: https://codeberg.org/portellam/auto-xorg/releases/latest
+[github-releases]:   https://github.com/portellam/auto-xorg/releases/latest
 
 ### 6. Usage
 #### 6.1. Verify Installer is Executable
