@@ -4,18 +4,14 @@ Automatically set the proper video output given a video device (VGA) is
 unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org
 display environment for a Linux machine.
 
-**Download the Latest Release:**&ensp;[Codeberg][codeberg-releases],
-[GitHub][github-releases]
-
-[codeberg-releases]: https://codeberg.org/portellam/auto-xorg/releases/latest
-[github-releases]:   https://github.com/portellam/auto-xorg/releases/latest
+## [Download](#5-download)
 
 ## Table of Contents
 - [1. Why?](#1-why)
 - [2. Related Projects](#2-related-projects)
 - [3. Documentation](#3-documentation)
 - [4. Host Requirements](#4-host-requirements)
-    - [4.1. Opera(ting Systems ](#41-operating-systems)
+    - [4.1. Operating Systems](#41-operating-systems)
     - [4.2. Software](#42-software)
     - [4.3. Hardware](#43-hardware)
 - [5. Download](#5-download)
@@ -25,8 +21,11 @@ display environment for a Linux machine.
     - [6.3. Examples](#63-examples)
     - [6.4. Troubleshooting](#64-troubleshooting)
 - [7. How Auto X.Org Works](#7-how-auto-xorg-works)
-- [8. Contact](#8-contact)
-- [9. References](#9-references)
+- [8. Filenames and Pathnames Modified by Generate Evdev](#8-filenames-and-pathnames-modified-by-auto-xorg)
+    - [8.1. System Files](#81-system-files)
+    - [8.2. Binaries and Files](#82-binaries-and-files)
+- [9. Contact](#8-contact)
+- [10. References](#9-references)
 
 ## Contents
 ### 1. Why?
@@ -89,6 +88,9 @@ one video device, as X.Org will find it.
 ### 5. Download
 - Download the Latest Release:&ensp;[Codeberg][codeberg-releases],
 [GitHub][github-releases]
+
+[codeberg-releases]: https://codeberg.org/portellam/auto-xorg/releases/latest
+[github-releases]:   https://github.com/portellam/auto-xorg/releases/latest
 
 - Download the ZIP file:
   1. Viewing from the top of the repository's (current) webpage, click the
@@ -198,14 +200,22 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 
 - Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
-### 8. Contact
+### 8. Filenames and Pathnames Modified by Auto X.Org
+#### 8.1. System Files
+  - `/etc/X11/xorg.conf.d/`
+
+#### 8.2. Binaries and Files
+  - `/usr/local/bin/`
+  - `/etc/systemd/system/`
+
+### 9. Contact
 Did you encounter a bug? Do you need help? Please visit the
 **Issues page** ([Codeberg][codeberg-issues], [GitHub][github-issues]).
 
 [codeberg-issues]: https://codeberg.org/portellam/auto-xorg/issues
 [github-issues]:   https://github.com/portellam/auto-xorg/issues
 
-### 9. References
+### 10. References
 #### 1.
 **PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
 <sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
