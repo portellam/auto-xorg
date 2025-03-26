@@ -5,7 +5,7 @@
 # Description:    Installs Auto X.Org.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
-# Version:        1.1.0
+# Version:        1.1.2
 #
 
 # <traps>
@@ -14,7 +14,7 @@
 # </traps>
 
 # <params>
-  declare -r SCRIPT_VERSION="1.1.0"
+  declare -r SCRIPT_VERSION="1.1.2"
   declare -r SCRIPT_NAME="$( basename "${0}" )"
   declare -r PREFIX_PROMPT="${SCRIPT_NAME}: "
 
