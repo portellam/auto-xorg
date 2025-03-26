@@ -40,7 +40,8 @@ at Host startup. This flexibility is very useful for a new or changing VFIO
 setup.
 
 ### 2. Related Projects
-Visit [Codeberg][related-codeberg], [GitHub][related-github].
+To view other relevant projects, visit [Codeberg][related-codeberg]
+or [GitHub][related-github].
 
 [related-codeberg]: https://codeberg.org/portellam/vfio-collection
 [related-github]:   https://github.com/portellam/vfio-collection
