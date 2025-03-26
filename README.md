@@ -40,10 +40,10 @@ at Host startup. This flexibility is very useful for a new or changing VFIO
 setup.
 
 ### 2. Related Projects
-Visit [Codeberg][codeberg1], [GitHub][github1].
+Visit [Codeberg][related-codeberg], [GitHub][related-github].
 
-[codeberg1]: https://codeberg.org/portellam/vfio-collection
-[github1]:   https://github.com/portellam/vfio-collection
+[related-codeberg]: https://codeberg.org/portellam/vfio-collection
+[related-github]:   https://github.com/portellam/vfio-collection
 
 ### 3. Documentation
 - What is VFIO?[<sup>[2]</sup>](#2)
@@ -66,8 +66,8 @@ Two (2) or more video devices. This script is not necessary for machines with
 one video device, as X.Org will find it.
 
 ### 5. Download
-- Download the Latest Release:&ensp;[Codeberg][codeberg-releases],
-[GitHub][github-releases]
+- Download the Latest Release:&ensp;[Codeberg][download-codeberg],
+[GitHub][download-github]
 
 - Download the `.zip` file:
     1. Viewing from the top of the repository's (current) webpage, click the
@@ -92,8 +92,8 @@ one video device, as X.Org will find it.
         - `git clone https://www.codeberg.org/portellam/auto-xorg`
         - `git clone https://www.github.com/portellam/auto-xorg`
 
-[codeberg-releases]: https://codeberg.org/portellam/auto-xorg/releases/latest
-[github-releases]:   https://github.com/portellam/auto-xorg/releases/latest
+[download-codeberg]: https://codeberg.org/portellam/auto-xorg/releases/latest
+[download-github]:   https://github.com/portellam/auto-xorg/releases/latest
 
 ### 6. Usage
 #### 6.1. Verify Installer is Executable
@@ -186,10 +186,10 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 
 ### 9. Contact
 Did you encounter a bug? Do you need help? Please visit the
-**Issues page** ([Codeberg][codeberg-issues], [GitHub][github-issues]).
+**Issues page** ([Codeberg][contact-codeberg], [GitHub][contact-github]).
 
-[codeberg-issues]: https://codeberg.org/portellam/auto-xorg/issues
-[github-issues]:   https://github.com/portellam/auto-xorg/issues
+[contact-codeberg]: https://codeberg.org/portellam/auto-xorg/issues
+[contact-github]:   https://github.com/portellam/auto-xorg/issues
 
 ### 10. References
 #### 1.
