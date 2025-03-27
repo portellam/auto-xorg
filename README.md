@@ -160,14 +160,14 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 ```
 
 3. Saves valid and available VGA device:
-- Valid example:
+&nbsp;&nbsp;- Valid example:
 ```
   lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
   04:00.0 VGA compatible controller: ...
   Kernel driver in use: nvidia
 ```
-- Invalid example:
+&nbsp;&nbsp;- Invalid example:
 ```
   lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
