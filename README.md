@@ -24,7 +24,7 @@ display environment for a Linux machine.
 - [8. Filenames and Pathnames Modified by Generate Evdev](#8-filenames-and-pathnames-modified-by-auto-xorg)
     - [8.1. System Files](#81-system-files)
     - [8.2. Binaries and Files](#82-binaries-and-files)
-- [9. Contact](#8-contact)
+- [9. Contact](#9-contact)
 - [10. References](#10-references)
 
 ## Contents
@@ -160,20 +160,20 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 ```
 
 3. Saves valid and available VGA device:
+- Valid example:
 ```
   lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
   04:00.0 VGA compatible controller: ...
   Kernel driver in use: nvidia
 ```
+- Invalid example:
+```
+  lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
 
-    - Invalid example:
-    ```
-      lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
-
-      01:00.0 VGA compatible controller: ...
-      Kernel driver in use: vfio-pci
-    ```
+  01:00.0 VGA compatible controller: ...
+  Kernel driver in use: vfio-pci
+```
 
 4. Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
