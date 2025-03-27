@@ -25,7 +25,7 @@ display environment for a Linux machine.
     - [8.1. System Files](#81-system-files)
     - [8.2. Binaries and Files](#82-binaries-and-files)
 - [9. Contact](#8-contact)
-- [10. References](#9-references)
+- [10. References](#10-references)
 
 ## Contents
 ### 1. Why?
@@ -40,11 +40,11 @@ at Host startup. This flexibility is very useful for a new or changing VFIO
 setup.
 
 ### 2. Related Projects
-To view other relevant projects, visit [Codeberg][related-codeberg]
-or [GitHub][related-github].
+To view other relevant projects, visit [Codeberg][21]
+or [GitHub][22].
 
-[related-codeberg]: https://codeberg.org/portellam/vfio-collection
-[related-github]:   https://github.com/portellam/vfio-collection
+[21]: https://codeberg.org/portellam/vfio-collection
+[22]: https://github.com/portellam/vfio-collection
 
 ### 3. Documentation
 - What is VFIO?[<sup>[2]</sup>](#2)
@@ -67,8 +67,8 @@ Two (2) or more video devices. This script is not necessary for machines with
 one video device, as X.Org will find it.
 
 ### 5. Download
-- Download the Latest Release:&ensp;[Codeberg][download-codeberg],
-[GitHub][download-github]
+- Download the Latest Release:&ensp;[Codeberg][51],
+[GitHub][52]
 
 - Download the `.zip` file:
     1. Viewing from the top of the repository's (current) webpage, click the
@@ -81,7 +81,7 @@ one video device, as X.Org will find it.
 - Clone the repository:
     1. Open a Command Line Interface (CLI).
         - Open a console emulator (for Debian systems: Konsole).
-        - Open a existing console: press `CTRL` + `ALT` + `F2`, `F3`, `F4`, `F5`,  or
+        - Open an existing console: press `CTRL` + `ALT` + `F2`, `F3`, `F4`, `F5`,  or
         `F6`.
             - **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
             - `F1` is reserved for debug output of the Linux kernel.
@@ -93,8 +93,8 @@ one video device, as X.Org will find it.
         - `git clone https://www.codeberg.org/portellam/auto-xorg`
         - `git clone https://www.github.com/portellam/auto-xorg`
 
-[download-codeberg]: https://codeberg.org/portellam/auto-xorg/releases/latest
-[download-github]:   https://github.com/portellam/auto-xorg/releases/latest
+[51]: https://codeberg.org/portellam/auto-xorg/releases/latest
+[52]: https://github.com/portellam/auto-xorg/releases/latest
 
 ### 6. Usage
 #### 6.1. Verify Installer is Executable
@@ -187,10 +187,10 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
 
 ### 9. Contact
 Did you encounter a bug? Do you need help? Please visit the
-**Issues page** ([Codeberg][contact-codeberg], [GitHub][contact-github]).
+**Issues page** ([Codeberg][91], [GitHub][92]).
 
-[contact-codeberg]: https://codeberg.org/portellam/auto-xorg/issues
-[contact-github]:   https://github.com/portellam/auto-xorg/issues
+[91]: https://codeberg.org/portellam/auto-xorg/issues
+[92]:   https://github.com/portellam/auto-xorg/issues
 
 ### 10. References
 #### 1.
