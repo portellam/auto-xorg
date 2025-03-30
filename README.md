@@ -190,7 +190,7 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
   - `/etc/systemd/system/`
 
 ### 9. Contact
-Wish to recommend a project? Do you need help? Please visit the [Issues][91] page.
+Do you need help? Please visit the [Issues][91] page.
 
 [91]: https://github.com/portellam/auto-xorg/issues
 
