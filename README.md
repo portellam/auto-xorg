@@ -5,6 +5,10 @@ unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org
 display environment for a Linux machine.
 
 ## [Download](#5-download)
+#### View this repository on [Codeberg][01], [GitHub][02].
+[01]: https://codeberg.org/portellam/auto-xorg
+[02]: https://github.com/portellam/auto-xorg
+##
 
 ## Table of Contents
 - [1. Why?](#1-why)
@@ -67,8 +71,7 @@ Two (2) or more video devices. This script is not necessary for machines with
 one video device, as X.Org will find it.
 
 ### 5. Download
-- Download the Latest Release:&ensp;[Codeberg][51],
-[GitHub][52]
+- Download the Latest Release:&ensp;[Codeberg][51], [GitHub][52]
 
 - Download the `.zip` file:
     1. Viewing from the top of the repository's (current) webpage, click the
@@ -79,10 +82,10 @@ one video device, as X.Org will find it.
     3. Open the `.zip` file, then extract its contents.
 
 - Clone the repository:
-    1. Open a Command Line Interface (CLI).
+    1. Open a Command Line Interface (CLI) or Terminal.
         - Open a console emulator (for Debian systems: Konsole).
-        - Open an existing console: press `CTRL` + `ALT` + `F2`, `F3`, `F4`, `F5`,  or
-        `F6`.
+        - **Linux only:** Open an existing console: press `CTRL` + `ALT` + `F2`,
+        `F3`, `F4`, `F5`, or `F6`.
             - **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
             - `F1` is reserved for debug output of the Linux kernel.
             - `F7` is reserved for video output of the desktop environment.
@@ -187,11 +190,9 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
   - `/etc/systemd/system/`
 
 ### 9. Contact
-Did you encounter a bug? Do you need help? Please visit the
-**Issues page** ([Codeberg][91], [GitHub][92]).
+Wish to recommend a project? Do you need help? Please visit the [Issues][91] page.
 
-[91]: https://codeberg.org/portellam/auto-xorg/issues
-[92]:   https://github.com/portellam/auto-xorg/issues
+[91]: https://github.com/portellam/auto-xorg/issues
 
 ### 10. References
 #### 1.
@@ -209,3 +210,6 @@ The linux kernel. Accessed June 14, 2024.
 &nbsp;&nbsp;**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.reddit.com/r/VFIO/.</sup>
+##
+
+#### Click [here](#auto-xorg) to return to the top of this document.
