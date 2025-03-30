@@ -1,5 +1,5 @@
 # Auto X.Org
-### v1.1.3
+### v1.1.2
 Automatically set the proper video output given a video device (VGA) is
 unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org
 display environment for a Linux machine.
