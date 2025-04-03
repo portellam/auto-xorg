@@ -5,7 +5,7 @@ unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org
 display environment for a Linux machine.
 
 ## [Download](#5-download)
-#### View this repository on [Codeberg][01], [GitHub][02].
+#### View this repository on [Codeberg][01] or [GitHub][02].
 [01]: https://codeberg.org/portellam/auto-xorg
 [02]: https://github.com/portellam/auto-xorg
 ##
@@ -71,7 +71,7 @@ Two (2) or more video devices. This script is not necessary for machines with
 one video device, as X.Org will find it.
 
 ### 5. Download
-- Download the Latest Release:&ensp;[Codeberg][51], [GitHub][52]
+- Download the Latest Release:&ensp;[Codeberg][51] or [GitHub][52].
 
 - Download the `.zip` file:
     1. Viewing from the top of the repository's (current) webpage, click the
