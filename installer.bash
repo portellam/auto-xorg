@@ -8,14 +8,14 @@
 # Version:        1.1.3
 #
 
-#region traps
+#region Traps
 
 trap 'catch_error' SIGINT SIGTERM ERR
 trap 'catch_exit' EXIT
 
 #endregion
 
-#region params
+#region Parameters
 
 declare -r SCRIPT_VERSION="1.1.2"
 declare -r SCRIPT_NAME="$( basename "${0}" )"
@@ -54,7 +54,7 @@ declare -r LINE_TO_REPLACE="ExecStart=/bin/bash /usr/local/bin/${FILE_1}"
 
 #endregion
 
-#region logic
+#region Logic
 
 #
 # $@  : the command line arguments.
