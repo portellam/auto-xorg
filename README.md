@@ -1,8 +1,8 @@
 # Auto X.Org
-### v1.1.2
-Automatically set the proper video output given a video device (VGA) is
-unavailable due to hardware-passthrough (VFIO) or any other reason, in the X.Org
-display environment for a Linux machine.
+### v1.1.3
+Automatically set the proper video output at boot-time given a video device
+(VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason,
+in the **X11** **(X.Org)** display environment for a Linux machine.
 
 ## [Download](#5-download)
 #### View this repository on [Codeberg][01], [GitHub][02].
@@ -33,15 +33,18 @@ display environment for a Linux machine.
 
 ## Contents
 ### 1. Why?
-X.Org will specify a VGA device to be the primary video output. When that VGA
-device is *Passed-through* or restricted to Virtual Machines (VMs) only (like in
-a VFIO setup), the VGA device cannot be used by the Host machine (Linux).
-Unfortunately, X.Org will not search for the next valid VGA device. **This is**
-**where *Auto X.Org* steps in...**
+**X11** **(X.Org)** will specify a VGA device to be the primary video output.
+When that VGA device is *Passed-through* or restricted to Virtual Machines (VMs)
+only (like in a VFIO setup), the VGA device cannot be used by the Host machine
+(Linux). Unfortunately, X.Org will not search for the next valid VGA device.
+**This is where *Auto X.Org* steps in...**
 
-This script will automatically set the proper video output everytime, as it runs
-at Host startup. This flexibility is very useful for a new or changing VFIO
-setup.
+This script will automatically set the proper video output at Host *boot-time*.
+This flexibility is very useful for a new or changing VFIO setup.
+
+For Hosts with the **Wayland** display environment, this script is not
+necessary. Wayland has the ability to change video outputs at Host *run-time*
+(add citation here).
 
 ### 2. Related Projects
 To view other relevant projects, visit [Codeberg][21]
