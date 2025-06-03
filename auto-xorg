@@ -113,195 +113,6 @@ function main
   exit 0
 }
 
-  #region Options logic
-
-  #
-  # $1  : the option.
-  # $?  : on success, return 0; on failure, return 1.
-  #
-  function get_option
-  {
-    while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-      "-f" | "--first" )
-        PARSE_PCI_ORDER_BY_BUS_ID=true ;;
-
-      "-l" | "--last" )
-        PARSE_PCI_ORDER_BY_BUS_ID=false
-        print_to_output_log "Parsing VGA devices in reverse order." ;;
-
-      "-r" | "--restart-display" )
-        DO_RESTART_DISPLAY_MANAGER=true ;;
-
-      "-a" | "--amd" )
-        if "${PREFER_LISTED_BRAND}"; then
-          return 1
-        fi
-
-        PREFER_AMD=true
-        PREFER_LISTED_BRAND=true ;;
-
-      "-i" | "--intel" )
-        if "${PREFER_LISTED_BRAND}"; then
-          return 1
-        fi
-
-        PREFER_INTEL=true
-        PREFER_LISTED_BRAND=true ;;
-
-      "-n" | "--nvidia" )
-        if "${PREFER_LISTED_BRAND}"; then
-          return 1
-        fi
-
-        PREFER_NVIDIA=true
-        PREFER_LISTED_BRAND=true ;;
-
-      "-o" | "--other" )
-        if "${PREFER_LISTED_BRAND}"; then
-          return 1
-        fi
-
-        PREFER_OFF_BRAND=true ;;
-
-      "" )
-        ;;
-
-      "-h" | "--help" )
-        return 1 ;;
-
-      * )
-        echo -e "${PREFIX_ERROR} Invalid input."
-        return 1 ;;
-    esac; shift; done
-
-    if [[ "$1" == '--' ]]; then
-      shift
-    fi
-  }
-
-  #
-  # $?  : always returns 0.
-  #
-  function print_usage
-  {
-    local -ar output=(
-      "Usage: sudo bash auto-xorg [OPTION]..."
-      "  Generates X.Org (video output) for the first or last parsed valid " \
-        "non-VFIO video device (VGA)."
-      "  Version ${SCRIPT_VERSION}."
-      "\n    -h, --help\t\t\tPrint this help and exit."
-      "\n  Update X.Org:"
-      "    -r, --restart-display\tRestart the display manager immediately."
-      "\n  Set device order:"
-      "    -f, --first\t\tFind the first valid VGA device."
-      "    -l, --last\t\tFind the last valid VGA device."
-      "\n  Prefer a vendor:"
-      "    -a, --amd\t\tAMD or ATI"
-      "    -i, --intel\t\tIntel"
-      "    -n, --nvidia\tNVIDIA"
-      "    -o, --other\t\tAny other brand (past or future)."
-      "\n  Example:"
-      "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
-      "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
-    )
-
-    echo -e "${output[*]}"
-    exit 1
-  }
-
-  #
-  # $?  : on success, return 0; on failure, return 1.
-  #
-  function set_options
-  {
-    for option in "$@"; do
-      is_string "${option}" &> /dev/null || return 0
-      get_option "${option}" || return 1
-    done
-  }
-
-  #endregion
-
-  #region Clean-up
-
-  #
-  # $?  : always returns 0.
-  #
-  function reset_ifs
-  {
-    IFS="${SAVEIFS}"
-  }
-
-  #endregion
-
-  #region Data-type validation
-
-  #
-  # $1  : the string.
-  # $?  : if not empty string, return 0.
-  #
-  function is_string
-  {
-    if [[ "${1}" == "" ]]; then
-      return 1
-    fi
-  }
-
-  #endregion
-
-  #region Handlers
-
-  #
-  # $?  : always exits non-zero.
-  #
-  function catch_error
-  {
-    exit 255
-  }
-
-  #
-  # $?  : always returns 0.
-  #
-  function catch_exit
-  {
-    reset_ifs
-  }
-
-  #
-  # $?  : if user is root, return 0.
-  #
-  function is_user_superuser
-  {
-    if [[ $( whoami ) != "root" ]]; then
-      print_to_error_log "User is not sudo or root."
-      return 1
-    fi
-  }
-
-  #endregion
-
-  #region Loggers
-
-  #
-  # $1  : the output.
-  # $?  : always returns 0.
-  #
-  function print_to_error_log
-  {
-    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
-  }
-
-  #
-  # $1  : the output.
-  # $?  : always returns 0.
-  #
-  function print_to_output_log
-  {
-    echo -e "${PREFIX_PROMPT}${1}" >&1
-  }
-
-  #endregion
-
   #region Business logic
 
   #
@@ -569,6 +380,195 @@ function main
     else
       print_to_output_log "Not writing to file given presence of problem driver."
     fi
+  }
+
+  #endregion
+
+  #region Options logic
+
+  #
+  # $1  : the option.
+  # $?  : on success, return 0; on failure, return 1.
+  #
+  function get_option
+  {
+    while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+      "-f" | "--first" )
+        PARSE_PCI_ORDER_BY_BUS_ID=true ;;
+
+      "-l" | "--last" )
+        PARSE_PCI_ORDER_BY_BUS_ID=false
+        print_to_output_log "Parsing VGA devices in reverse order." ;;
+
+      "-r" | "--restart-display" )
+        DO_RESTART_DISPLAY_MANAGER=true ;;
+
+      "-a" | "--amd" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_AMD=true
+        PREFER_LISTED_BRAND=true ;;
+
+      "-i" | "--intel" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_INTEL=true
+        PREFER_LISTED_BRAND=true ;;
+
+      "-n" | "--nvidia" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_NVIDIA=true
+        PREFER_LISTED_BRAND=true ;;
+
+      "-o" | "--other" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_OFF_BRAND=true ;;
+
+      "" )
+        ;;
+
+      "-h" | "--help" )
+        return 1 ;;
+
+      * )
+        echo -e "${PREFIX_ERROR} Invalid input."
+        return 1 ;;
+    esac; shift; done
+
+    if [[ "$1" == '--' ]]; then
+      shift
+    fi
+  }
+
+  #
+  # $?  : always returns 0.
+  #
+  function print_usage
+  {
+    local -ar output=(
+      "Usage: sudo bash auto-xorg [OPTION]..."
+      "  Generates X.Org (video output) for the first or last parsed valid " \
+        "non-VFIO video device (VGA)."
+      "  Version ${SCRIPT_VERSION}."
+      "\n    -h, --help\t\t\tPrint this help and exit."
+      "\n  Update X.Org:"
+      "    -r, --restart-display\tRestart the display manager immediately."
+      "\n  Set device order:"
+      "    -f, --first\t\tFind the first valid VGA device."
+      "    -l, --last\t\tFind the last valid VGA device."
+      "\n  Prefer a vendor:"
+      "    -a, --amd\t\tAMD or ATI"
+      "    -i, --intel\t\tIntel"
+      "    -n, --nvidia\tNVIDIA"
+      "    -o, --other\t\tAny other brand (past or future)."
+      "\n  Example:"
+      "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
+      "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
+    )
+
+    echo -e "${output[*]}"
+    exit 1
+  }
+
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
+  function set_options
+  {
+    for option in "$@"; do
+      is_string "${option}" &> /dev/null || return 0
+      get_option "${option}" || return 1
+    done
+  }
+
+  #endregion
+
+  #region Clean-up
+
+  #
+  # $?  : always returns 0.
+  #
+  function reset_ifs
+  {
+    IFS="${SAVEIFS}"
+  }
+
+  #endregion
+
+  #region Data-type validation
+
+  #
+  # $1  : the string.
+  # $?  : if not empty string, return 0.
+  #
+  function is_string
+  {
+    if [[ "${1}" == "" ]]; then
+      return 1
+    fi
+  }
+
+  #endregion
+
+  #region Handlers
+
+  #
+  # $?  : always exits non-zero.
+  #
+  function catch_error
+  {
+    exit 255
+  }
+
+  #
+  # $?  : always returns 0.
+  #
+  function catch_exit
+  {
+    reset_ifs
+  }
+
+  #
+  # $?  : if user is root, return 0.
+  #
+  function is_user_superuser
+  {
+    if [[ $( whoami ) != "root" ]]; then
+      print_to_error_log "User is not sudo or root."
+      return 1
+    fi
+  }
+
+  #endregion
+
+  #region Loggers
+
+  #
+  # $1  : the output.
+  # $?  : always returns 0.
+  #
+  function print_to_error_log
+  {
+    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
+  }
+
+  #
+  # $1  : the output.
+  # $?  : always returns 0.
+  #
+  function print_to_output_log
+  {
+    echo -e "${PREFIX_PROMPT}${1}" >&1
   }
 
   #endregion

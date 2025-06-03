@@ -95,82 +95,119 @@ function main
   exit 0
 }
 
-  #region Clean-up
+  #region Business logic
 
   #
-  # $?  : always returns 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
-  function reset_ifs
+  function copy_files
   {
-    IFS="${SAVEIFS}"
+    if ! cp --force "${FILE_1}" "${PATH_1}${FILE_1}" &> /dev/null \
+      || ! cp --force "${FILE_2}" "${PATH_2}${FILE_2}" &> /dev/null; then
+      print_to_error_log "Failed to copy file(s)."
+      return 1
+    fi
+
+    print_to_output_log "Copied file(s)."
   }
 
-  #endregion
-
-  #region Data-type validation
-
   #
-  # $1  : the string.
-  # $?  : if not empty string, return 0.
+  # $1  : the directory name.
+  # $?  : on success, return 0; on failure, return 1.
   #
-  function is_string
+  function is_destination_path_found
   {
-    if [[ "${1}" == "" ]]; then
+    if [[ ! -d "${1}" ]]; then
+      print_to_error_log "Could not find directory '${1}'."
       return 1
     fi
   }
 
-  #endregion
-
-  #region Handlers
-
   #
-  # $?  : always exits non-zero.
+  # $1  : the source file name.
+  # $?  : on success, return 0; on failure, return 1.
   #
-  function catch_error
+  function is_source_file_missing
   {
-    exit 255
-  }
-
-  #
-  # $?  : always returns 0.
-  #
-  function catch_exit
-  {
-    reset_ifs
-  }
-
-  #
-  # $?  : if user is root, return 0.
-  #
-  function is_user_superuser
-  {
-    if [[ $( whoami ) != "root" ]]; then
-      print_to_error_log "User is not sudo or root."
+    if [[ ! -e "${1}" ]]; then
+      print_to_error_log "Missing source file '${1}'."
       return 1
     fi
   }
 
-  #endregion
-
-  #region Loggers
-
   #
-  # $1  : the output.
-  # $?  : always returns 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
-  function print_to_error_log
+  function set_permissions_for_source_files
   {
-    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
+    if ! chown --silent ${SUDO_USER}:${SUDO_USER} "${FILE_2}"; then
+      print_to_error_log "Failed to set source file permissions."
+      return 1
+    fi
+
+    print_to_output_log "Set source file permissions."
   }
 
   #
-  # $1  : the output.
-  # $?  : always returns 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
-  function print_to_output_log
+  function set_permissions_for_destination_files
   {
-    echo -e "${PREFIX_PROMPT}${1}" >&1
+    if ! chown --quiet root:root "${PATH_1}${FILE_1}" \
+      || ! chmod --quiet +x "${PATH_1}${FILE_1}" \
+      || ! chown --quiet root:root "${PATH_2}${FILE_2}" \
+      || ! chmod --quiet +x "${PATH_2}${FILE_2}"; then
+      print_to_error_log "Failed to set destination file permissions."
+      return 1
+    fi
+
+    print_to_output_log "Set destination file permissions."
+  }
+
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
+  function update_services
+  {
+    if ! sudo systemctl daemon-reload &> /dev/null \
+      || ! sudo systemctl enable "${FILE_2}" &> /dev/null \
+      || ! sudo systemctl restart "${FILE_2}" &> /dev/null; then
+      print_to_error_log "Failed to update services."
+      return 1
+    fi
+
+    print_to_output_log "Updated services."
+  }
+
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
+  function update_source_service_file
+  {
+    line_to_use="${LINE_TO_REPLACE}"
+
+    if is_string "${OPTION_STRING}" &> /dev/null; then
+      line_to_use+=" ${OPTION_STRING}"
+    fi
+
+    readonly line_to_use
+
+    local -ar file_2_contents=(
+      "[Unit]"
+      "Description=Auto X.Org"
+      ""
+      "[Service]"
+      "${line_to_use}"
+      "RemainAfterExit=true"
+      "Type=oneshot"
+      ""
+      "[Install]"
+      "WantedBy=multi-user.target"
+    )
+
+    if ! echo -e "${file_2_contents[*]}" > "${FILE_2}"; then
+      return 1
+    fi
   }
 
   #endregion
@@ -318,119 +355,82 @@ function main
 
   #endregion
 
-  #region Business logic
+  #region Clean-up
 
   #
-  # $?  : on success, return 0; on failure, return 1.
+  # $?  : always returns 0.
   #
-  function copy_files
+  function reset_ifs
   {
-    if ! cp --force "${FILE_1}" "${PATH_1}${FILE_1}" &> /dev/null \
-      || ! cp --force "${FILE_2}" "${PATH_2}${FILE_2}" &> /dev/null; then
-      print_to_error_log "Failed to copy file(s)."
-      return 1
-    fi
-
-    print_to_output_log "Copied file(s)."
+    IFS="${SAVEIFS}"
   }
 
+  #endregion
+
+  #region Data-type validation
+
   #
-  # $1  : the directory name.
-  # $?  : on success, return 0; on failure, return 1.
+  # $1  : the string.
+  # $?  : if not empty string, return 0.
   #
-  function is_destination_path_found
+  function is_string
   {
-    if [[ ! -d "${1}" ]]; then
-      print_to_error_log "Could not find directory '${1}'."
+    if [[ "${1}" == "" ]]; then
       return 1
     fi
   }
 
+  #endregion
+
+  #region Handlers
+
   #
-  # $1  : the source file name.
-  # $?  : on success, return 0; on failure, return 1.
+  # $?  : always exits non-zero.
   #
-  function is_source_file_missing
+  function catch_error
   {
-    if [[ ! -e "${1}" ]]; then
-      print_to_error_log "Missing source file '${1}'."
+    exit 255
+  }
+
+  #
+  # $?  : always returns 0.
+  #
+  function catch_exit
+  {
+    reset_ifs
+  }
+
+  #
+  # $?  : if user is root, return 0.
+  #
+  function is_user_superuser
+  {
+    if [[ $( whoami ) != "root" ]]; then
+      print_to_error_log "User is not sudo or root."
       return 1
     fi
   }
 
-  #
-  # $?  : on success, return 0; on failure, return 1.
-  #
-  function set_permissions_for_source_files
-  {
-    if ! chown --silent ${SUDO_USER}:${SUDO_USER} "${FILE_2}"; then
-      print_to_error_log "Failed to set source file permissions."
-      return 1
-    fi
+  #endregion
 
-    print_to_output_log "Set source file permissions."
+  #region Loggers
+
+  #
+  # $1  : the output.
+  # $?  : always returns 0.
+  #
+  function print_to_error_log
+  {
+    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
   }
 
   #
-  # $?  : on success, return 0; on failure, return 1.
+  # $1  : the output.
+  # $?  : always returns 0.
   #
-  function set_permissions_for_destination_files
+  function print_to_output_log
   {
-    if ! chown --quiet root:root "${PATH_1}${FILE_1}" \
-      || ! chmod --quiet +x "${PATH_1}${FILE_1}" \
-      || ! chown --quiet root:root "${PATH_2}${FILE_2}" \
-      || ! chmod --quiet +x "${PATH_2}${FILE_2}"; then
-      print_to_error_log "Failed to set destination file permissions."
-      return 1
-    fi
-
-    print_to_output_log "Set destination file permissions."
-  }
-
-  #
-  # $?  : on success, return 0; on failure, return 1.
-  #
-  function update_services
-  {
-    if ! sudo systemctl daemon-reload &> /dev/null \
-      || ! sudo systemctl enable "${FILE_2}" &> /dev/null \
-      || ! sudo systemctl restart "${FILE_2}" &> /dev/null; then
-      print_to_error_log "Failed to update services."
-      return 1
-    fi
-
-    print_to_output_log "Updated services."
-  }
-
-  #
-  # $?  : on success, return 0; on failure, return 1.
-  #
-  function update_source_service_file
-  {
-    line_to_use="${LINE_TO_REPLACE}"
-
-    if is_string "${OPTION_STRING}" &> /dev/null; then
-      line_to_use+=" ${OPTION_STRING}"
-    fi
-
-    readonly line_to_use
-
-    local -ar file_2_contents=(
-      "[Unit]"
-      "Description=Auto X.Org"
-      ""
-      "[Service]"
-      "${line_to_use}"
-      "RemainAfterExit=true"
-      "Type=oneshot"
-      ""
-      "[Install]"
-      "WantedBy=multi-user.target"
-    )
-
-    if ! echo -e "${file_2_contents[*]}" > "${FILE_2}"; then
-      return 1
-    fi
+    echo -e "${PREFIX_PROMPT}${1}" >&1
   }
 
   #endregion
