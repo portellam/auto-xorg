@@ -75,7 +75,7 @@ declare -r FILE_1="${PATH_1}10-auto-xorg.conf"
   #region Evaluations
 
   GET_PCI_ID="lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'"
-  GET_PCI_ID=" | cut --delimiter ' ' --fields 1"
+  GET_PCI_ID+=" | cut --delimiter ' ' --fields 1"
   GET_PCI_ID_REVERSE_SORT="${GET_PCI_ID} | sort --reverse"
 
   #endregion
@@ -107,7 +107,10 @@ function main
   restart_service
 
   if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
-    echo -e "${PREFIX_NOTE}You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
+    echo -e \
+      "${PREFIX_NOTE}You may restart the active display manager"\
+      "'${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl"\
+      "restart ${DISPLAY_MANAGER}'."
   fi
 
   exit 0
@@ -145,11 +148,35 @@ function main
   function find_first_vga_driver
   {
     for hwid in "${HWID_LIST[@]}"; do
-      driver=$( lspci -ks "${hwid}" | grep --extended-regexp 'driver' | cut --delimiter ':' --fields 2 | cut --delimiter ' ' --fields 2 )
-      type=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 2 | tr '[:upper:]' '[:lower:]' )
-      vendor=$( lspci -ms "${hwid}" | cut --delimiter '"' --fields 4 | tr '[:upper:]' '[:lower:]' )
-      function_id=$( echo "${hwid}" | cut --delimiter '.' --fields 2 )
-      pci_id=$( echo "${hwid}" | cut --delimiter '.' --fields 1 )
+      driver=$( \
+        lspci -ks "${hwid}" \
+          | grep --extended-regexp 'driver' \
+          | cut --delimiter ':' --fields 2 \
+          | cut --delimiter ' ' --fields 2 \
+      )
+
+      type=$( \
+        lspci -ms "${hwid}" \
+          | cut --delimiter '"' --fields 2 \
+          | tr '[:upper:]' '[:lower:]' \
+      )
+
+      vendor=$( \
+        lspci -ms "${hwid}" \
+          | cut --delimiter '"' --fields 4 \
+          | tr '[:upper:]' '[:lower:]' \
+      )
+
+      function_id=$( \
+        echo "${hwid}" \
+          | cut --delimiter '.' --fields 2 \
+      )
+
+      pci_id=$( \
+        echo "${hwid}" \
+          | cut --delimiter '.' --fields 1 \
+      )
+
       pci_id+=":${function_id}"
 
       if match_valid_vga_device_with_driver "driver"; then
@@ -170,16 +197,29 @@ function main
 
     case true in
       "${PREFER_AMD}" )
-        reference=$( echo -e "${vendor}" | grep --ignore-case --invert-match 'amd|ati' | grep --ignore-case --invert-match 'corporation' ) ;;
+        reference=$( \
+          echo -e "${vendor}" \
+            | grep --ignore-case --invert-match 'amd|ati' \
+            | grep --ignore-case --invert-match 'corporation' \
+        ) ;;
 
       "${PREFER_INTEL}" )
-        reference=$( echo -e "${vendor}" | grep --ignore-case 'intel' ) ;;
+        reference=$( \
+          echo -e "${vendor}" \
+            | grep --ignore-case 'intel' \
+        ) ;;
 
       "${PREFER_NVIDIA}" )
-        reference=$( echo -e "${vendor}" | grep --ignore-case 'nvidia' ) ;;
+        reference=$( \
+          echo -e "${vendor}" \
+            | grep --ignore-case 'nvidia' \
+        ) ;;
 
       "${PREFER_OFF_BRAND}" )
-        reference=$( echo -e "${vendor}" | grep --extended-regexp --ignore-case --invert-match 'amd|ati|intel|nvidia' ) ;;
+        reference=$( \
+          echo -e "${vendor}" \
+            | grep --extended-regexp --ignore-case --invert-match 'amd|ati|intel|nvidia' \
+        ) ;;
 
       * )
         print_to_error_log "Failed to match preferred vendor."
@@ -244,7 +284,8 @@ function main
       return 1
     fi
 
-    if ( ! [[ "${type}" =~ ^"vga" ]] && ! [[ "${type}" =~ ^"graphics" ]] ); then
+    if ! [[ "${type}" =~ ^"vga" ]] \
+      && ! [[ "${type}" =~ ^"graphics" ]] ); then
       print_to_output_log "Skipped non-VGA device."
       return 1
     fi
@@ -293,8 +334,11 @@ function main
 
     if "${HAS_MATCHED_INTEL_DRIVER}"; then
       reference="${override_driver}"
+
     else
-      print_to_output_log "Should given parsed Intel VGA driver be invalid, replace xorg.conf with an alternate intel driver (example: '${override_driver}')."
+      print_to_output_log \
+        "Should given parsed Intel VGA driver be invalid, replace xorg.conf" \
+        "with an alternate intel driver (example: '${override_driver}')."
     fi
   }
 
@@ -304,7 +348,10 @@ function main
   function restart_service
   {
     if "${DO_RESTART_DISPLAY_MANAGER}" \
-      && ( ! sudo systemctl enable "${FILE_2}" || ! sudo systemctl restart "${FILE_2}" ); then
+      && ( \
+        ! sudo systemctl enable "${FILE_2}" \
+        || ! sudo systemctl restart "${FILE_2}" \
+      ); then
       print_to_error_log "Failed to restart system service."
       exit 1
     fi
@@ -360,6 +407,7 @@ function main
   {
     if "${PARSE_PCI_ORDER_BY_BUS_ID}"; then
       HWID_LIST=( $( eval "${GET_PCI_ID}" ) )
+
     else
       HWID_LIST=( $( eval "${GET_PCI_ID_REVERSE_SORT}" ) )
     fi
@@ -377,6 +425,7 @@ function main
 
     if ! "${MATCH_PROBLEM_DRIVER}"; then
       set_file || exit "${?}"
+
     else
       print_to_output_log "Not writing to file given presence of problem driver."
     fi
@@ -559,7 +608,7 @@ function main
   #
   function print_to_error_log
   {
-    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
+    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${*}" >&2
   }
 
   #
@@ -568,7 +617,7 @@ function main
   #
   function print_to_output_log
   {
-    echo -e "${PREFIX_PROMPT}${1}" >&1
+    echo -e "${PREFIX_PROMPT}${*}" >&1
   }
 
   #endregion

@@ -298,7 +298,9 @@ function main
   function set_option_for_sort
   {
     if [[ "${SORT_OPTION}" != "" ]]; then
-      print_to_error_log "Could not add sort option. Sort option is already set."
+      print_to_error_log \
+        "Could not add sort option. Sort option is already set."
+
       return 1
     fi
 
@@ -311,7 +313,9 @@ function main
   function set_option_for_vendor
   {
     if [[ "${VENDOR_OPTION}" != "" ]]; then
-      print_to_error_log "Could not add vendor option. Vendor option is already set."
+      print_to_error_log \
+        "Could not add vendor option. Vendor option is already set."
+
       return 1
     fi
 
@@ -421,7 +425,7 @@ function main
   #
   function print_to_error_log
   {
-    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
+    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${*}" >&2
   }
 
   #
@@ -430,7 +434,7 @@ function main
   #
   function print_to_output_log
   {
-    echo -e "${PREFIX_PROMPT}${1}" >&1
+    echo -e "${PREFIX_PROMPT}${*}" >&1
   }
 
   #endregion
