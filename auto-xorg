@@ -85,173 +85,228 @@ HWID_LIST=( )
 #endregion
 
 #region Logic
-  function main
+
+#
+# $@  : the command line arguments.
+# $?  : on success, exit 0; on failure, exit non-zero.
+#
+function main
+{
+  is_user_superuser
+
+  if ! set_options "$@"; then
+    print_usage
+  fi
+
+  toggle_sort_order_of_devices
+  does_system_have_pci
+  is_path_found
+  is_file_deletable
+  find_first_driver
+  write_to_file
+  restart_service
+
+  if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
+    echo -e "${PREFIX_NOTE}You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
+  fi
+
+  exit 0
+}
+
+  #region Options logic
+
+  #
+  # $1  : the option.
+  # $?  : on success, return 0; on failure, return 1.
+  #
+  function get_option
   {
-    is_user_superuser
+    while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+      "-f" | "--first" )
+        PARSE_PCI_ORDER_BY_BUS_ID=true ;;
 
-    if ! set_options "$@"; then
-      print_usage
+      "-l" | "--last" )
+        PARSE_PCI_ORDER_BY_BUS_ID=false
+        print_to_output_log "Parsing VGA devices in reverse order." ;;
+
+      "-r" | "--restart-display" )
+        DO_RESTART_DISPLAY_MANAGER=true ;;
+
+      "-a" | "--amd" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_AMD=true
+        PREFER_LISTED_BRAND=true ;;
+
+      "-i" | "--intel" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_INTEL=true
+        PREFER_LISTED_BRAND=true ;;
+
+      "-n" | "--nvidia" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_NVIDIA=true
+        PREFER_LISTED_BRAND=true ;;
+
+      "-o" | "--other" )
+        if "${PREFER_LISTED_BRAND}"; then
+          return 1
+        fi
+
+        PREFER_OFF_BRAND=true ;;
+
+      "" )
+        ;;
+
+      "-h" | "--help" )
+        return 1 ;;
+
+      * )
+        echo -e "${PREFIX_ERROR} Invalid input."
+        return 1 ;;
+    esac; shift; done
+
+    if [[ "$1" == '--' ]]; then
+      shift
     fi
-
-    toggle_sort_order_of_devices
-    does_system_have_pci
-    is_path_found
-    is_file_deletable
-    find_first_driver
-    write_to_file
-    restart_service
-
-    if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
-      echo -e "${PREFIX_NOTE}You may restart the active display manager '${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl restart ${DISPLAY_MANAGER}'."
-    fi
-
-    exit 0
   }
 
-  # DESC : Options logic
-    function get_option
-    {
-      while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-        "-f" | "--first" )
-          PARSE_PCI_ORDER_BY_BUS_ID=true ;;
+  #
+  # $?  : always returns 0.
+  #
+  function print_usage
+  {
+    local -ar output=(
+      "Usage: sudo bash auto-xorg [OPTION]..."
+      "  Generates X.Org (video output) for the first or last parsed valid " \
+        "non-VFIO video device (VGA)."
+      "  Version ${SCRIPT_VERSION}."
+      "\n    -h, --help\t\t\tPrint this help and exit."
+      "\n  Update X.Org:"
+      "    -r, --restart-display\tRestart the display manager immediately."
+      "\n  Set device order:"
+      "    -f, --first\t\tFind the first valid VGA device."
+      "    -l, --last\t\tFind the last valid VGA device."
+      "\n  Prefer a vendor:"
+      "    -a, --amd\t\tAMD or ATI"
+      "    -i, --intel\t\tIntel"
+      "    -n, --nvidia\tNVIDIA"
+      "    -o, --other\t\tAny other brand (past or future)."
+      "\n  Example:"
+      "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
+      "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
+    )
 
-        "-l" | "--last" )
-          PARSE_PCI_ORDER_BY_BUS_ID=false
-          print_to_output_log "Parsing VGA devices in reverse order." ;;
+    echo -e "${output[*]}"
+    exit 1
+  }
 
-        "-r" | "--restart-display" )
-          DO_RESTART_DISPLAY_MANAGER=true ;;
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
+  function set_options
+  {
+    for option in "$@"; do
+      is_string "${option}" &> /dev/null || return 0
+      get_option "${option}" || return 1
+    done
+  }
 
-        "-a" | "--amd" )
-          if "${PREFER_LISTED_BRAND}"; then
-            return 1
-          fi
+  #endregion
 
-          PREFER_AMD=true
-          PREFER_LISTED_BRAND=true ;;
+  #region Clean-up
 
-        "-i" | "--intel" )
-          if "${PREFER_LISTED_BRAND}"; then
-            return 1
-          fi
+  #
+  # $?  : always returns 0.
+  #
+  function reset_ifs
+  {
+    IFS="${SAVEIFS}"
+  }
 
-          PREFER_INTEL=true
-          PREFER_LISTED_BRAND=true ;;
+  #endregion
 
-        "-n" | "--nvidia" )
-          if "${PREFER_LISTED_BRAND}"; then
-            return 1
-          fi
+  #region Data-type validation
 
-          PREFER_NVIDIA=true
-          PREFER_LISTED_BRAND=true ;;
+  #
+  # $1  : the string.
+  # $?  : if not empty string, return 0.
+  #
+  function is_string
+  {
+    if [[ "${1}" == "" ]]; then
+      return 1
+    fi
+  }
 
-        "-o" | "--other" )
-          if "${PREFER_LISTED_BRAND}"; then
-            return 1
-          fi
+  #endregion
 
-          PREFER_OFF_BRAND=true ;;
+  #region Handlers
 
-        "" )
-          ;;
+  #
+  # $?  : always exits non-zero.
+  #
+  function catch_error
+  {
+    exit 255
+  }
 
-        "-h" | "--help" )
-          return 1 ;;
+  #
+  # $?  : always returns 0.
+  #
+  function catch_exit
+  {
+    reset_ifs
+  }
 
-        * )
-          echo -e "${PREFIX_ERROR} Invalid input."
-          return 1 ;;
-      esac; shift; done
+  #
+  # $?  : if user is root, return 0.
+  #
+  function is_user_superuser
+  {
+    if [[ $( whoami ) != "root" ]]; then
+      print_to_error_log "User is not sudo or root."
+      return 1
+    fi
+  }
 
-      if [[ "$1" == '--' ]]; then
-        shift
-      fi
-    }
+  #endregion
 
-    function print_usage
-    {
-      local -ar output=(
-        "Usage: sudo bash auto-xorg [OPTION]..."
-        "  Generates X.Org (video output) for the first or last parsed valid " \
-          "non-VFIO video device (VGA)."
-        "  Version ${SCRIPT_VERSION}."
-        "\n    -h, --help\t\t\tPrint this help and exit."
-        "\n  Update X.Org:"
-        "    -r, --restart-display\tRestart the display manager immediately."
-        "\n  Set device order:"
-        "    -f, --first\t\tFind the first valid VGA device."
-        "    -l, --last\t\tFind the last valid VGA device."
-        "\n  Prefer a vendor:"
-        "    -a, --amd\t\tAMD or ATI"
-        "    -i, --intel\t\tIntel"
-        "    -n, --nvidia\tNVIDIA"
-        "    -o, --other\t\tAny other brand (past or future)."
-        "\n  Example:"
-        "    sudo bash auto-xorg -f -a     Find first valid AMD/ATI VGA device."
-        "    sudo bash auto-xorg -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
-      )
+  #region Loggers
 
-      echo -e "${output[*]}"
-      exit 1
-    }
+  #
+  # $1  : the output.
+  # $?  : always returns 0.
+  #
+  function print_to_error_log
+  {
+    echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
+  }
 
-    function set_options
-    {
-      for option in "$@"; do
-        is_string "${option}" &> /dev/null || return 0
-        get_option "${option}" || return 1
-      done
-    }
+  #
+  # $1  : the output.
+  # $?  : always returns 0.
+  #
+  function print_to_output_log
+  {
+    echo -e "${PREFIX_PROMPT}${1}" >&1
+  }
 
-  # DESC : Clean-up
-    function reset_ifs
-    {
-      IFS="${SAVEIFS}"
-    }
+  #endregion
 
-  # DESC : Data-type validation
-    function is_string
-    {
-      if [[ "${1}" == "" ]]; then
-        return 1
-      fi
-    }
+  #region Business logic
 
-  # DESC : Handlers
-    function catch_error {
-      exit 255
-    }
-
-    function catch_exit {
-      if [[ "${?}" -eq 0 ]]; then
-        print_to_output_log "${PREFIX_PASS}Updated X.Org."
-      else
-        print_to_error_log "Failed to update X.Org."
-      fi
-
-      reset_ifs
-    }
-
-    function is_user_superuser
-    {
-      if [[ $( whoami ) != "root" ]]; then
-        print_to_error_log "User is not sudo or root."
-        return 1
-      fi
-    }
-
-  # DESC : Loggers
-    function print_to_error_log
-    {
-      echo -e "${PREFIX_PROMPT}${PREFIX_ERROR}${1}" >&2
-    }
-
-    function print_to_output_log
-    {
-      echo -e "${PREFIX_PROMPT}${1}" >&1
-    }
-
+  #
+  # $?  : on success, return 0; on failure, exit 1.
+  #
   function does_system_have_pci
   {
     if [[ "${#HWID_LIST[@]}" -eq 0 ]]; then
@@ -260,6 +315,9 @@ HWID_LIST=( )
     fi
   }
 
+  #
+  # $?  : on success, return 0; on failure, exit 1.
+  #
   function find_first_driver
   {
     find_first_vga_driver && return 0
@@ -270,6 +328,9 @@ HWID_LIST=( )
     exit 1
   }
 
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
   function find_first_vga_driver
   {
     for hwid in "${HWID_LIST[@]}"; do
@@ -289,6 +350,9 @@ HWID_LIST=( )
     return 1
   }
 
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
   function get_preferred_vendor
   {
     local -n reference="${1}"
@@ -316,9 +380,11 @@ HWID_LIST=( )
     fi
   }
 
+  #
+  # $?  : on success, return 0; on failure, exit 1.
+  #
   function is_file_deletable
   {
-    # <remarks>Exit early if existing system file cannot be overwritten.</remarks>
     if [[ -e "${PATH_1}" ]] \
       && ! sudo rm --force "${FILE_1}" &> /dev/null; then
       print_to_error_log "Failed to delete file '${FILE_1}'."
@@ -326,9 +392,12 @@ HWID_LIST=( )
     fi
   }
 
+  #
+  # $1  : the path name.
+  # $?  : if path found, return 0.
+  #
   function is_path_found
   {
-    # <remarks>Exit early if system directory does not exist and cannot be created.</remarks>
     if [[ ! -d "${PATH_1}" ]] \
       && sudo mkdir --parents "${PATH_1}"; then
       print_to_error_log "Failed to create directory '${PATH_1}'."
@@ -336,6 +405,10 @@ HWID_LIST=( )
     fi
   }
 
+  #
+  # $1  : the driver.
+  # $?  : always return 0.
+  #
   function match_driver_and_set_xorg_write_only
   {
     local -r driver="${1}"
@@ -346,6 +419,9 @@ HWID_LIST=( )
     esac
   }
 
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
   function match_valid_vga_device_with_driver
   {
     local -r found_no_driver="Found Driver: 'N/A'"
@@ -381,6 +457,10 @@ HWID_LIST=( )
     print_to_output_log "Found Driver: '${driver}'"
   }
 
+  #
+  # $1  : the driver.
+  # $?  : always return 0.
+  #
   function match_vendor_and_override_driver
   {
     local -r vendor="${1}"
@@ -391,6 +471,10 @@ HWID_LIST=( )
     esac
   }
 
+  #
+  # $1  : the reference.
+  # $?  : always return 0.
+  #
   function override_intel_vga_driver
   {
     local -n reference="${1}"
@@ -403,6 +487,9 @@ HWID_LIST=( )
     fi
   }
 
+  #
+  # $?  : on success, return 0; on failure, exit 1.
+  #
   function restart_service
   {
     if "${DO_RESTART_DISPLAY_MANAGER}" \
@@ -414,6 +501,9 @@ HWID_LIST=( )
     print_to_output_log "Restarted system service."
   }
 
+  #
+  # $?  : on success, return 0; on failure, return 1.
+  #
   function set_file
   {
     case "${?}" in
@@ -452,6 +542,9 @@ HWID_LIST=( )
     print_to_output_log "Wrote to file '${FILE_1}'."
   }
 
+  #
+  # $?  : always returns 0.
+  #
   function toggle_sort_order_of_devices
   {
     if "${PARSE_PCI_ORDER_BY_BUS_ID}"; then
@@ -461,6 +554,9 @@ HWID_LIST=( )
     fi
   }
 
+  #
+  # $?  : on failure, exit 1; on write failure, return 0.
+  #
   function write_to_file
   {
     if [[ ! -d "${PATH_1}" ]]; then
@@ -474,6 +570,8 @@ HWID_LIST=( )
       print_to_output_log "Not writing to file given presence of problem driver."
     fi
   }
+
+  #endregion
 
 #endregion
 
