@@ -179,7 +179,7 @@ function main
 
   #
   # $1  : the option.
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function get_option
   {
@@ -256,7 +256,7 @@ function main
   }
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function set_option_for_sort
   {
@@ -269,7 +269,7 @@ function main
   }
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function set_option_for_vendor
   {
@@ -283,7 +283,7 @@ function main
 
   #
   # $@  : the options.
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function set_options
   {
@@ -321,7 +321,7 @@ function main
   #region Business logic
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function copy_files
   {
@@ -336,7 +336,7 @@ function main
 
   #
   # $1  : the directory name.
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function is_destination_path_found
   {
@@ -348,7 +348,7 @@ function main
 
   #
   # $1  : the source file name.
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function is_source_file_missing
   {
@@ -359,7 +359,7 @@ function main
   }
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function set_permissions_for_source_files
   {
@@ -372,7 +372,7 @@ function main
   }
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function set_permissions_for_destination_files
   {
@@ -388,7 +388,7 @@ function main
   }
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function update_services
   {
@@ -403,7 +403,7 @@ function main
   }
 
   #
-  # $?  : on success, return 0.
+  # $?  : on success, return 0; on failure, return 1.
   #
   function update_source_service_file
   {
