@@ -43,8 +43,7 @@ This script will automatically set the proper video output at Host *boot-time*.
 This flexibility is very useful for a new or changing VFIO setup.
 
 For Hosts with the **Wayland** display environment, this script is not
-necessary. Wayland has the ability to change video outputs at Host *run-time*
-(add citation here).
+necessary. Wayland has the ability to change video outputs at Host *run-time[<sup>[1]</sup>](#1).
 
 ### 2. Related Projects
 To view other relevant projects, visit [Codeberg][21]
@@ -54,10 +53,10 @@ or [GitHub][22].
 [22]: https://github.com/portellam/vfio-collection
 
 ### 3. Documentation
-- What is VFIO?[<sup>[2]</sup>](#2)
-- VFIO Discussion and Support[<sup>[3]</sup>](#3)
-- Hardware-Passthrough Guide[<sup>[1]</sup>](#1)
-- Virtual Machine XML Format Guide[<sup>[4]</sup>](#4)
+- What is VFIO?[<sup>[3]</sup>](#3)
+- VFIO Discussion and Support[<sup>[4]</sup>](#4)
+- Hardware-Passthrough Guide[<sup>[2]</sup>](#2)
+- Virtual Machine XML Format Guide[<sup>[5]</sup>](#5)
 
 ### 4. Host Requirements
 #### 4.1. Operating System
@@ -199,17 +198,27 @@ Wish to recommend a project? Do you need help? Please visit the [Issues][91] pag
 
 ### 10. References
 #### 1.
+&nbsp;&nbsp;**Wayland**. WebsiteName. Accessed June 3, 2025.
+
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>example.com.</sup>
+
+#### 2.
 &nbsp;&nbsp;**PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
 
-#### 2.
+#### 3.
 &nbsp;&nbsp;**VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
 The linux kernel. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.kernel.org/doc/html/latest/driver-api/vfio.html.</sup>
 
-#### 3.
+#### 4.
+&nbsp;&nbsp;**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
+
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.reddit.com/r/VFIO/.</sup>
+
+#### 5.
 &nbsp;&nbsp;**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.reddit.com/r/VFIO/.</sup>
