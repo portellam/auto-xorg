@@ -17,44 +17,47 @@ in the **X11** **(X.Org)** display server for a Linux machine.
 
 ## Table of Contents
 
-* [❓ 1. Why?](#-1-why)
-* [🛠️ 2. Related Projects](#-2-related-projects)
-* [📝 3. Documentation](#-3-documentation)
-* [✅ 4. Host Requirements](#-4-host-requirements)
+- [❓ 1. Why?](#-1-why)
+- [🛠️ 2. Related Projects](#-2-related-projects)
+- [📝 3. Documentation](#-3-documentation)
 
-  * [4.1. Operating System](#41-operating-system)
-  * [4.2. Software](#42-software)
-  * [4.3. Hardware](#43-hardware)
-* [💾 5. Download](#-5-download)
-* [❓ 6. Usage](#-6-usage)
+- [✅ 4. Host Requirements](#-4-host-requirements)
+  - [4.1. Operating System](#41-operating-system)
+  - [4.2. Software](#42-software)
+  - [4.3. Hardware](#43-hardware)
 
-  * [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)
-  * [6.2. Verify Installer is Executable](#62-verify-script-is-executable)
-  * [6.3. `installer.bash` or `auto-xorg`](#63-installerbash-or-auto-xorg)
-  * [6.4. Examples](#64-examples)
-  * [6.5. Troubleshooting](#65-troubleshooting)
-* [💪 7. How *Auto X.Org* Works](#-7-how-auto-xorg-works)
-* [❗ 8. Filenames and Pathnames Modified by Generate Evdev](#8-filenames-and-pathnames-modified-by-auto-xorg)
+- [💾 5. Download](#-5-download)
 
-  * [8.1. System Files](#81-system-files)
-  * [8.2. Binaries and Files](#82-binaries-and-files)
-* [☎️ 9. Contact](#️-9-contact)
-* [🌐 10. References](#-10-references)
+- [❓ 6. Usage](#-6-usage)
+  - [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)
+  - [6.2. Verify Installer is Executable](#62-verify-script-is-executable)
+  - [6.3. `installer.bash` or `auto-xorg`](#63-installerbash-or-auto-xorg)
+  - [6.4. Examples](#64-examples)
+  - [6.5. Troubleshooting](#65-troubleshooting)
+
+- [💪 7. How *Auto X.Org- Works](#-7-how-auto-xorg-works)
+
+- [❗ 8. Filenames and Pathnames Modified by Generate Evdev](#8-filenames-and-pathnames-modified-by-auto-xorg)
+  - [8.1. System Files](#81-system-files)
+  - [8.2. Binaries and Files](#82-binaries-and-files)
+
+- [☎️ 9. Contact](#️-9-contact)
+- [🌐 10. References](#-10-references)
 
 ## Contents
 
 ### ❓ 1. Why?
 
-By default, the *X11* (**X.Org**) display server can detect one (1) or more
+By default, the *X11- (**X.Org**) display server can detect one (1) or more
 GPUs, and use any or all for video output. However, should the default or
 first-detected (primary) GPU be unavailable or invalid, video output may
 break.
 
 **Reasons for breakage include:**
 
-* ***[PCI pass-through or VFIO](#3-documentation).*** This can affect all GPUs
+- ***[PCI pass-through or VFIO](#3-documentation).*** This can affect all GPUs
   which share the same driver (are from the same family or manufacturer).
-* ***Reservation by a running Virtual Machine (VM).*** This can affect all devices
+- ***Reservation by a running Virtual Machine (VM).*** This can affect all devices
   which share the same [IOMMU group](#3-documentation). To mitigate this, a user
   may patch the Host with ACS override [<sup>\[1\]</sup>](#1), however this is a
   possible security risk and *is not recommended for most users.*
@@ -62,19 +65,19 @@ break.
 **Given this issue - sometimes, consecutive GPUs may only output to a Command**
 **Line Interface (CLI) or terminal.**
 
-**What can *Auto X.Org* do?** *This script may automatically set a valid GPU*
-*at Host boot-time.* The user may manually set a preferred GPU, as matched by
+**What can *Auto X.Org- do?** *This script may automatically set a valid GPU*
+*at Host boot-time.- The user may manually set a preferred GPU, as matched by
 the GPU manufacturer, should any one GPU be valid. *This flexibility is very*
 *useful for a new or changing VFIO setup.*
 
-⚠️ **Warning:** To use *Auto X.Org* at Host run-time, one must safely exit the
+⚠️ **Warning:** To use *Auto X.Org- at Host run-time, one must safely exit the
 desktop (save and exit all applications), as the display manager (the entire
 desktop) will be restarted.
 
-⚠️ ***Note:*** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
+⚠️ **Note:*** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
 with any of the following methods:
 
-* [Optimus<sup>\[2\]</sup>](#2)
+- [Optimus<sup>\[2\]</sup>](#2)
 
 ### 🛠️ 2. Related Projects
 
@@ -86,10 +89,10 @@ or [GitHub][22].
 
 ### 📝 3. Documentation
 
-* What is VFIO? [<sup>\[3\]</sup>](#3)
-* VFIO Discussion and Support [<sup>\[4\]</sup>](#4)
-* Hardware or PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
-* What is IOMMU? [<sup>\[6\]</sup>](#6)
+- What is VFIO? [<sup>\[3\]</sup>](#3)
+- VFIO Discussion and Support [<sup>\[4\]</sup>](#4)
+- Hardware or PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
+- What is IOMMU? [<sup>\[6\]</sup>](#6)
 
 ### ✅ 4. Host Requirements
 
@@ -99,11 +102,11 @@ Linux.
 
 #### 4.2. Software
 
-* `systemd` for system services.
-* `x11` or `xorg` as the display server.
-* Other display servers are not supported:
+- `systemd` for system services.
+- `x11` or `xorg` as the display server.
 
-  * `wayland`: The author has experienced problems with `wayland` and an NVIDIA
+- Other display servers are not supported:
+  - `wayland`: The author has experienced problems with `wayland` and an NVIDIA
     GPU, on Debian Linux (as of writing in 2024).
 
 #### 4.3. Hardware
@@ -116,21 +119,21 @@ X.Org will output to this GPU every time.
 
 ### 💾 5. Download
 
-* Download the Latest Release: [Codeberg][51], [GitHub][52]
+- Download the Latest Release: [Codeberg][51], [GitHub][52]
 
-* Download the `.zip` file:
+- Download the `.zip` file:
 
-  * From the webpage
+  - From the webpage
 
     1. Viewing from the top of the repository's (current) webpage, click the
        drop-down icon:
 
-       * `···` on Codeberg.
-       * `<> Code ` on GitHub.
+       - `···` on Codeberg.
+       - `<> Code ` on GitHub.
     2. Click `Download ZIP` and save.
     3. Open the `.zip` file, then extract its contents.
 
-  * From the CLI:
+  - From the CLI:
 
     1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
     2. Download the Latest:
@@ -146,7 +149,7 @@ X.Org will output to this GPU every time.
     && rm ./"${GH_REPO}-${GH_BRANCH}.zip"
     ```
 
-* Clone the repository:
+- Clone the repository:
 
   1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
   2. Change your directory to your home folder or anywhere safe:
@@ -164,14 +167,14 @@ X.Org will output to this GPU every time.
 
 To open a CLI or Terminal:
 
-* Open a console emulator (for Debian systems: Konsole).
-* **Linux only:** Open an existing console: press `CTRL` + `ALT` + `F2`,
+- Open a console emulator (for Debian systems: Konsole).
+- **Linux only:** Open an existing console: press `CTRL` + `ALT` + `F2`,
   `F3`, `F4`, `F5`, or `F6`.
 
-  * **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
-  * `F1` is reserved for debug output of the Linux kernel.
-  * `F7` is reserved for video output of the desktop environment.
-  * `F8` and above are unused.
+  - **To return to the desktop,** press `CTRL` + `ALT` + `F7`.
+  - `F1` is reserved for debug output of the Linux kernel.
+  - `F7` is reserved for video output of the desktop environment.
+  - `F8` and above are unused.
 
 #### 6.2. Verify Installer is Executable
 
@@ -182,53 +185,49 @@ To open a CLI or Terminal:
 
 3. Make the installer script file executable: `chmod +x installer.bash`
 
-   * Do **not** make any other script files executable. The installer will perform
+   - Do **not** make any other script files executable. The installer will perform
      this action.
-   * Do **not** make any non-script file executable. This is not necessary and
+   - Do **not** make any non-script file executable. This is not necessary and
      potentially dangerous.
 
 #### 6.3. `installer.bash` or `auto-xorg`
 
-* From within the project folder, execute: `sudo bash installer.bash`
-* Or after installation, from any folder execute: `sudo bash auto-xorg`
+- From within the project folder, execute: `sudo bash installer.bash`
+- Or after installation, from any folder execute: `sudo bash auto-xorg`
 
-  * The CLI's shell (bash) should recognize that the script file is located in
+  - The CLI's shell (bash) should recognize that the script file is located in
     `/usr/local/bin`.
 
-```bash
-  -h, --help              Print this help and exit.
+  ```bash
+    -h, --help              Print this help and exit.
 
-Update X.Org:
-  -r, --restart-display   Restart the display manager immediately.
+  Update X.Org:
+    -r, --restart-display   Restart the display manager immediately.
 
-Set device order
-```
+  Set device order:
+    -f, --first             Find the first valid VGA device.
+    -l, --last              Find the last valid VGA device.
 
+  Prefer a vendor:
+    -a, --amd               AMD or ATI
+    -i, --intel             Intel
+    -n, --nvidia            NVIDIA
+    -o, --other             Any other brand (past or future).
+  ```
 
-:
--f, --first             Find the first valid GPU.
--l, --last              Find the last valid GPU.
+#### 6.3. Examples
+- Set options to find the first valid AMD/ATI GPU, then install:
 
-Prefer a vendor:
--a, --amd               AMD or ATI
--i, --intel             Intel
--n, --nvidia            NVIDIA
--o, --other             Any other brand (past or future).
+  ```bash
+  sudo bash installer.bash -f -a
+  ```
 
-````
-
-#### 6.3. Examples  
-- Set options to find the first valid AMD/ATI GPU, then install:  
-```bash
-sudo bash installer.bash -f -a
-````
-
-* Find the last valid NVIDIA GPU, then restart the display manager
+- Find the last valid NVIDIA GPU, then restart the display manager
   immediately:
 
-```bash
-sudo bash auto-xorg -l -n -r
-```
+  ```bash
+  sudo bash auto-xorg -l -n -r
+  ```
 
 #### 6.4. Troubleshooting
 
@@ -238,10 +237,10 @@ If the `auto-xorg` service fails, to diagnose review the log, execute:
 sudo journalctl -u auto-xorg
 ```
 
-Failure may be the result of absent GPU(s), or an exception. Review the
-log to debug.
+Failure may be the result of absent GPU(s), or an exception. Review the log to
+debug.
 
-### 💪 7. How *Auto X.Org* Works
+### 💪 7. How *Auto X.Org- Works
 
 1. Runs once at boot (as a service) or run at user discretion.
 2. Parses a list of GPUs:
@@ -292,12 +291,12 @@ lspci -m \
 
 #### 8.1. System Files
 
-* `/etc/X11/xorg.conf.d/`
+- `/etc/X11/xorg.conf.d/`
 
 #### 8.2. Binaries and Files
 
-* `/usr/local/bin/`
-* `/etc/systemd/system/`
+- `/usr/local/bin/`
+- `/etc/systemd/system/`
 
 ### ☎️ 9. Contact
 
