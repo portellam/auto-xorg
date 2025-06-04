@@ -17,7 +17,7 @@ trap 'catch_exit' EXIT
 
 #region Parameters
 
-declare -r SCRIPT_VERSION="1.1.2"
+declare -r SCRIPT_VERSION="1.1.3"
 declare -r SCRIPT_NAME="$( basename "${0}" )"
 declare -r PREFIX_PROMPT="${SCRIPT_NAME}: "
 
@@ -140,7 +140,7 @@ function main
   #
   function set_permissions_for_source_files
   {
-    if ! chown --silent ${SUDO_USER}:${SUDO_USER} "${FILE_2}"; then
+    if ! chown --silent "${SUDO_USER}":"${SUDO_USER}" "${FILE_2}"; then
       print_to_error_log "Failed to set source file permissions."
       return 1
     fi
@@ -276,16 +276,17 @@ function main
       "  Version ${SCRIPT_VERSION}." \
       "\n" \
       "\n" \
-      "    -h, --help\t\t\tPrint this help and exit." \
+      "    -h, --help\t\tPrint this help and exit." \
       "\n" \
       "\n" \
       "  Update X.Org:" \
+      "\n" \
       "    -r, --restart-display\tRestart the display manager immediately." \
       "\n" \
       "\n" \
       "  Set device order:" \
       "\n" \
-      "    -f, --first\t\tFind the first valid VGA device." \
+      "    -f, --first\tFind the first valid VGA device." \
       "\n" \
       "    -l, --last\t\tFind the last valid VGA device." \
       "\n" \
@@ -294,11 +295,11 @@ function main
       "\n" \
       "    -a, --amd\t\tAMD or ATI" \
       "\n" \
-      "    -i, --intel\t\tIntel" \
+      "    -i, --intel\tIntel" \
       "\n" \
       "    -n, --nvidia\tNVIDIA" \
       "\n" \
-      "    -o, --other\t\tAny other brand (past or future)." \
+      "    -o, --other\tAny other brand (past or future)." \
       "\n" \
       "  Example:" \
       "\n" \
