@@ -35,9 +35,9 @@ in the **X11 (X.Org)** display server for a Linux machine.
   - [6.4. Examples](#64-examples)
   - [6.5. Troubleshooting](#65-troubleshooting)
 
-- [💪 7. How *Auto X.Org- Works](#-7-how-auto-xorg-works)
+- [💪 7. How *Auto X.Org* Works](#-7-how-auto-xorg-works)
 
-- [❗ 8. Filenames and Pathnames Modified by *Auto X.Org*](#8-filenames-and-pathnames-modified-by-auto-xorg)
+- [❗ 8. Filenames and Pathnames Modified by *Auto X.Org*](#-8-filenames-and-pathnames-modified-by-auto-xorg)
   - [8.1. System Files](#81-system-files)
   - [8.2. Binaries and Files](#82-binaries-and-files)
 
@@ -55,13 +55,14 @@ break.
 
 **Reasons for breakage include:**
 
-- **[*Hardware/PCI pass-through* or *VFIO*](#3-documentation).** This can affect all
-  GPUs which share the same driver (are from the same family or manufacturer).
+- **[*Hardware/PCI pass-through* or *VFIO*](#3-documentation).** This can
+  affect all GPUs which share the same driver
+  (of the same family or manufacturer).
 - ***Reservation by a running Virtual Machine (VM).*** This can affect all
   devices which share the same [IOMMU group](#3-documentation). To mitigate
-  this, a user may patch the Host kernel with ACS override
-  [<sup>\[1\]</sup>](#1), however this is a possible security risk and
-  *is not recommended for most users.*
+  this, a user may patch the Host kernel with
+  [*ACS override* <sup>\[1\]</sup>](#1), however this is a possible security
+  risk and *is not recommended for most users.*
 
 **Given this issue - sometimes, consecutive GPUs may only output to a Command**
 **Line Interface (CLI) or terminal.**
@@ -105,7 +106,7 @@ Linux.
 #### 4.2. Software
 
 - `systemd` for system services.
-- `x11` or `xorg` as the display server.
+- `xorg` as the display server.
 
 - Other display servers are not supported:
   - `wayland`: The author has experienced problems with Wayland and an NVIDIA
@@ -117,7 +118,7 @@ Linux.
 integrated GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
 
 - **A host with one (1) GPU**. *Auto X.Org is not recommended for this setup.*
-By default, X.Org will use this GPU every time.
+*By default, X.Org will use this GPU every time.*
 
 ### 💾 5. Download
 
@@ -219,7 +220,7 @@ To open a CLI or Terminal:
   ```
 
 #### 6.4. Examples
-- Set options to find the first valid AMD/ATI GPU, then install:
+- Set options to **find the first valid AMD/ATI GPU,** then install:
 
   ```bash
   sudo bash installer.bash \
@@ -227,7 +228,7 @@ To open a CLI or Terminal:
     --amd
   ```
 
-- Find the last valid NVIDIA GPU, then restart the display server immediately:
+- **Find the last valid NVIDIA GPU,** then restart the display server immediately:
 
   ```bash
   sudo auto-xorg \
