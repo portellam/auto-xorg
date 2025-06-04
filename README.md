@@ -75,7 +75,7 @@ useful for a new or changing VFIO setup.
 desktop (save and exit all applications), as the display manager (the entire
 desktop) will be restarted.
 
-⚠️ **Note:*** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
+⚠️ **Note:** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
 with any of the following methods:
 
 - [Optimus<sup>\[2\]</sup>](#2)
@@ -254,7 +254,7 @@ debug.
 
 3. Saves valid and available GPU:
 
-  Valid example, a driver which is **not** blacklisted:
+  **Valid example,** a driver which is *not blacklisted*:
 
   ```bash
     lspci \
@@ -271,7 +271,7 @@ debug.
     Kernel driver in use: nvidia
   ```
 
-  Invalid example, a driver which is blacklisted:
+  **Invalid example,** a driver which *is blacklisted*:
 
   ```bash
     lspci \
