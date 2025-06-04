@@ -4,7 +4,7 @@
 
 Automatically set the primary video output at boot-time given a video device
 is unavailable due to hardware-passthrough (VFIO), or any other reason,
-in the **X11** **(X.Org)** display server for a Linux machine.
+in the **X11 (X.Org)** display server for a Linux machine.
 
 ## [Download](#5-download)
 
@@ -55,7 +55,7 @@ break.
 
 **Reasons for breakage include:**
 
-- ***[PCI pass-through or VFIO](#3-documentation).*** This can affect all GPUs
+- **[*PCI pass-through* or *VFIO*](#3-documentation).** This can affect all GPUs
   which share the same driver (are from the same family or manufacturer).
 - ***Reservation by a running Virtual Machine (VM).*** This can affect all devices
   which share the same [IOMMU group](#3-documentation). To mitigate this, a user
@@ -65,12 +65,12 @@ break.
 **Given this issue - sometimes, consecutive GPUs may only output to a Command**
 **Line Interface (CLI) or terminal.**
 
-**What can *Auto X.Org- do?** *This script may automatically set a valid GPU*
-*at Host boot-time.- The user may manually set a preferred GPU, as matched by
-the GPU manufacturer, should any one GPU be valid. *This flexibility is very*
-*useful for a new or changing VFIO setup.*
+**What can *Auto X.Org do*?** This script may automatically set a valid GPU
+at Host boot-time. The user may manually set a preferred GPU, as matched by
+the GPU manufacturer, should any one GPU be valid. This flexibility is very
+useful for a new or changing VFIO setup.
 
-⚠️ **Warning:** To use *Auto X.Org- at Host run-time, one must safely exit the
+⚠️ **Warning:** To use *Auto X.Org* at Host run-time, one must safely exit the
 desktop (save and exit all applications), as the display manager (the entire
 desktop) will be restarted.
 
