@@ -80,14 +80,14 @@ function main
   print_to_output_log "${PREFIX_PASS}Installed ${FILE_1}."
 
   echo -e \
-    "${PREFIX_NOTE}It is NOT necessary to directly execute script'${FILE_1}'."
+    "${PREFIX_NOTE}It is NOT necessary to directly execute script '${FILE_1}'."
 
   echo -e \
     "The service '${FILE_1}' will execute the script automatically at boot," \
-    "to grab the first non-VFIO VGA device."
+    "to grab the first non-VFIO GPU."
 
   echo -e \
-    "If no available VGA device is found, an Xorg template will be created."
+    "If no available GPU is found, an Xorg template will be created."
 
   echo -e \
     "Therefore, it will be assumed the system is running 'headless'."
@@ -286,9 +286,9 @@ function main
       "\n" \
       "  Set device order:" \
       "\n" \
-      "    -f, --first\tFind the first valid VGA device." \
+      "    -f, --first\tFind the first valid GPU." \
       "\n" \
-      "    -l, --last\t\tFind the last valid VGA device." \
+      "    -l, --last\t\tFind the last valid GPU." \
       "\n" \
       "\n" \
       "  Prefer a vendor:" \
@@ -304,10 +304,10 @@ function main
       "  Example:" \
       "\n" \
       "    sudo bash ${SCRIPT_NAME} --first --amd\tSet options to find first"\
-        "valid AMD/ATI VGA device, then install." \
+        "valid AMD/ATI GPU, then install." \
       "\n" \
       "    sudo bash ${SCRIPT_NAME} --last --nvidia --restart-display\tSet"\
-        "options to find last valid NVIDIA VGA device, and restart the display"\
+        "options to find last valid NVIDIA GPU, and restart the display"\
         "server, then install."
 
     exit 1

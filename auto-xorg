@@ -2,8 +2,8 @@
 
 #
 # Filename:       auto-xorg
-# Description:    Generates a config for X.Org (video output) for the first or
-#                 last parsed, valid, non-VFIO video device (VGA).
+# Description:    Generates a config for X.Org (video output) for the first/last
+#                 parsed, valid, non-VFIO video device or GPU.
 # Author(s):      Alex Portell <github.com/portellam>
 # Maintainer(s):  Alex Portell <github.com/portellam>
 # Version:        1.1.3
@@ -136,9 +136,9 @@ function main
   {
     find_first_vga_driver && return 0
     PREFER_LISTED_BRAND=false
-    print_to_error_log "Failed to find preferred VGA device."
+    print_to_error_log "Failed to find preferred GPU."
     find_first_vga_driver && return 0
-    print_to_error_log "No VGA devices found."
+    print_to_error_log "No GPUs found."
     exit 1
   }
 
@@ -290,7 +290,7 @@ function main
 
     if ! [[ "${type}" =~ ^"vga" ]] \
       && ! [[ "${type}" =~ ^"graphics" ]]; then
-      print_to_output_log "Skipped non-VGA device."
+      print_to_output_log "Skipped non-GPU."
       return 1
     fi
 
@@ -341,7 +341,7 @@ function main
 
     else
       print_to_output_log \
-        "Should given parsed Intel VGA driver be invalid, replace xorg.conf" \
+        "Should given parsed Intel GPU driver be invalid, replace xorg.conf" \
         "with an alternate intel driver (example: '${override_driver}')."
     fi
   }
@@ -379,7 +379,7 @@ function main
           "EndSection"
         )
 
-        print_to_output_log "Valid VGA device found."
+        print_to_output_log "Valid GPU found."
         ;;
 
       * )
@@ -392,7 +392,7 @@ function main
           "#EndSection"
         )
 
-        print_to_error_log "No valid VGA device found."
+        print_to_error_log "No valid GPU found."
         ;;
     esac
 
@@ -451,7 +451,7 @@ function main
 
       "-l" | "--last" )
         PARSE_PCI_ORDER_BY_BUS_ID=false
-        print_to_output_log "Parsing VGA devices in reverse order." ;;
+        print_to_output_log "Parsing GPUs in reverse order." ;;
 
       "-r" | "--restart-display" )
         DO_RESTART_DISPLAY_MANAGER=true ;;
@@ -511,8 +511,8 @@ function main
     echo -e \
       "Usage: sudo ${SCRIPT_NAME} [OPTION]..." \
       "\n" \
-      "  Generates a config for X.Org (video output) for the first or last"\
-        "parsed valid non-VFIO video device (VGA)." \
+      "  Generates a config for X.Org (video output) for the first/last"\
+        "parsed, valid, non-VFIO video device or GPU." \
       "\n" \
       "  Version ${SCRIPT_VERSION}." \
       "\n" \
@@ -527,9 +527,9 @@ function main
       "\n" \
       "  Set device order:" \
       "\n" \
-      "    -f, --first\tFind the first valid VGA device." \
+      "    -f, --first\tFind the first valid GPU." \
       "\n" \
-      "    -l, --last\t\tFind the last valid VGA device." \
+      "    -l, --last\t\tFind the last valid GPU." \
       "\n" \
       "\n" \
       "  Prefer a vendor:" \
@@ -545,9 +545,9 @@ function main
       "\n" \
       "  Example:" \
       "\n" \
-      "    sudo ${SCRIPT_NAME} -f -a     Find first valid AMD/ATI VGA device." \
+      "    sudo ${SCRIPT_NAME} -f -a     Find first valid AMD/ATI GPU." \
       "\n" \
-      "    sudo ${SCRIPT_NAME} -l -n -r  Find last valid NVIDIA VGA device, then"\
+      "    sudo ${SCRIPT_NAME} -l -n -r  Find last valid NVIDIA GPU, then"\
         "restart the display server immediately."
 
     exit 1
