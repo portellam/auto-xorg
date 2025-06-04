@@ -80,6 +80,14 @@ machines with one video device, as X.Org will find it.
 - Download the Latest Release:&ensp;[Codeberg][51], [GitHub][52]
 
 - Download the `.zip` file:
+  - From the webpage
+    1. Viewing from the top of the repository's (current) webpage, click the
+        drop-down icon:
+        - `···` on Codeberg.
+        - `<> Code ` on GitHub.
+    2. Click `Download ZIP` and save.
+    3. Open the `.zip` file, then extract its contents.
+
   - From the CLI:
     1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
     2. Download the Latest:
@@ -92,14 +100,6 @@ wget https://github.com/${GH_USER}/${GH_REPO}/archive/refs/heads/${GH_BRANCH}.zi
 unzip ./"${GH_REPO}-${GH_BRANCH}.zip" && \
 rm ./"${GH_REPO}-${GH_BRANCH}.zip"
 ```
-
-  - From the webpage
-    1. Viewing from the top of the repository's (current) webpage, click the
-        drop-down icon:
-        - `···` on Codeberg.
-        - `<> Code ` on GitHub.
-    2. Click `Download ZIP` and save.
-    3. Open the `.zip` file, then extract its contents.
 
 - Clone the repository:
   1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
