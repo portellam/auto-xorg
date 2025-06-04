@@ -48,7 +48,7 @@ desktop, as the display manager (desktop) may be restarted.
 
 **Note:** to hot-swap (hot-plug) or bind/unbind of VGA devices, combine *Auto X.Org* with any of the following methods:
 - *Optimus*[<sup>[1]</sup>](#1)
-
+x
 ### 2. Related Projects
 To view other relevant projects, visit [Codeberg][21]
 or [GitHub][22].
@@ -82,7 +82,7 @@ machines with one video device, as X.Org will find it.
 - Download the `.zip` file:
   1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
   2. Download the Latest:
-```
+    - ```
 GH_USER=portellam; \
 GH_REPO=auto-xorg; \
 GH_BRANCH=master; \
@@ -90,7 +90,7 @@ wget https://github.com/${GH_USER}/${GH_REPO}/archive/refs/heads/${GH_BRANCH}.zi
 -O "${GH_REPO}-${GH_BRANCH}.zip" && \ 
 unzip ./"${GH_REPO}-${GH_BRANCH}.zip" && \
 rm ./"${GH_REPO}-${GH_BRANCH}.zip"
-```
+    ```
 
   - From the webpage
     1. Viewing from the top of the repository's (current) webpage, click the
