@@ -46,7 +46,7 @@ This flexibility is very useful for a new or changing VFIO setup.
 **Warning:** to use *Auto X.Org* at Host *run-time*, one must safe and exit the
 desktop, as the display manager (desktop) may be restarted.
 
-**Note:** This script does **not** enable the hot-swap (hot-plug) or bind/unbind of VGA devices. To hot-plug or bind/unbind, combine *Auto X.Org* with any of the following methods:
+**Note:** to hot-swap (hot-plug) or bind/unbind of VGA devices, combine *Auto X.Org* with any of the following methods:
 - **Optimus**[<sup>[1]</sup>](#1)
 
 ### 2. Related Projects
