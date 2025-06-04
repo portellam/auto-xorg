@@ -95,7 +95,7 @@ or [GitHub][22].
 - Hardware or PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
 - What is IOMMU? [<sup>\[6\]</sup>](#6)
 
-### ✅ 4. Host Requirements
+✅ ###  4. Host Requirements
 
 #### 4.1. Operating System
 
@@ -112,11 +112,11 @@ Linux.
 
 #### 4.3. Hardware
 
-A host with two (2) or more GPUs. This includes onboard graphics or an
+**A host with two (2) or more GPUs.** This includes onboard graphics or an
 integrated GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
 
-A host with one (1) GPU is **not recommended** for use with this script. By
-default, X.Org will use this GPU every time.
+**A host with one (1) GPU**. *This is not recommended for use with this script.*
+By default, X.Org will use this GPU every time.
 
 ### 💾 5. Download
 
