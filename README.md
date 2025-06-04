@@ -112,10 +112,10 @@ Linux.
 
 #### 4.3. Hardware
 
-**A host with two (2) or more GPUs.** This includes onboard graphics or an
+- **A host with two (2) or more GPUs.** This includes onboard graphics or an
 integrated GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
 
-**A host with one (1) GPU**. *This is not recommended for use with this script.*
+- **A host with one (1) GPU**. *Auto X.Org is not recommended for this setup.*
 By default, X.Org will use this GPU every time.
 
 ### 💾 5. Download
@@ -214,7 +214,7 @@ To open a CLI or Terminal:
     -o, --other             Any other brand (past or future).
   ```
 
-#### 6.3. Examples
+#### 6.4. Examples
 - Set options to find the first valid AMD/ATI GPU, then install:
 
   ```bash
@@ -227,7 +227,7 @@ To open a CLI or Terminal:
   sudo bash auto-xorg --last -nvidia --restart-display
   ```
 
-#### 6.4. Troubleshooting
+#### 6.5. Troubleshooting
 
 If the `auto-xorg` service fails, to diagnose review the log, execute:
 
