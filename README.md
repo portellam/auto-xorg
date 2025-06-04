@@ -36,31 +36,31 @@ in the **X11** **(X.Org)** display server for a Linux machine.
 ### 1. Why?
 By default, the **X11** **(X.Org)** display server can detect one (1) or more
 GPUs, and use any or all for video output. However, should the default or
-first-detected (primary) GPU be unavailable or *invalid*, video output may
+first-detected (primary) GPU be unavailable or invalid, video output may
 break.
 
-Reasons for breakage include:
-  - [*PCI pass-through* or *VFIO*](#3-documentation). This can affect all GPUs
+**Reasons for breakage include:**
+  - *[PCI pass-through or *VFIO](#3-documentation).* This can affect all GPUs
   which share the same driver (are from the same family or manufacturer).
-  - reservation by a running Virtual Machine (VM). This can affect all devices
+  - *Reservation by a running Virtual Machine (VM).* This can affect all devices
   which share the same [IOMMU group](#3-documentation). To mitigate this, a user
   may patch the Host with ACS override[<sup>[1]</sup>](#1), however this is a
-  possible security risk and is not recommended for most users.
+  possible security risk and *is not recommended for most users.*
 
-Given this issue - sometimes, consecutive GPUs may only output to a Command Line
-Interface (CLI) or terminal.
+**Given this issue - sometimes, consecutive GPUs may only output to a Command**
+**Line Interface (CLI) or terminal.**
 
-**What can *Auto X.Org* do?** This script may automatically set a *valid* GPU
-at Host *boot-time*. The user may manually set a preferred GPU, as matched by
-the GPU manufacturer, should any one GPU be *valid*. **This flexibility is very**
-**useful for a new or changing VFIO setup.**
+**What can *Auto X.Org* do?** *This script may automatically set a valid GPU*
+*at Host boot-time.* The user may manually set a preferred GPU, as matched by
+the GPU manufacturer, should any one GPU be valid. *This flexibility is very*
+*useful for a new or changing VFIO setup.*
 
-**Warning:** to use *Auto X.Org* at Host *run-time*, one must safely exit the
+**Warning:** *to use *Auto X.Org* at Host *run-time*, one must safely exit the
 desktop (save and exit all applications), as the display manager (the entire
-desktop) will be restarted.
+desktop) will be restarted.*
 
-**Note:** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
-with any of the following methods:
+**Note:** *to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
+with any of the following methods:*
 - [Optimus<sup>[2]</sup>](#2)
 
 ### 2. Related Projects
