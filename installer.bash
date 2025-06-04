@@ -74,7 +74,7 @@ function main
     || ! set_permissions_for_destination_files \
     || ! update_services; then
     print_to_error_log "Could not install ${FILE_1}."
-    exit 1
+    print_usage
   fi
 
   print_to_output_log "${PREFIX_PASS}Installed ${FILE_1}."
@@ -248,11 +248,10 @@ function main
           ;;
 
         "-h" | "--help" )
-          print_usage
-          exit 1 ;;
+          print_usage ;;
 
         * )
-          print_usage
+          echo -e "${PREFIX_ERROR} Invalid input."
           return 1 ;;
       esac
 
@@ -265,31 +264,51 @@ function main
   }
 
   #
-  # $?  : always returns 0.
+  # $?  : always exits 1.
   #
   function print_usage
   {
-    local -ar output=(
-      "Usage: bash ${SCRIPT_NAME} [OPTION]..."
-      "  Set options for ${FILE_1} in service file, then install."
-      "  Version ${SCRIPT_VERSION}."
-      "\n    -h, --help\t\t\tPrint this help and exit."
-      "\n  Update X.Org:"
-      "    -r, --restart-display\tRestart the display manager immediately."
-      "\n  Set device order:"
-      "    -f, --first\t\tFind the first valid VGA device."
-      "    -l, --last\t\tFind the last valid VGA device."
-      "\n  Prefer a vendor:"
-      "    -a, --amd\t\tAMD or ATI"
-      "    -i, --intel\t\tIntel"
-      "    -n, --nvidia\tNVIDIA"
-      "    -o, --other\t\tAny other brand (past or future)."
-      "\n  Example:"
-      "    sudo bash installer.bash -f -a\tSet options to find first valid AMD/ATI VGA device, then install."
-      "    sudo bash installer.bash -l -n -r\tSet options to find last valid NVIDIA VGA device, and restart the display manager, then install."
-    )
+    echo -e \
+      "Usage: bash ${SCRIPT_NAME} [OPTION]..." \
+      "\n" \
+      "  Set options for ${FILE_1} in service file, then install." \
+      "\n" \
+      "  Version ${SCRIPT_VERSION}." \
+      "\n" \
+      "\n" \
+      "    -h, --help\t\t\tPrint this help and exit." \
+      "\n" \
+      "\n" \
+      "  Update X.Org:" \
+      "    -r, --restart-display\tRestart the display manager immediately." \
+      "\n" \
+      "\n" \
+      "  Set device order:" \
+      "\n" \
+      "    -f, --first\t\tFind the first valid VGA device." \
+      "\n" \
+      "    -l, --last\t\tFind the last valid VGA device." \
+      "\n" \
+      "\n" \
+      "  Prefer a vendor:" \
+      "\n" \
+      "    -a, --amd\t\tAMD or ATI" \
+      "\n" \
+      "    -i, --intel\t\tIntel" \
+      "\n" \
+      "    -n, --nvidia\tNVIDIA" \
+      "\n" \
+      "    -o, --other\t\tAny other brand (past or future)." \
+      "\n" \
+      "  Example:" \
+      "\n" \
+      "    sudo bash ${SCRIPT_NAME} -f -a\tSet options to find first valid"\
+        "AMD/ATI VGA device, then install." \
+      "\n" \
+      "    sudo bash ${SCRIPT_NAME} -l -n -r\tSet options to find last valid"\
+        "NVIDIA VGA device, and restart the display manager, then install."
 
-    echo -e "${output[*]}"
+    exit 1
   }
 
   #
@@ -443,6 +462,6 @@ function main
 
 #region Main
 
-  main "$@"
+main "$@"
 
 #endregion
