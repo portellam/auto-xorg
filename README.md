@@ -316,47 +316,47 @@ Do you need help? Please visit the [Issues][91] page.
 
 #### 1.
 
-  **Bypassing the IOMMU groups (ACS override patch)**. ArchWiki.
+&nbsp;&nbsp;**Bypassing the IOMMU groups (ACS override patch)**. ArchWiki.
 Accessed June 4, 2025.
 
-  <sup>[https://wiki.archlinux.org/title/PCI\_passthrough\_via\_OVMF#Bypassing\_the\_IOMMU\_groups\_(ACS\_override\_patch)](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Bypassing_the_IOMMU_groups_%28ACS_override_patch%29).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Bypassing_the_IOMMU_groups_%28ACS_override_patch%29.</sup>
 
 #### 2.
 
-  **Misairu-G/\[GUIDE] Optimus laptop dGPU passthrough.md**. GitHub.
+&nbsp;&nbsp;**Misairu-G/[GUIDE] Optimus laptop dGPU passthrough.md**. GitHub.
 Accessed June 3, 2025.
 
-  <sup>[https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28](https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28.</sup>
 
-  **You can now passthrough your dGPU as you wish with an Optimus**
+&nbsp;&nbsp;**You can now passthrough your dGPU as you wish with an Optimus**
 **laptop**. Reddit. Accessed June 3, 2025.
 
-  <sup>[https://old.reddit.com/r/VFIO/comments/7d27sz/you\_can\_now\_passthrough\_your\_dgpu\_as\_you\_wish/](https://old.reddit.com/r/VFIO/comments/7d27sz/you_can_now_passthrough_your_dgpu_as_you_wish/).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://old.reddit.com/r/VFIO/comments/7d27sz/you_can_now_passthrough_your_dgpu_as_you_wish/.</sup>
 
 #### 3.
 
-  **VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
+&nbsp;&nbsp;**VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
 The linux kernel. Accessed June 14, 2024.
 
-  <sup>[https://www.kernel.org/doc/html/latest/driver-api/vfio.html](https://www.kernel.org/doc/html/latest/driver-api/vfio.html).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.kernel.org/doc/html/latest/driver-api/vfio.html.</sup>
 
 #### 4.
 
-  **VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
+&nbsp;&nbsp;**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
 
-  <sup>[https://www.reddit.com/r/VFIO/](https://www.reddit.com/r/VFIO/).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://old.reddit.com/r/VFIO/.</sup>
 
 #### 5.
+&nbsp;&nbsp;**PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
 
-  **PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
-
-  <sup>[https://wiki.archlinux.org/title/PCI\_passthrough\_via\_OVMF](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
 
 #### 6.
 
-  **Input-output memory management unit**. Wikipedia. Accessed June 4, 2025.
+&nbsp;&nbsp;**Input-output memory management unit**. Wikipedia. Accessed
+June 4, 2025.
 
-  <sup>[https://en.wikipedia.org/wiki/Input%E2%80%93output\_memory\_management\_unit](https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit).</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit.</sup>
 
 ##
 
