@@ -3,7 +3,7 @@
 ### v1.1.3
 
 Automatically set the primary video output at boot-time given a video device
-is unavailable due to hardware-passthrough (VFIO), or any other reason,
+is unavailable due to hardware pass-through (VFIO), or any other reason,
 in the **X11 (X.Org)** display server for a Linux machine.
 
 ## [Download](#5-download)
@@ -218,13 +218,18 @@ To open a CLI or Terminal:
 - Set options to find the first valid AMD/ATI GPU, then install:
 
   ```bash
-  sudo bash installer.bash --first --amd
+  sudo bash installer.bash \
+    --first \
+    --amd
   ```
 
 - Find the last valid NVIDIA GPU, then restart the display server immediately:
 
   ```bash
-  sudo bash auto-xorg --last -nvidia --restart-display
+  sudo bash auto-xorg \
+    --last \
+    -nvidia \
+    --restart-display
   ```
 
 #### 6.5. Troubleshooting
@@ -238,7 +243,7 @@ sudo journalctl -u auto-xorg
 Failure may be the result of absent GPU(s), or an exception. Review the log to
 debug.
 
-### 💪 7. How *Auto X.Org- Works
+### 💪 7. How *Auto X.Org* Works
 
 1. Runs once at boot (as a service) or run at user discretion.
 
