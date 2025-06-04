@@ -271,7 +271,7 @@ debug.
         'driver|VGA'
   ```
 
-  ```bash
+  ```
     04:00.0 VGA compatible controller: ...
     Kernel driver in use: nvidia
   ```
@@ -288,7 +288,7 @@ debug.
         'driver|VGA'
   ```
 
-  ```bash
+  ```
     01:00.0 VGA compatible controller: ...
     Kernel driver in use: vfio-pci
   ```
