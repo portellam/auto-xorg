@@ -95,7 +95,7 @@ or [GitHub][22].
 - Hardware or PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
 - What is IOMMU? [<sup>\[6\]</sup>](#6)
 
-### 4. Host Requirements
+### ✅ 4. Host Requirements
 
 #### 4.1. Operating System
 
