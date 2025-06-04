@@ -55,12 +55,13 @@ break.
 
 **Reasons for breakage include:**
 
-- **[*PCI pass-through* or *VFIO*](#3-documentation).** This can affect all GPUs
-  which share the same driver (are from the same family or manufacturer).
-- ***Reservation by a running Virtual Machine (VM).*** This can affect all devices
-  which share the same [IOMMU group](#3-documentation). To mitigate this, a user
-  may patch the Host with ACS override [<sup>\[1\]</sup>](#1), however this is a
-  possible security risk and *is not recommended for most users.*
+- **[*PCI pass-through* or *VFIO*](#3-documentation).** This can affect all
+  GPUs which share the same driver (are from the same family or manufacturer).
+- ***Reservation by a running Virtual Machine (VM).*** This can affect all
+  devices which share the same [IOMMU group](#3-documentation). To mitigate
+  this, a user may patch the Host kernel with ACS override
+  [<sup>\[1\]</sup>](#1), however this is a possible security risk and
+  *is not recommended for most users.*
 
 **Given this issue - sometimes, consecutive GPUs may only output to a Command**
 **Line Interface (CLI) or terminal.**
@@ -111,11 +112,11 @@ Linux.
 
 #### 4.3. Hardware
 
-A host with two (2) or more GPUs. This includes onboard graphics or an integrated
-GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
+A host with two (2) or more GPUs. This includes onboard graphics or an
+integrated GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
 
-A host with one (1) GPU is **not recommended** for use with this script. By default,
-X.Org will output to this GPU every time.
+A host with one (1) GPU is **not recommended** for use with this script. By
+default, X.Org will use this GPU every time.
 
 ### 💾 5. Download
 
@@ -183,8 +184,8 @@ To open a CLI or Terminal:
 
 2. Make the installer script file executable: `chmod +x installer.bash`
 
-   - Do **not** make any other script files executable. The installer will perform
-     this action.
+   - Do **not** make any other script files executable. The installer will
+    perform this action.
    - Do **not** make any non-script file executable. This is not necessary and
      potentially dangerous.
 
@@ -313,44 +314,44 @@ Do you need help? Please visit the [Issues][91] page.
   **Bypassing the IOMMU groups (ACS override patch)**. ArchWiki.
 Accessed June 4, 2025.
 
-    <sup>[https://wiki.archlinux.org/title/PCI\_passthrough\_via\_OVMF#Bypassing\_the\_IOMMU\_groups\_(ACS\_override\_patch)](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Bypassing_the_IOMMU_groups_%28ACS_override_patch%29).</sup>
+  <sup>[https://wiki.archlinux.org/title/PCI\_passthrough\_via\_OVMF#Bypassing\_the\_IOMMU\_groups\_(ACS\_override\_patch)](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Bypassing_the_IOMMU_groups_%28ACS_override_patch%29).</sup>
 
 #### 2.
 
   **Misairu-G/\[GUIDE] Optimus laptop dGPU passthrough.md**. GitHub.
 Accessed June 3, 2025.
 
-    <sup>[https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28](https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28).</sup>
+  <sup>[https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28](https://gist.github.com/Misairu-G/616f7b2756c488148b7309addc940b28).</sup>
 
   **You can now passthrough your dGPU as you wish with an Optimus**
 **laptop**. Reddit. Accessed June 3, 2025.
 
-    <sup>[https://old.reddit.com/r/VFIO/comments/7d27sz/you\_can\_now\_passthrough\_your\_dgpu\_as\_you\_wish/](https://old.reddit.com/r/VFIO/comments/7d27sz/you_can_now_passthrough_your_dgpu_as_you_wish/).</sup>
+  <sup>[https://old.reddit.com/r/VFIO/comments/7d27sz/you\_can\_now\_passthrough\_your\_dgpu\_as\_you\_wish/](https://old.reddit.com/r/VFIO/comments/7d27sz/you_can_now_passthrough_your_dgpu_as_you_wish/).</sup>
 
 #### 3.
 
   **VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
 The linux kernel. Accessed June 14, 2024.
 
-    <sup>[https://www.kernel.org/doc/html/latest/driver-api/vfio.html](https://www.kernel.org/doc/html/latest/driver-api/vfio.html).</sup>
+  <sup>[https://www.kernel.org/doc/html/latest/driver-api/vfio.html](https://www.kernel.org/doc/html/latest/driver-api/vfio.html).</sup>
 
 #### 4.
 
   **VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
 
-    <sup>[https://www.reddit.com/r/VFIO/](https://www.reddit.com/r/VFIO/).</sup>
+  <sup>[https://www.reddit.com/r/VFIO/](https://www.reddit.com/r/VFIO/).</sup>
 
 #### 5.
 
   **PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
 
-    <sup>[https://wiki.archlinux.org/title/PCI\_passthrough\_via\_OVMF](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF).</sup>
+  <sup>[https://wiki.archlinux.org/title/PCI\_passthrough\_via\_OVMF](https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF).</sup>
 
 #### 6.
 
   **Input-output memory management unit**. Wikipedia. Accessed June 4, 2025.
 
-    <sup>[https://en.wikipedia.org/wiki/Input%E2%80%93output\_memory\_management\_unit](https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit).</sup>
+  <sup>[https://en.wikipedia.org/wiki/Input%E2%80%93output\_memory\_management\_unit](https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit).</sup>
 
 ##
 
