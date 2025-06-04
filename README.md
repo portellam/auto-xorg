@@ -1,7 +1,7 @@
 # Auto X.Org
 ### v1.1.3
 Automatically set the primary video output at boot-time given a video device
-(VGA) is unavailable due to hardware-passthrough (VFIO) or any other reason,
+is unavailable due to hardware-passthrough (VFIO), or any other reason,
 in the **X11** **(X.Org)** display server for a Linux machine.
 
 ## [Download](#5-download)
@@ -34,20 +34,34 @@ in the **X11** **(X.Org)** display server for a Linux machine.
 
 ## Contents
 ### 1. Why?
-**X11** **(X.Org)** will specify a VGA device to be the primary video output.
-When that VGA device is *Passed-through* or restricted to Virtual Machines (VMs)
-only (like in a VFIO setup), the VGA device cannot be used by the Host machine
-(Linux). Unfortunately, X.Org will not search for the next valid VGA device.
-**This is where *Auto X.Org* steps in...**
+By default, the **X11** **(X.Org)** display server can detect one (1) or more
+GPUs, and use any or all for video output. However, should the default or
+first-detected (primary) GPU be unavailable or *invalid*, video output may
+break.
 
-This script will automatically set the primary video output at Host *boot-time*.
-This flexibility is very useful for a new or changing VFIO setup.
+Reasons for breakage include:
+  - [*PCI pass-through* or *VFIO*](#3-documentation). This can affect all GPUs
+  which share the same driver (are from the same family or manufacturer).
+  - reservation by a running Virtual Machine (VM). This can affect all devices
+  which share the same [IOMMU group](#3-documentation). To mitigate this, a user
+  may patch the Host with ACS override[<sup>[1]</sup>](#1), however this is a
+  possible security risk and is not recommended for most users.
 
-**Warning:** to use *Auto X.Org* at Host *run-time*, one must safe and exit the
-desktop, as the display manager (desktop) may be restarted.
+Given this issue - sometimes, consecutive GPUs may only output to a Command Line
+Interface (CLI) or terminal.
 
-**Note:** to hot-swap (hot-plug) or bind/unbind of VGA devices, combine *Auto X.Org* with any of the following methods:
-- *Optimus*[<sup>[1]</sup>](#1)
+**What can *Auto X.Org* do?** This script may automatically set a *valid* GPU
+at Host *boot-time*. The user may manually set a preferred GPU, as matched by
+the GPU manufacturer, should any one GPU be *valid*. **This flexibility is very**
+**useful for a new or changing VFIO setup.**
+
+**Warning:** to use *Auto X.Org* at Host *run-time*, one must safely exit the
+desktop (save and exit all applications), as the display manager (the entire
+desktop) will be restarted.
+
+**Note:** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
+with any of the following methods:
+- [Optimus<sup>[2]</sup>](#2)
 
 ### 2. Related Projects
 To view other relevant projects, visit [Codeberg][21]
@@ -59,8 +73,8 @@ or [GitHub][22].
 ### 3. Documentation
 - What is VFIO?[<sup>[3]</sup>](#3)
 - VFIO Discussion and Support[<sup>[4]</sup>](#4)
-- Hardware-Passthrough Guide[<sup>[2]</sup>](#2)
-- Virtual Machine XML Format Guide[<sup>[5]</sup>](#5)
+- Hardware or PCI Pass-through Guide[<sup>[5]</sup>](#5)
+- What is IOMMU?[<sup>[6]</sup>](#6)
 
 ### 4. Host Requirements
 #### 4.1. Operating System
@@ -70,11 +84,15 @@ Linux.
 - `systemd` for system services.
 - `x11` or `xorg` or as the display server.
 - Other display servers are not supported:
-  - `wayland`: The author has experienced problems with `wayland` and an NVIDIA VGA device, on Debian Linux (as of writing in 2024).
+  - `wayland`: The author has experienced problems with `wayland` and an NVIDIA
+  GPU, on Debian Linux (as of writing in 2024).
 
 #### 4.3. Hardware
-Two (2) or more video devices. This script is not necessary nor tested for
-machines with one video device, as X.Org will find it.
+A host with two (2) or more GPUs. This includes onboard graphics or an integrated
+GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
+
+A host with one GPU is not recommend, for use with this script. By default,
+X.Org will output to this GPU everytime.
 
 ### 5. Download
 - Download the Latest Release:&ensp;[Codeberg][51], [GitHub][52]
@@ -95,10 +113,11 @@ machines with one video device, as X.Org will find it.
 GH_USER=portellam; \
 GH_REPO=auto-xorg; \
 GH_BRANCH=master; \
-wget https://github.com/${GH_USER}/${GH_REPO}/archive/refs/heads/${GH_BRANCH}.zip \
--O "${GH_REPO}-${GH_BRANCH}.zip" && \ 
-unzip ./"${GH_REPO}-${GH_BRANCH}.zip" && \
-rm ./"${GH_REPO}-${GH_BRANCH}.zip"
+wget \
+  https://github.com/${GH_USER}/${GH_REPO}/archive/refs/heads/${GH_BRANCH}.zip \
+  -O "${GH_REPO}-${GH_BRANCH}.zip" \
+&& unzip ./"${GH_REPO}-${GH_BRANCH}.zip" \
+&& rm ./"${GH_REPO}-${GH_BRANCH}.zip"
 ```
 
 - Clone the repository:
@@ -147,8 +166,8 @@ Update X.Org:
   -r, --restart-display   Restart the display manager immediately.
 
 Set device order:
-  -f, --first             Find the first valid VGA device.
-  -l, --last              Find the last valid VGA device.
+  -f, --first             Find the first valid GPU.
+  -l, --last              Find the last valid GPU.
 
 Prefer a vendor:
   -a, --amd               AMD or ATI
@@ -158,12 +177,12 @@ Prefer a vendor:
 ```
 
 #### 6.3. Examples
-- Set options to find first valid AMD/ATI VGA device, then install:
+- Set options to find first valid AMD/ATI GPU, then install:
 ```
 sudo bash installer.bash -f -a
 ```
 
-- Find last valid NVIDIA VGA device, then restart the display manager
+- Find last valid NVIDIA GPU, then restart the display manager
 immediately:
 ```
 sudo bash auto-xorg -l -n -r
@@ -175,28 +194,44 @@ If the `auto-xorg` service fails, to diagnose review the log, execute:
 sudo journalctl -u auto-xorg
 ```
 
-Failure may be the result of absent VGA device(s), or an exception. Review the
+Failure may be the result of absent GPU(s), or an exception. Review the
 log to debug.
 
 ### 7. How *Auto X.Org* Works
 1. Runs once at boot (as a service) or run at user discretion.
-2. Parses list of VGA devices:
+2. Parses a list of GPUs:
 ```
-lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
+lspci -m \
+  | grep \
+    --extended-regexp \
+    --ignore-case \
+    'vga|graphics'
 ```
 
-3. Saves valid and available VGA device:
+3. Saves valid and available GPU:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valid example:
 ```
-  lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
+  lspci \
+      -k \
+      -s 04:00.0 \
+    | grep \
+      --extended-regexp \
+      --ignore-case \
+      'driver|VGA'
 
   04:00.0 VGA compatible controller: ...
   Kernel driver in use: nvidia
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Invalid example:
 ```
-  lspci -ks 04:00.0 | grep --extended-regexp --ignore-case 'driver|VGA'
+  lspci \
+      -k \
+      -s 04:00.0 \
+    | grep \
+      --extended-regexp \
+      --ignore-case \
+      'driver|VGA'
 
   01:00.0 VGA compatible controller: ...
   Kernel driver in use: vfio-pci
@@ -213,13 +248,19 @@ lspci -m | grep --extended-regexp --ignore-case 'vga|graphics'
   - `/etc/systemd/system/`
 
 ### 9. Contact
-Wish to recommend a project? Do you need help? Please visit the [Issues][91]
-page.
+Do you need help? Please visit the [Issues][91] page.
 
 [91]: https://github.com/portellam/auto-xorg/issues
 
 ### 10. References
 #### 1.
+&nbsp;&nbsp;**Bypassing the IOMMU groups (ACS override patch)**. ArchWiki.
+Accessed June 4, 2025.
+
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#Bypassing_the_IOMMU_groups_(ACS_override_patch)
+.</sup>
+
+#### 2.
 &nbsp;&nbsp;**Misairu-G/[GUIDE] Optimus laptop dGPU passthrough.md**. GitHub.
 Accessed June 3, 2025.
 
@@ -229,11 +270,6 @@ Accessed June 3, 2025.
 **laptop**. Reddit. Accessed June 3, 2025.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://old.reddit.com/r/VFIO/comments/7d27sz/you_can_now_passthrough_your_dgpu_as_you_wish/.</sup>
-
-#### 2.
-&nbsp;&nbsp;**PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
-
-&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
 
 #### 3.
 &nbsp;&nbsp;**VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
@@ -247,9 +283,14 @@ The linux kernel. Accessed June 14, 2024.
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.reddit.com/r/VFIO/.</sup>
 
 #### 5.
-&nbsp;&nbsp;**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
+&nbsp;&nbsp;**PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
 
-&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.reddit.com/r/VFIO/.</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
+
+#### 6.
+&nbsp;&nbsp;**Input-output memory management unit**. Wikipedia. Accessed June 4, 2025.
+
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit.</sup>
 ##
 
 #### Click [here](#auto-xorg) to return to the top of this document.
