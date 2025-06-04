@@ -90,10 +90,11 @@ or [GitHub][22].
 
 ### 📝 3. Documentation
 
-- What is VFIO? [<sup>\[3\]</sup>](#3)
-- VFIO Discussion and Support [<sup>\[4\]</sup>](#4)
-- Hardware/PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
-- What is IOMMU? [<sup>\[6\]</sup>](#6)
+- What is IOMMU? [<sup>\[3\]</sup>](#3)
+- What is VFIO? [<sup>\[4\]</sup>](#4)
+- VFIO Discussion and Support [<sup>\[5\]</sup>](#5)
+- Hardware/PCI Pass-through Guide [<sup>\[6\]</sup>](#6)
+- Virtual Machine XML Format Guide [<sup>\[7\]</sup>](#7)
 
 ### ✅ 4. Host Requirements
 
@@ -335,28 +336,34 @@ Accessed June 3, 2025.
 
 #### 3.
 
+&nbsp;&nbsp;**Input-output memory management unit**. Wikipedia. Accessed
+June 4, 2025.
+
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit.</sup>
+
+#### 4.
+
 &nbsp;&nbsp;**VFIO - ‘Virtual Function I/O’ - The Linux Kernel Documentation**.
 The linux kernel. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://www.kernel.org/doc/html/latest/driver-api/vfio.html.</sup>
 
-#### 4.
+#### 5.
 
 &nbsp;&nbsp;**VFIO Discussion and Support**. Reddit. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://old.reddit.com/r/VFIO/.</sup>
 
-#### 5.
+#### 6.
 &nbsp;&nbsp;**PCI passthrough via OVMF**. ArchWiki. Accessed June 14, 2024.
 
 &nbsp;&nbsp;&nbsp;&nbsp;<sup>https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF.</sup>
 
-#### 6.
+#### 7.
 
-&nbsp;&nbsp;**Input-output memory management unit**. Wikipedia. Accessed
-June 4, 2025.
+&nbsp;&nbsp;**XML Design Format**. GitHub - libvirt/libvirt. Accessed June 18, 2024.
 
-&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://en.wikipedia.org/wiki/Input%E2%80%93output_memory_management_unit.</sup>
+&nbsp;&nbsp;&nbsp;&nbsp;<sup>https://github.com/libvirt/libvirt/blob/master/docs/formatdomain.rst.</sup>
 
 ##
 
