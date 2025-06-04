@@ -18,7 +18,7 @@ in the **X11 (X.Org)** display server for a Linux machine.
 ## Table of Contents
 
 - [❓ 1. Why?](#-1-why)
-- [🛠️ 2. Related Projects](#-2-related-projects)
+- [🛠️ 2. Related Projects](#️-2-related-projects)
 - [📝 3. Documentation](#-3-documentation)
 
 - [✅ 4. Host Requirements](#-4-host-requirements)
@@ -95,7 +95,7 @@ or [GitHub][22].
 - Hardware or PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
 - What is IOMMU? [<sup>\[6\]</sup>](#6)
 
-✅ ###  4. Host Requirements
+### 4. Host Requirements
 
 #### 4.1. Operating System
 
