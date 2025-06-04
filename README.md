@@ -47,7 +47,7 @@ This flexibility is very useful for a new or changing VFIO setup.
 desktop, as the display manager (desktop) may be restarted.
 
 **Note:** to hot-swap (hot-plug) or bind/unbind of VGA devices, combine *Auto X.Org* with any of the following methods:
-- **Optimus**[<sup>[1]</sup>](#1)
+- *Optimus*[<sup>[1]</sup>](#1)
 
 ### 2. Related Projects
 To view other relevant projects, visit [Codeberg][21]
