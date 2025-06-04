@@ -108,7 +108,7 @@ function main
 
   if ! "${DO_RESTART_DISPLAY_MANAGER}"; then
     echo -e \
-      "${PREFIX_NOTE}You may restart the active display manager"\
+      "${PREFIX_NOTE}You may restart the active display server"\
       "'${DISPLAY_MANAGER}'.\nTo restart, execute 'sudo systemctl"\
       "restart ${DISPLAY_MANAGER}'."
   fi
@@ -522,7 +522,7 @@ function main
       "\n" \
       "  Update X.Org:" \
       "\n" \
-      "    -r, --restart-display\tRestart the display manager immediately." \
+      "    -r, --restart-display\tRestart the display server immediately." \
       "\n" \
       "\n" \
       "  Set device order:" \
@@ -547,7 +547,8 @@ function main
       "\n" \
       "    sudo ${SCRIPT_NAME} -f -a     Find first valid AMD/ATI VGA device." \
       "\n" \
-      "    sudo ${SCRIPT_NAME} -l -n -r  Find last valid NVIDIA VGA device, then restart the display manager immediately."
+      "    sudo ${SCRIPT_NAME} -l -n -r  Find last valid NVIDIA VGA device, then"\
+        "restart the display server immediately."
 
     exit 1
   }

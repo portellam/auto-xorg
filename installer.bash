@@ -281,7 +281,7 @@ function main
       "\n" \
       "  Update X.Org:" \
       "\n" \
-      "    -r, --restart-display\tRestart the display manager immediately." \
+      "    -r, --restart-display\tRestart the display server immediately." \
       "\n" \
       "\n" \
       "  Set device order:" \
@@ -303,11 +303,12 @@ function main
       "\n" \
       "  Example:" \
       "\n" \
-      "    sudo bash ${SCRIPT_NAME} -f -a\tSet options to find first valid"\
-        "AMD/ATI VGA device, then install." \
+      "    sudo bash ${SCRIPT_NAME} --first --amd\tSet options to find first"\
+        "valid AMD/ATI VGA device, then install." \
       "\n" \
-      "    sudo bash ${SCRIPT_NAME} -l -n -r\tSet options to find last valid"\
-        "NVIDIA VGA device, and restart the display manager, then install."
+      "    sudo bash ${SCRIPT_NAME} --last --nvidia --restart-display\tSet"\
+        "options to find last valid NVIDIA VGA device, and restart the display"\
+        "server, then install."
 
     exit 1
   }
