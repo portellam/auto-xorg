@@ -48,7 +48,7 @@ in the **X11** **(X.Org)** display server for a Linux machine.
 
 ### ❓ 1. Why?
 
-By default, the *X11- (**X.Org**) display server can detect one (1) or more
+By default, the **X11 (X.Org)** display server can detect one (1) or more
 GPUs, and use any or all for video output. However, should the default or
 first-detected (primary) GPU be unavailable or invalid, video output may
 break.
@@ -106,7 +106,7 @@ Linux.
 - `x11` or `xorg` as the display server.
 
 - Other display servers are not supported:
-  - `wayland`: The author has experienced problems with `wayland` and an NVIDIA
+  - `wayland`: The author has experienced problems with Wayland and an NVIDIA
     GPU, on Debian Linux (as of writing in 2024).
 
 #### 4.3. Hardware
@@ -114,7 +114,7 @@ Linux.
 A host with two (2) or more GPUs. This includes onboard graphics or an integrated
 GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
 
-A host with one GPU is **not recommended** for use with this script. By default,
+A host with one (1) GPU is **not recommended** for use with this script. By default,
 X.Org will output to this GPU every time.
 
 ### 💾 5. Download
@@ -135,7 +135,7 @@ X.Org will output to this GPU every time.
 
   - From the CLI:
 
-    1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
+    1. [Open the CLI](#61-the-command-interface-cli-or-terminal).
     2. Download the Latest:
 
     ```bash
@@ -151,12 +151,12 @@ X.Org will output to this GPU every time.
 
 - Clone the repository:
 
-  1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
+  1. [Open the CLI](#61-the-command-interface-cli-or-terminal).
   2. Change your directory to your home folder or anywhere safe:
-     \- `cd ~`
+     - `cd ~`
   3. Clone the repository:
-     \- `git clone https://www.codeberg.org/portellam/auto-xorg`
-     \- `git clone https://www.github.com/portellam/auto-xorg`
+     - `git clone https://www.codeberg.org/portellam/auto-xorg`
+     - `git clone https://www.github.com/portellam/auto-xorg`
 
 [51]: https://codeberg.org/portellam/auto-xorg/releases/latest
 [52]: https://github.com/portellam/auto-xorg/releases/latest
@@ -178,12 +178,10 @@ To open a CLI or Terminal:
 
 #### 6.2. Verify Installer is Executable
 
-1. Open the CLI (see [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)).
-
-2. Go to the directory where the cloned/extracted repository folder is:
+1. Go to the directory where the cloned/extracted repository folder is:
    `cd name_of_parent_folder/auto-xorg/`
 
-3. Make the installer script file executable: `chmod +x installer.bash`
+2. Make the installer script file executable: `chmod +x installer.bash`
 
    - Do **not** make any other script files executable. The installer will perform
      this action.
@@ -202,7 +200,7 @@ To open a CLI or Terminal:
     -h, --help              Print this help and exit.
 
   Update X.Org:
-    -r, --restart-display   Restart the display manager immediately.
+    -r, --restart-display   Restart the display server immediately.
 
   Set device order:
     -f, --first             Find the first valid VGA device.
@@ -219,14 +217,13 @@ To open a CLI or Terminal:
 - Set options to find the first valid AMD/ATI GPU, then install:
 
   ```bash
-  sudo bash installer.bash -f -a
+  sudo bash installer.bash --first --amd
   ```
 
-- Find the last valid NVIDIA GPU, then restart the display manager
-  immediately:
+- Find the last valid NVIDIA GPU, then restart the display server immediately:
 
   ```bash
-  sudo bash auto-xorg -l -n -r
+  sudo bash auto-xorg --last -nvidia --restart-display
   ```
 
 #### 6.4. Troubleshooting
@@ -243,47 +240,52 @@ debug.
 ### 💪 7. How *Auto X.Org- Works
 
 1. Runs once at boot (as a service) or run at user discretion.
+
 2. Parses a list of GPUs:
 
-```bash
-lspci -m \
-  | grep \
-    --extended-regexp \
-    --ignore-case \
-    'vga|graphics'
-```
+  ```bash
+  lspci -m \
+    | grep \
+      --extended-regexp \
+      --ignore-case \
+      'vga|graphics'
+  ```
 
 3. Saves valid and available GPU:
 
-      Valid example:
+  Valid example, a driver which is **not** blacklisted:
 
-```bash
-  lspci \
-      -k \
-      -s 04:00.0 \
-    | grep \
-      --extended-regexp \
-      --ignore-case \
-      'driver|VGA'
+  ```bash
+    lspci \
+        -k \
+        -s 04:00.0 \
+      | grep \
+        --extended-regexp \
+        --ignore-case \
+        'driver|VGA'
+  ```
 
-  04:00.0 VGA compatible controller: ...
-  Kernel driver in use: nvidia
-```
+  ```bash
+    04:00.0 VGA compatible controller: ...
+    Kernel driver in use: nvidia
+  ```
 
-      Invalid example:
+  Invalid example, a driver which is blacklisted:
 
-```bash
-  lspci \
-      -k \
-      -s 04:00.0 \
-    | grep \
-      --extended-regexp \
-      --ignore-case \
-      'driver|VGA'
+  ```bash
+    lspci \
+        -k \
+        -s 01:00.0 \
+      | grep \
+        --extended-regexp \
+        --ignore-case \
+        'driver|VGA'
+  ```
 
-  01:00.0 VGA compatible controller: ...
-  Kernel driver in use: vfio-pci
-```
+  ```bash
+    01:00.0 VGA compatible controller: ...
+    Kernel driver in use: vfio-pci
+  ```
 
 4. Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
