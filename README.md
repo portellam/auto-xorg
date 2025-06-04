@@ -192,7 +192,7 @@ To open a CLI or Terminal:
 #### 6.3. `installer.bash` or `auto-xorg`
 
 - From within the project folder, execute: `sudo bash installer.bash`
-- Or after installation, from any folder execute: `sudo bash auto-xorg`
+- Or after installation, from any folder execute: `sudo auto-xorg`
 
   - The CLI's shell (bash) should recognize that the script file is located in
     `/usr/local/bin`.
@@ -226,7 +226,7 @@ To open a CLI or Terminal:
 - Find the last valid NVIDIA GPU, then restart the display server immediately:
 
   ```bash
-  sudo bash auto-xorg \
+  sudo auto-xorg \
     --last \
     -nvidia \
     --restart-display

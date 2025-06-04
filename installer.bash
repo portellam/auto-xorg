@@ -1,4 +1,4 @@
-#!/bin/bash/env bash
+#!/bin/bash
 
 #
 # Filename:       installer.bash
@@ -87,7 +87,7 @@ function main
     "to grab the first non-VFIO GPU."
 
   echo -e \
-    "If no available GPU is found, an Xorg template will be created."
+    "If no available GPU is found, an X.Org template will be created."
 
   echo -e \
     "Therefore, it will be assumed the system is running 'headless'."
