@@ -299,7 +299,7 @@ function main
       "\n" \
       "    -n, --nvidia\tNVIDIA" \
       "\n" \
-      "    -o, --other\tAny other brand (past or future)." \
+      "    -o, --other\tAny other manufacturer (past or future)." \
       "\n" \
       "  Example:" \
       "\n" \

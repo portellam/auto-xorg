@@ -55,7 +55,7 @@ break.
 
 **Reasons for breakage include:**
 
-- **[*PCI pass-through* or *VFIO*](#3-documentation).** This can affect all
+- **[*Hardware/PCI pass-through* or *VFIO*](#3-documentation).** This can affect all
   GPUs which share the same driver (are from the same family or manufacturer).
 - ***Reservation by a running Virtual Machine (VM).*** This can affect all
   devices which share the same [IOMMU group](#3-documentation). To mitigate
@@ -92,7 +92,7 @@ or [GitHub][22].
 
 - What is VFIO? [<sup>\[3\]</sup>](#3)
 - VFIO Discussion and Support [<sup>\[4\]</sup>](#4)
-- Hardware or PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
+- Hardware/PCI Pass-through Guide [<sup>\[5\]</sup>](#5)
 - What is IOMMU? [<sup>\[6\]</sup>](#6)
 
 ### ✅ 4. Host Requirements
@@ -211,7 +211,7 @@ To open a CLI or Terminal:
     -a, --amd               AMD or ATI
     -i, --intel             Intel
     -n, --nvidia            NVIDIA
-    -o, --other             Any other brand (past or future).
+    -o, --other             Any other manufacturer (past or future).
   ```
 
 #### 6.4. Examples
