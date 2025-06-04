@@ -11,29 +11,29 @@ in the **X11** **(X.Org)** display server for a Linux machine.
 ##
 
 ## Table of Contents
-- [1. Why?](#1-why)
-- [2. Related Projects](#2-related-projects)
-- [3. Documentation](#3-documentation)
-- [4. Host Requirements](#4-host-requirements)
+- [❓ 1. Why?](#-1-why)
+- [🛠️ 2. Related Projects](#-2-related-projects)
+- [📝 3. Documentation](#-3-documentation)
+- [✅ 4. Host Requirements](#-4-host-requirements)
     - [4.1. Operating System](#41-operating-system)
     - [4.2. Software](#42-software)
     - [4.3. Hardware](#43-hardware)
-- [5. Download](#5-download)
-- [6. Usage](#6-usage)
+- [💾 5. Download](#-5-download)
+- [❓ 6. Usage](#-6-usage)
     - [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)
     - [6.2. Verify Installer is Executable](#62-verify-script-is-executable)
     - [6.3. `installer.bash` or `auto-xorg`](#63-installerbash-or-auto-xorg)
     - [6.4. Examples](#64-examples)
     - [6.5. Troubleshooting](#65-troubleshooting)
-- [7. How *Auto X.Org* Works](#7-how-auto-xorg-works)
-- [8. Filenames and Pathnames Modified by Generate Evdev](#8-filenames-and-pathnames-modified-by-auto-xorg)
+- [💪 7. How *Auto X.Org* Works](#-7-how-auto-xorg-works)
+- [❗ 8. Filenames and Pathnames Modified by Generate Evdev](#8-filenames-and-pathnames-modified-by-auto-xorg)
     - [8.1. System Files](#81-system-files)
     - [8.2. Binaries and Files](#82-binaries-and-files)
-- [9. Contact](#9-contact)
-- [10. References](#10-references)
+- [☎️ 9. Contact](#️-9-contact)
+- [🌐 10. References](#-10-references)
 
 ## Contents
-### 1. Why?
+### ❓ 1. Why?
 By default, the **X11** **(X.Org)** display server can detect one (1) or more
 GPUs, and use any or all for video output. However, should the default or
 first-detected (primary) GPU be unavailable or invalid, video output may
@@ -44,7 +44,7 @@ break.
   which share the same driver (are from the same family or manufacturer).
   - *Reservation by a running Virtual Machine (VM).* This can affect all devices
   which share the same [IOMMU group](#3-documentation). To mitigate this, a user
-  may patch the Host with ACS override[<sup>[1]</sup>](#1), however this is a
+  may patch the Host with ACS override [<sup>[1]</sup>](#1), however this is a
   possible security risk and *is not recommended for most users.*
 
 **Given this issue - sometimes, consecutive GPUs may only output to a Command**
@@ -55,28 +55,28 @@ break.
 the GPU manufacturer, should any one GPU be valid. *This flexibility is very*
 *useful for a new or changing VFIO setup.*
 
-**Warning:** *to use *Auto X.Org* at Host *run-time*, one must safely exit the
+⚠️ **Warning:** To use Auto X.Org at Host run-time, one must safely exit the
 desktop (save and exit all applications), as the display manager (the entire
-desktop) will be restarted.*
+desktop) will be restarted.
 
-**Note:** *to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
+⚠️ ***Note:** to hot-swap (hot-plug) or bind/unbind of GPUs, combine *Auto X.Org*
 with any of the following methods:*
 - [Optimus<sup>[2]</sup>](#2)
 
-### 2. Related Projects
+### 🛠️ 2. Related Projects 
 To view other relevant projects, visit [Codeberg][21]
 or [GitHub][22].
 
 [21]: https://codeberg.org/portellam/vfio-collection
 [22]: https://github.com/portellam/vfio-collection
 
-### 3. Documentation
-- What is VFIO?[<sup>[3]</sup>](#3)
-- VFIO Discussion and Support[<sup>[4]</sup>](#4)
-- Hardware or PCI Pass-through Guide[<sup>[5]</sup>](#5)
-- What is IOMMU?[<sup>[6]</sup>](#6)
+### 📝 3. Documentation
+- What is VFIO? [<sup>[3]</sup>](#3)
+- VFIO Discussion and Support [<sup>[4]</sup>](#4)
+- Hardware or PCI Pass-through Guide [<sup>[5]</sup>](#5)
+- What is IOMMU? [<sup>[6]</sup>](#6)
 
-### 4. Host Requirements
+### ✅ 4. Host Requirements
 #### 4.1. Operating System
 Linux.
 
@@ -94,7 +94,7 @@ GPU (iGPU) and one (1) or more dedicated GPU (dGPU).
 A host with one GPU is not recommend, for use with this script. By default,
 X.Org will output to this GPU everytime.
 
-### 5. Download
+### 💾 5. Download
 - Download the Latest Release:&ensp;[Codeberg][51], [GitHub][52]
 
 - Download the `.zip` file:
@@ -131,7 +131,7 @@ wget \
 [51]: https://codeberg.org/portellam/auto-xorg/releases/latest
 [52]: https://github.com/portellam/auto-xorg/releases/latest
 
-### 6. Usage
+### ❓ 6. Usage
 #### 6.1. The Command Interface (CLI) or Terminal
 To open a CLI or Terminal:
   - Open a console emulator (for Debian systems: Konsole).
@@ -197,7 +197,7 @@ sudo journalctl -u auto-xorg
 Failure may be the result of absent GPU(s), or an exception. Review the
 log to debug.
 
-### 7. How *Auto X.Org* Works
+### 💪 7. How *Auto X.Org* Works
 1. Runs once at boot (as a service) or run at user discretion.
 2. Parses a list of GPUs:
 ```
@@ -239,7 +239,7 @@ lspci -m \
 
 4. Appends to X.Org file: `/etc/X11/xorg.conf.d/10-auto-xorg.conf`
 
-### 8. Filenames and Pathnames Modified by *Auto X.Org*
+### ❗ 8. Filenames and Pathnames Modified by *Auto X.Org*
 #### 8.1. System Files
   - `/etc/X11/xorg.conf.d/`
 
@@ -247,12 +247,12 @@ lspci -m \
   - `/usr/local/bin/`
   - `/etc/systemd/system/`
 
-### 9. Contact
+### ☎️ 9. Contact
 Do you need help? Please visit the [Issues][91] page.
 
 [91]: https://github.com/portellam/auto-xorg/issues
 
-### 10. References
+### 🌐 10. References
 #### 1.
 &nbsp;&nbsp;**Bypassing the IOMMU groups (ACS override patch)**. ArchWiki.
 Accessed June 4, 2025.
