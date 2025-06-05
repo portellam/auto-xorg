@@ -31,7 +31,7 @@ in the **X11 (X.Org)** display server for a Linux machine.
 - [❓ 6. Usage](#-6-usage)
   - [6.1. The Command Interface (CLI) or Terminal](#61-the-command-interface-cli-or-terminal)
   - [6.2. Verify Installer is Executable](#62-verify-script-is-executable)
-  - [6.3. `installer.bash` or `auto-xorg`](#63-installerbash-or-auto-xorg)
+  - [6.3. Installer/Executable](#63-installerexecutable)
   - [6.4. Examples](#64-examples)
   - [6.5. Troubleshooting](#65-troubleshooting)
 
@@ -194,7 +194,7 @@ To open a CLI or Terminal:
    - Do **not** make any non-script file executable. This is not necessary and
      potentially dangerous.
 
-#### 6.3. `installer.bash` or `auto-xorg`
+#### 6.3. Installer/Executable
 
 - From within the project folder, execute: `sudo bash installer.bash`
 - Or after installation, from any folder execute: `sudo auto-xorg`
@@ -202,7 +202,7 @@ To open a CLI or Terminal:
   - The CLI's shell (bash) should recognize that the script file is located in
     `/usr/local/bin`.
 
-  ```bash
+  ```
     -h, --help              Print this help and exit.
 
   Update X.Org:
